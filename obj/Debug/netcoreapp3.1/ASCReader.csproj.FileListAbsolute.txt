@@ -1,0 +1,11 @@
+C:\Users\Yanic Gottardi\Documents\ASCReader\bin\Debug\netcoreapp3.1\ASCReader.exe
+C:\Users\Yanic Gottardi\Documents\ASCReader\bin\Debug\netcoreapp3.1\ASCReader.deps.json
+C:\Users\Yanic Gottardi\Documents\ASCReader\bin\Debug\netcoreapp3.1\ASCReader.runtimeconfig.json
+C:\Users\Yanic Gottardi\Documents\ASCReader\bin\Debug\netcoreapp3.1\ASCReader.runtimeconfig.dev.json
+C:\Users\Yanic Gottardi\Documents\ASCReader\bin\Debug\netcoreapp3.1\ASCReader.dll
+C:\Users\Yanic Gottardi\Documents\ASCReader\bin\Debug\netcoreapp3.1\ASCReader.pdb
+C:\Users\Yanic Gottardi\Documents\ASCReader\obj\Debug\netcoreapp3.1\ASCReader.csprojAssemblyReference.cache
+C:\Users\Yanic Gottardi\Documents\ASCReader\obj\Debug\netcoreapp3.1\ASCReader.AssemblyInfoInputs.cache
+C:\Users\Yanic Gottardi\Documents\ASCReader\obj\Debug\netcoreapp3.1\ASCReader.AssemblyInfo.cs
+C:\Users\Yanic Gottardi\Documents\ASCReader\obj\Debug\netcoreapp3.1\ASCReader.dll
+C:\Users\Yanic Gottardi\Documents\ASCReader\obj\Debug\netcoreapp3.1\ASCReader.pdb
