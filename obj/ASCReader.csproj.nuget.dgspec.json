@@ -35,6 +35,12 @@
       },
       "frameworks": {
         "netcoreapp3.1": {
+          "dependencies": {
+            "Aspose.3D": {
+              "target": "Package",
+              "version": "[20.3.0, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
