@@ -10,13 +10,13 @@ namespace ASCReader
         static void Main(string[] args)
         {
             Console.WriteLine("---------------------------------");
-            Console.WriteLine("ASCII-GRID TO ASCII-XYZ CONVERTER");
+            Console.WriteLine("ASCII-GRID FILE CONVERTER");
             Console.WriteLine("---------------------------------");
             while(data == null || !data.isValid) {
                 InputFile();
                 if(data != null && data.isValid) {
-                    if(!GetExportOptions()) data = null;
-                    while (!OutputFile()) {
+                    if(!GetValidExportOptions()) data = null;
+                    while (!OutputFiles()) {
                         Console.WriteLine("Failure");
                     }
                     Console.WriteLine("---------------------------------");
@@ -32,12 +32,21 @@ namespace ASCReader
             data = new ASCData(path);
         }
 
-        static bool OutputFile() {
-            Console.WriteLine("Enter path to write .xyz file:");
+        static bool OutputFiles() {
+            Console.WriteLine("Enter path & name to write the file(s):");
             string path = GetInput();
-            return data.WriteToXYZ(path, exportOptions);
+            return data.WriteAllFiles(path, exportOptions);
         }
 
+
+        static bool GetValidExportOptions() {
+            if(!GetExportOptions()) return false;
+            while(!ValidateExportOptions()) {
+                Console.WriteLine("Cannot export with the current settings / format!");
+                if(!GetExportOptions()) return false;
+            }
+            return true;
+        }
         static bool GetExportOptions() {
             Console.WriteLine("Export options (optional):");
             Console.WriteLine("Available export options:");
@@ -87,10 +96,29 @@ namespace ASCReader
             }
         }
 
+        static bool ValidateExportOptions() {
+            bool valid = true;
+            int cellsPerFile = GetTotalExportCellsPerFile();
+            if(exportOptions.outputFormats.Contains(FileFormat.MDL_3ds)) {
+                if(cellsPerFile >= 65535) {
+                    Console.WriteLine("ERROR: Cannot export more than 65535 cells in a single 3ds file! Current amount: "+cellsPerFile);
+                    Console.WriteLine("       Reduce splitting interval or increase subsampling to allow for exporting 3ds Files");
+                    valid = false;
+                }
+            }
+            return valid;
+        }
+
         public static string GetInput() {
             string s = Console.ReadLine();
             Console.WriteLine("> "+s);
             return s;
+        }
+
+        private static int GetTotalExportCellsPerFile() {
+            int cells = exportOptions.fileSplitDims >= 32 ? (int)Math.Pow(exportOptions.fileSplitDims, 2) : data.ncols*data.nrows;
+            if(exportOptions.subsampling > 1) cells /= exportOptions.subsampling;
+            return cells;
         }
     }
 }
