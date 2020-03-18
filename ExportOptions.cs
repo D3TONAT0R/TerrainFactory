@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 public class ExportOptions {
@@ -9,8 +10,13 @@ public class ExportOptions {
     public void SetOutputFormats(string[] inputs, bool append) {
         if(!append) outputFormats.Clear();
         foreach(string s in inputs) {
+            if(string.IsNullOrEmpty(s)) continue;
             var ff = GetFormatFromString(s);
-            if(ff != FileFormat.UNKNOWN) outputFormats.Add(ff);
+            if(ff != FileFormat.UNKNOWN) {
+                outputFormats.Add(ff);
+            } else {
+                Console.WriteLine("Unknown format: "+s);
+            }
         }
     }
 

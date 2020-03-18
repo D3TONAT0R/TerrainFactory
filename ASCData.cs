@@ -1,15 +1,15 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Numerics;
 using System.Text;
-using Aspose.ThreeD;
-using Aspose.ThreeD.Entities;
-using Aspose.ThreeD.Utilities;
+using ASCReader;
+using Assimp;
+using Assimp.Unmanaged;
 
 public class ASCData {
-	
-	private FileStream stream;
 
-	private static readonly Vector4 nullVector4 = new Vector4(0,0,0,0);
+	private static readonly Vector3 nullVector3 = new Vector3(0,0,0);
 	public int ncols;
 	public int nrows;
 	public float cellsize;
@@ -24,19 +24,19 @@ public class ASCData {
 			Console.WriteLine("File "+filepath+" does not exist!");
 		}
 		try {
-			stream = File.OpenRead(filepath);
-			ncols = int.Parse(ExtractValue(ReadLine(), "ncols"));
-			nrows = int.Parse(ExtractValue(ReadLine(), "nrows"));
+			FileStream stream = File.OpenRead(filepath);
+			ncols = int.Parse(ExtractValue(ReadLine(stream), "ncols"));
+			nrows = int.Parse(ExtractValue(ReadLine(stream), "nrows"));
 			Console.WriteLine("Dimensions: "+ncols+"x"+nrows);
 			//Ignore x,y corner coordinates
-			ReadLine();
-			ReadLine();
-			cellsize = float.Parse(ExtractValue(ReadLine(), "cellsize"));
-			nodata_value = float.Parse(ExtractValue(ReadLine(), "NODATA_value"));
+			ReadLine(stream);
+			ReadLine(stream);
+			cellsize = float.Parse(ExtractValue(ReadLine(stream), "cellsize"));
+			nodata_value = float.Parse(ExtractValue(ReadLine(stream), "NODATA_value"));
 			//Read the actual data
 			data = new float[ncols,nrows];
 			for(int y = 0; y < nrows; y++) {
-				string ln = ReadLine();
+				string ln = ReadLine(stream);
 				string[] split = ln.Split(' ');
 				if(split.Length != ncols) throw new FormatException("Column count at row "+y+" does not match the required length");
 				for(int x = 0; x < ncols; x++) {
@@ -97,7 +97,7 @@ public class ASCData {
 			Console.WriteLine("Creating file "+fullpath+" ...");
 			if(ff == FileFormat.PTS_XYZ) {
 				if(!WriteFileXYZ(fullpath, options.subsampling, xMin, yMin, xMax, yMax)) return false;
-			} else if(ff == FileFormat.PTS_XYZ) {
+			} else if(ff == FileFormat.MDL_3ds) {
 				if(!WriteFile3ds(fullpath, options.subsampling, xMin, yMin, xMax, yMax)) return false;
 			}
 		}
@@ -122,65 +122,72 @@ public class ASCData {
 	}
 
 	private bool WriteFile3ds(string filename, int subsampling, int xMin, int yMin, int xMax, int yMax) {
-		Mesh m = new Mesh();
 		//Increase boundaries for lossless tiling
 		if(xMax < ncols) xMax++;
 		if(yMax < nrows) yMax++;
-		Vector4[,] points = new Vector4[xMax-xMin,yMax-yMin];
-		for(int i = 0; i < xMax-xMin; i++) for(int j = 0; j < yMax-yMin; j++) points[i,j] = nullVector4;
+		Vector3[,] points = new Vector3[xMax-xMin,yMax-yMin];
+		List<Vector3> verts = new List<Vector3>();
+		List<int> tris = new List<int>();
+		for(int i = 0; i < xMax-xMin; i++) for(int j = 0; j < yMax-yMin; j++) points[i,j] = nullVector3;
 		for(int y = yMin; y < yMax; y++) {
-			for(int x = xMin; y < xMax; x++) {
+			for(int x = xMin; x < xMax; x++) {
 				if(x % subsampling == 0 && y % subsampling == 0) {
 					float f = data[x,y];
 					if(f != nodata_value) {
-						Vector4 vec = new Vector4(x*cellsize, data[x,y], y*cellsize);
+						Vector3 vec = new Vector3(x*cellsize, data[x,y], y*cellsize);
 						points[x-xMin,y-yMin] = vec;
-						m.ControlPoints.Add(vec);
+						verts.Add(vec);
 					}
 				}
 			}
 		}
-		for(int y = yMin; y < yMax-1; y++) {
-			for(int x = xMin; x < xMax-1; x++) {
+		for(int y = yMin; y < yMax-2; y++) {
+			for(int x = xMin; x < xMax-2; x++) {
 				if(x % subsampling == 0 && y % subsampling == 0) {
-					Vector4[] pts = GetPointsForFace(points, x, y, subsampling);
+					Vector3[] pts = GetPointsForFace(points, x-xMin, y-yMin, subsampling);
 					if(pts != null) { //if the list is null, then a nodata-value was found
-						int i0 = m.ControlPoints.IndexOf(pts[0]);
-						int i1 = m.ControlPoints.IndexOf(pts[1]);
-						int i2 = m.ControlPoints.IndexOf(pts[2]);
-						int i3 = m.ControlPoints.IndexOf(pts[3]);
-						m.CreatePolygon(i0, i1, i3);
-						m.CreatePolygon(i0, i3, i2);
+						int i0 = verts.IndexOf(pts[0]);
+						int i1 = verts.IndexOf(pts[1]);
+						int i2 = verts.IndexOf(pts[2]);
+						int i3 = verts.IndexOf(pts[3]);
+						//Lower-Right triangle
+						tris.Add(i0);
+						tris.Add(i3);
+						tris.Add(i1);
+						//Upper-Left triangle
+						tris.Add(i0);
+						tris.Add(i2);
+						tris.Add(i3);
 					}
 				}
 			}
 		}
-		
-		Scene scene = new Scene();
-		FileStream stream = new FileStream(filename, FileMode.CreateNew);
-		scene.Save(stream, Aspose.ThreeD.FileFormat.Discreet3DS);
-		stream.Close();
-
+		if(Program.exported3dFiles < 50) {
+			Aspose3DExporter.ExportModel3ds(verts, tris, filename);
+		} else {
+			Assimp3DExporter.ExportModel3ds(verts, tris, filename);
+		}
+		Program.exported3dFiles++;
 		Console.WriteLine("3ds File "+filename+" created successfully!");
 		return true;
 	}
 
-	private Vector4[] GetPointsForFace(Vector4[,] points, int x, int y, int subsample) {
-		Vector4[] pts = new Vector4[4];
+	private Vector3[] GetPointsForFace(Vector3[,] points, int x, int y, int subsample) {
+		Vector3[] pts = new Vector3[4];
 		int i = subsample > 1 ? subsample : 1;
 		int x1 = x;
 		int y1 = y;
-		int x2 = Math.Min(x1+i, points.GetLength(0));
-		int y2 = Math.Min(y1+i, points.GetLength(1));
+		int x2 = Math.Min(x1+i, points.GetLength(0)-1);
+		int y2 = Math.Min(y1+i, points.GetLength(1)-1);
 		pts[0] = points[x1,y1];
 		pts[1] = points[x2,y1];
 		pts[2] = points[x1,y2];
 		pts[3] = points[x2,y2];
-		foreach(Vector4 pt in pts) if(pt.Equals(nullVector4)) return null;
+		foreach(Vector3 pt in pts) if(pt.Equals(nullVector3)) return null;
 		return pts;
 	}
 
-	private string ReadLine() {
+	private string ReadLine(FileStream stream) {
 		StringBuilder str = new StringBuilder();
 		int b = stream.ReadByte();
 		if(b < 0) {

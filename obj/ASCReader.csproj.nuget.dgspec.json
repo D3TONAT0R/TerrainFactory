@@ -39,6 +39,10 @@
             "Aspose.3D": {
               "target": "Package",
               "version": "[20.3.0, )"
+            },
+            "AssimpNet": {
+              "target": "Package",
+              "version": "[5.0.0-beta1, )"
             }
           },
           "imports": [

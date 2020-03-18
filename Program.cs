@@ -5,6 +5,7 @@ namespace ASCReader
     class Program
     {
 
+        public static int exported3dFiles = 0;
         static ASCData data;
         static ExportOptions exportOptions;
         static void Main(string[] args)
@@ -15,7 +16,10 @@ namespace ASCReader
             while(data == null || !data.isValid) {
                 InputFile();
                 if(data != null && data.isValid) {
-                    if(!GetValidExportOptions()) data = null;
+                    if(!GetValidExportOptions()) {
+                        data = null;
+                        continue;
+                    }
                     while (!OutputFiles()) {
                         Console.WriteLine("Failure");
                     }
@@ -50,6 +54,10 @@ namespace ASCReader
         static bool GetExportOptions() {
             Console.WriteLine("Export options (optional):");
             Console.WriteLine("Available export options:");
+            Console.WriteLine("    format N..        Export to the specified format(s)");
+            Console.WriteLine("        xyz           ASCII-XYZ points");
+            Console.WriteLine("        3ds           3d Mesh");
+            Console.WriteLine("        png           Heightmap");
             Console.WriteLine("    subsample N       Only export every N-th cell");
             Console.WriteLine("    split N           Split files every NxN cells (minimum 32)");
             Console.WriteLine("Type 'export' when ready to export");
@@ -90,6 +98,20 @@ namespace ASCReader
                     } else {
                         Console.WriteLine("An integer is required!");
                     }
+                } else if(input.StartsWith("format")) {
+                    string[] split = input.Split(' ');
+                    if(split.Length > 1) {
+                        split[0] = null;
+                        exportOptions.SetOutputFormats(split, false);
+                        string str = "";
+                        foreach(FileFormat ff in exportOptions.outputFormats) {
+                            str += " "+ff;
+                        }
+                        if(str == "") str = " <NONE>";
+                        Console.WriteLine("Exporting to the following format(s):"+str);
+                    } else {
+                        Console.WriteLine("A list of formats is required!");
+                    }
                 } else {
                     Console.WriteLine("Unknown option :"+input);
                 }
@@ -99,6 +121,10 @@ namespace ASCReader
         static bool ValidateExportOptions() {
             bool valid = true;
             int cellsPerFile = GetTotalExportCellsPerFile();
+            if(exportOptions.outputFormats.Count == 0) {
+                Console.WriteLine("ERROR: No export format is defined! choose at least one format for export: "+cellsPerFile);
+                return false;
+            }
             if(exportOptions.outputFormats.Contains(FileFormat.MDL_3ds)) {
                 if(cellsPerFile >= 65535) {
                     Console.WriteLine("ERROR: Cannot export more than 65535 cells in a single 3ds file! Current amount: "+cellsPerFile);
@@ -117,7 +143,7 @@ namespace ASCReader
 
         private static int GetTotalExportCellsPerFile() {
             int cells = exportOptions.fileSplitDims >= 32 ? (int)Math.Pow(exportOptions.fileSplitDims, 2) : data.ncols*data.nrows;
-            if(exportOptions.subsampling > 1) cells /= exportOptions.subsampling;
+            if(exportOptions.subsampling > 1) cells /= (int)Math.Pow(exportOptions.subsampling,2);
             return cells;
         }
     }
