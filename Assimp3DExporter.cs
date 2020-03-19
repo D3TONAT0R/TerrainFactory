@@ -5,7 +5,7 @@ using Assimp;
 
 public class Assimp3DExporter {
 
-    public static bool ExportModel3ds(List<Vector3> verts, List<int> tris, string filename) {
+    public static bool ExportModel(List<Vector3> verts, List<int> tris, string filename, string filetype) {
         try {
             Mesh m = new Mesh();
             foreach(Vector3 v in verts) m.Vertices.Add(new Vector3D(v.X, v.Y, v.Z));
@@ -17,7 +17,7 @@ public class Assimp3DExporter {
             scene.RootNode.Children.Add(n);
             n.MeshIndices.Add(0);
             AssimpContext context = new AssimpContext();
-            context.ExportFile(scene, filename, "3ds");
+            context.ExportFile(scene, filename, filetype);
             context.Dispose();
             return true;
         }

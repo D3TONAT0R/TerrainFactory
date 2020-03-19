@@ -4,5 +4,6 @@ public enum FileFormat {
     ASC,
     PTS_XYZ,
     MDL_3ds,
+    MDL_FBX,
     IMG_PNG
 }

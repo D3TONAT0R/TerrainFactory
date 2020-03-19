@@ -62,11 +62,11 @@ public class ASCData {
 				int dims = options.fileSplitDims;
 				int yMin = 0;
 				int fileY = 0;
-				while(yMin+dims < nrows) {
+				while(yMin+dims <= nrows) {
 					int xMin = 0;
 					int fileX = 0;
 					int yMax = Math.Min(yMin+dims, nrows);
-					while(xMin+dims < ncols) {
+					while(xMin+dims <= ncols) {
 						int xMax = Math.Min(xMin+dims, ncols);
 						bool success = CreateFiles(path, fileX+","+fileY, options, xMin, yMin, xMax, yMax);
 						if(!success) throw new IOException("Failed to write file "+fileX+","+fileY);
@@ -97,8 +97,8 @@ public class ASCData {
 			Console.WriteLine("Creating file "+fullpath+" ...");
 			if(ff == FileFormat.PTS_XYZ) {
 				if(!WriteFileXYZ(fullpath, options.subsampling, xMin, yMin, xMax, yMax)) return false;
-			} else if(ff == FileFormat.MDL_3ds) {
-				if(!WriteFile3ds(fullpath, options.subsampling, xMin, yMin, xMax, yMax)) return false;
+			} else if(ff.Is3DFormat()) {
+				if(!WriteFile3D(fullpath, options.subsampling, xMin, yMin, xMax, yMax, ff)) return false;
 			}
 		}
 		return true;
@@ -121,7 +121,7 @@ public class ASCData {
 		return true;
 	}
 
-	private bool WriteFile3ds(string filename, int subsampling, int xMin, int yMin, int xMax, int yMax) {
+	private bool WriteFile3D(string filename, int subsampling, int xMin, int yMin, int xMax, int yMax, FileFormat ff) {
 		//Increase boundaries for lossless tiling
 		if(xMax < ncols) xMax++;
 		if(yMax < nrows) yMax++;
@@ -134,15 +134,16 @@ public class ASCData {
 				if(x % subsampling == 0 && y % subsampling == 0) {
 					float f = data[x,y];
 					if(f != nodata_value) {
-						Vector3 vec = new Vector3(x*cellsize, data[x,y], y*cellsize);
+						Vector3 vec = new Vector3(-x*cellsize, data[x,y], y*cellsize);
 						points[x-xMin,y-yMin] = vec;
-						verts.Add(vec);
+						if(!verts.Contains(vec)) verts.Add(vec);
 					}
 				}
 			}
 		}
-		for(int y = yMin; y < yMax-2; y++) {
-			for(int x = xMin; x < xMax-2; x++) {
+		int nodatas = 0;
+		for(int y = yMin; y < yMax-1; y++) {
+			for(int x = xMin; x < xMax-1; x++) {
 				if(x % subsampling == 0 && y % subsampling == 0) {
 					Vector3[] pts = GetPointsForFace(points, x-xMin, y-yMin, subsampling);
 					if(pts != null) { //if the list is null, then a nodata-value was found
@@ -152,20 +153,27 @@ public class ASCData {
 						int i3 = verts.IndexOf(pts[3]);
 						//Lower-Right triangle
 						tris.Add(i0);
-						tris.Add(i3);
 						tris.Add(i1);
+						tris.Add(i3);
 						//Upper-Left triangle
 						tris.Add(i0);
-						tris.Add(i2);
 						tris.Add(i3);
+						tris.Add(i2);
+					} else {
+						nodatas++;
+						if(Program.debugLogging) Console.WriteLine("[#"+nodatas+"] NODATA_VALUE or missing data at point "+x+" "+y);
 					}
 				}
 			}
 		}
+		string filetype = "fbx";
+		if(ff == FileFormat.MDL_3ds) {
+			filetype = "3ds";
+		}
 		if(Program.exported3dFiles < 50) {
-			Aspose3DExporter.ExportModel3ds(verts, tris, filename);
+			Aspose3DExporter.ExportModel(verts, tris, filename, filetype);
 		} else {
-			Assimp3DExporter.ExportModel3ds(verts, tris, filename);
+			Assimp3DExporter.ExportModel(verts, tris, filename, filetype);
 		}
 		Program.exported3dFiles++;
 		Console.WriteLine("3ds File "+filename+" created successfully!");

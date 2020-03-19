@@ -5,6 +5,7 @@ namespace ASCReader
     class Program
     {
 
+        public static bool debugLogging = true;
         public static int exported3dFiles = 0;
         static ASCData data;
         static ExportOptions exportOptions;
@@ -143,7 +144,7 @@ namespace ASCReader
 
         private static int GetTotalExportCellsPerFile() {
             int cells = exportOptions.fileSplitDims >= 32 ? (int)Math.Pow(exportOptions.fileSplitDims, 2) : data.ncols*data.nrows;
-            if(exportOptions.subsampling > 1) cells /= (int)Math.Pow(exportOptions.subsampling,2);
+            if(exportOptions.subsampling > 1) cells /= exportOptions.subsampling*exportOptions.subsampling;
             return cells;
         }
     }

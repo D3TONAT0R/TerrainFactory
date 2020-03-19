@@ -7,7 +7,7 @@ using Aspose.ThreeD.Entities;
 
 public class Aspose3DExporter {
     
-    public static bool ExportModel3ds(List<Vector3> verts, List<int> tris, string filename) {
+    public static bool ExportModel(List<Vector3> verts, List<int> tris, string filename, string filetype) {
         try {
             Mesh m = new Mesh();
             foreach(Vector3 v in verts) m.ControlPoints.Add(new Aspose.ThreeD.Utilities.Vector4(v.X, v.Y, v.Z, 1));
@@ -18,7 +18,11 @@ public class Aspose3DExporter {
             Node n = new Node("mesh", m);
             scene.RootNode.ChildNodes.Add(n);
 		    FileStream stream = new FileStream(filename, FileMode.CreateNew);
-		    scene.Save(stream, Aspose.ThreeD.FileFormat.Discreet3DS);
+            if(filetype == "3ds") {
+		        scene.Save(stream, Aspose.ThreeD.FileFormat.Discreet3DS);
+            } else {
+                scene.Save(stream, Aspose.ThreeD.FileFormat.FBX7300ASCII);
+            }
 		    stream.Close();
             return false;
         }

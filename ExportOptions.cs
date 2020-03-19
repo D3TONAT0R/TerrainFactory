@@ -25,6 +25,7 @@ public class ExportOptions {
         if(str == "asc") return FileFormat.ASC;
         else if(str == "xyz") return FileFormat.PTS_XYZ;
         else if(str == "3ds") return FileFormat.MDL_3ds;
+        else if(str == "fbx") return FileFormat.MDL_FBX;
         else if(str == "png") return FileFormat.IMG_PNG;
         else return FileFormat.UNKNOWN;
     }
@@ -33,6 +34,7 @@ public class ExportOptions {
         if(ff == FileFormat.ASC) return ".asc";
         else if(ff == FileFormat.PTS_XYZ) return ".xyz";
         else if(ff == FileFormat.MDL_3ds) return ".3ds";
+        else if(ff == FileFormat.MDL_FBX) return ".fbx";
         else if(ff == FileFormat.IMG_PNG) return ".png";
         else return "";
     }
