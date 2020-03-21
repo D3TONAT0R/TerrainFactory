@@ -1,151 +1,233 @@
 ﻿using System;
+using ASCReader.Export;
 
-namespace ASCReader
-{
-    class Program
-    {
+namespace ASCReader {
+	class Program
+	{
 
-        public static bool debugLogging = true;
-        public static int exported3dFiles = 0;
-        static ASCData data;
-        static ExportOptions exportOptions;
-        static void Main(string[] args)
-        {
-            Console.WriteLine("---------------------------------");
-            Console.WriteLine("ASCII-GRID FILE CONVERTER");
-            Console.WriteLine("---------------------------------");
-            while(data == null || !data.isValid) {
-                InputFile();
-                if(data != null && data.isValid) {
-                    if(!GetValidExportOptions()) {
-                        data = null;
-                        continue;
-                    }
-                    while (!OutputFiles()) {
-                        Console.WriteLine("Failure");
-                    }
-                    Console.WriteLine("---------------------------------");
-                    data = null;
-                }
-            }
-        }
+		private static bool autoInputEnabled = false;
+		private static int autoInputNum = 0;
+		private static string[] autoInputs = new string[]{
+			"C:\\Users\\gdv\\Desktop\\ascrtest\\DOM_26920_12490.asc",
+			"format asc xyz 3ds fbx png-hm png-nm png-hs",
+			"split 1000",
+			"subsample 2",
+			"export",
+			"C:\\Users\\gdv\\Desktop\\ascrtest\\out\\testexport"
+		};
 
-        static void InputFile() {
-            Console.WriteLine("Enter path to .asc file:");
-            string path = GetInput();
-            Console.WriteLine("Reading file "+path+" ...");
-            data = new ASCData(path);
-        }
+		public static bool debugLogging = false;
+		public static int exported3dFiles = 0;
+		static ASCData data;
+		static ExportOptions exportOptions;
+		static void Main(string[] args)
+		{
+			WriteLine("---------------------------------");
+			WriteLine("ASCII-GRID FILE CONVERTER");
+			WriteLine("---------------------------------");
+			while(data == null || !data.isValid) {
+				InputFile();
+				if(data != null && data.isValid) {
+					if(!GetValidExportOptions()) {
+						data = null;
+						continue;
+					}
+					if(OutputFiles()) {
+						WriteSuccess("EXPORT SUCCESSFUL");
+					}
+					WriteLine("---------------------------------");
+					data = null;
+				}
+			}
+		}
 
-        static bool OutputFiles() {
-            Console.WriteLine("Enter path & name to write the file(s):");
-            string path = GetInput();
-            return data.WriteAllFiles(path, exportOptions);
-        }
+		static void InputFile() {
+			WriteLine("Enter path to .asc file:");
+			string path = GetInput();
+			WriteLine("Reading file "+path+" ...");
+			data = new ASCData(path);
+		}
 
+		static bool OutputFiles() {
+			WriteLine("Enter path & name to write the file(s):");
+			string path = GetInput();
+			try {
+				return data.WriteAllFiles(path, exportOptions);
+			} catch(Exception e) {
+				WriteError("Error encountered while trying to output files!");
+				WriteLine(e.ToString());
+				return false;
+			}
+		}
 
-        static bool GetValidExportOptions() {
-            if(!GetExportOptions()) return false;
-            while(!ValidateExportOptions()) {
-                Console.WriteLine("Cannot export with the current settings / format!");
-                if(!GetExportOptions()) return false;
-            }
-            return true;
-        }
-        static bool GetExportOptions() {
-            Console.WriteLine("Export options (optional):");
-            Console.WriteLine("Available export options:");
-            Console.WriteLine("    format N..        Export to the specified format(s)");
-            Console.WriteLine("        xyz           ASCII-XYZ points");
-            Console.WriteLine("        3ds           3d Mesh");
-            Console.WriteLine("        png           Heightmap");
-            Console.WriteLine("    subsample N       Only export every N-th cell");
-            Console.WriteLine("    split N           Split files every NxN cells (minimum 32)");
-            Console.WriteLine("Type 'export' when ready to export");
-            Console.WriteLine("Type 'abort' to abort the export");
-            String input;
-            exportOptions = new ExportOptions(); 
-            while(true) {
-                input = GetInput();
-                input = input.ToLower();
-                if(input == "export") {
-                    return true;
-                } else if(input == "abort") {
-                    Console.WriteLine("Export aborted");
-                    return false;
-                } else if(input.StartsWith("subsample")) {
-                    string[] split = input.Split(' ');
-                    if(split.Length > 1) {
-                        int i;
-                        if(int.TryParse(split[1], out i)) {
-                            exportOptions.subsampling = i;
-                            Console.WriteLine("Subsampling set to: "+i);
-                        } else {
-                            Console.WriteLine("Can't parse to int: "+split[1]);
-                        }
-                    } else {
-                        Console.WriteLine("An integer is required!");
-                    }
-                } else if(input.StartsWith("split")) {
-                    string[] split = input.Split(' ');
-                    if(split.Length > 1) {
-                        int i;
-                        if(int.TryParse(split[1], out i)) {
-                            exportOptions.fileSplitDims = i;
-                            Console.WriteLine("File splitting set to: "+i+"x"+i);
-                        } else {
-                            Console.WriteLine("Can't parse to int: "+split[1]);
-                        }
-                    } else {
-                        Console.WriteLine("An integer is required!");
-                    }
-                } else if(input.StartsWith("format")) {
-                    string[] split = input.Split(' ');
-                    if(split.Length > 1) {
-                        split[0] = null;
-                        exportOptions.SetOutputFormats(split, false);
-                        string str = "";
-                        foreach(FileFormat ff in exportOptions.outputFormats) {
-                            str += " "+ff;
-                        }
-                        if(str == "") str = " <NONE>";
-                        Console.WriteLine("Exporting to the following format(s):"+str);
-                    } else {
-                        Console.WriteLine("A list of formats is required!");
-                    }
-                } else {
-                    Console.WriteLine("Unknown option :"+input);
-                }
-            }
-        }
+		static bool GetValidExportOptions() {
+			if(!GetExportOptions()) return false;
+			while(!ValidateExportOptions()) {
+				Console.WriteLine("Cannot export with the current settings / format!");
+				if(!GetExportOptions()) return false;
+			}
+			return true;
+		}
 
-        static bool ValidateExportOptions() {
-            bool valid = true;
-            int cellsPerFile = GetTotalExportCellsPerFile();
-            if(exportOptions.outputFormats.Count == 0) {
-                Console.WriteLine("ERROR: No export format is defined! choose at least one format for export: "+cellsPerFile);
-                return false;
-            }
-            if(exportOptions.outputFormats.Contains(FileFormat.MDL_3ds)) {
-                if(cellsPerFile >= 65535) {
-                    Console.WriteLine("ERROR: Cannot export more than 65535 cells in a single 3ds file! Current amount: "+cellsPerFile);
-                    Console.WriteLine("       Reduce splitting interval or increase subsampling to allow for exporting 3ds Files");
-                    valid = false;
-                }
-            }
-            return valid;
-        }
+		static bool GetExportOptions() {
+			WriteLine("File Information:");
+			WriteLine("    showheader          Shows the header of the loaded file");
+			WriteLine("Export options:");      
+			WriteLine("    format N..          Export to the specified format(s)");
+			WriteLine("        asc             ASCII-Grid (same as input)");
+			WriteLine("        xyz             ASCII-XYZ points");
+			WriteLine("        3ds             3d Mesh");
+			WriteLine("        fbx             3d Mesh");
+			WriteLine("        png-hm          Heightmap");
+			WriteLine("        png-nm          Normalmap");
+			WriteLine("        png-hs          Hillshade");
+			WriteLine("    subsample N         Only export every N-th cell");
+			WriteLine("    split N             Split files every NxN cells (minimum 32)");
+			WriteLine("    overridecellsize N  Override size per cell");
+			WriteLine("Type 'export' when ready to export");
+			WriteLine("Type 'abort' to abort the export");
+			String input;
+			exportOptions = new ExportOptions(); 
+			while(true) {
+				input = GetInput();
+				input = input.ToLower();
+				if(input == "export") {
+					return true;
+				} else if(input == "abort") {
+					WriteWarning("Export aborted");
+					return false;
+				} else if(input.StartsWith("showheader")) {
+					WriteLine(data.fileHeader);
+				} else if(input.StartsWith("subsample")) {
+					string[] split = input.Split(' ');
+					if(split.Length > 1) {
+						int i;
+						if(int.TryParse(split[1], out i)) {
+							exportOptions.subsampling = i;
+							WriteLine("Subsampling set to: "+i);
+						} else {
+							WriteWarning("Can't parse to int: "+split[1]);
+						}
+					} else {
+						WriteWarning("An integer is required!");
+					}
+				} else if(input.StartsWith("split")) {
+					string[] split = input.Split(' ');
+					if(split.Length > 1) {
+						int i;
+						if(int.TryParse(split[1], out i)) {
+							exportOptions.fileSplitDims = i;
+							WriteLine("File splitting set to: "+i+"x"+i);
+						} else {
+							WriteWarning("Can't parse to int: "+split[1]);
+						}
+					} else {
+						WriteWarning("An integer is required!");
+					}
+				} else if(input.StartsWith("overridecellsize")) {
+					string[] split = input.Split(' ');
+					if(split.Length > 1) {
+						float f;
+						if(float.TryParse(split[1], out f)) {
+							WriteLine("Cellsize changed from {0} to {1}", data.cellsize, f);
+							data.cellsize = f;
+						} else {
+							WriteWarning("Can't parse to int: " + split[1]);
+						}
+					} else {
+						WriteWarning("A number is required!");
+					}
+				} else if(input.StartsWith("format")) {
+					string[] split = input.Split(' ');
+					if(split.Length > 1) {
+						split[0] = null;
+						exportOptions.SetOutputFormats(split, false);
+						string str = "";
+						foreach(FileFormat ff in exportOptions.outputFormats) {
+							str += " "+ff;
+						}
+						if(str == "") str = " <NONE>";
+						WriteLine("Exporting to the following format(s):"+str);
+					} else {
+						WriteWarning("A list of formats is required!");
+					}
+				} else {
+					WriteWarning("Unknown option :"+input);
+				}
+			}
+		}
 
-        public static string GetInput() {
-            string s = Console.ReadLine();
-            Console.WriteLine("> "+s);
-            return s;
-        }
+		static bool ValidateExportOptions() {
+			bool valid = true;
+			int cellsPerFile = GetTotalExportCellsPerFile();
+			if(exportOptions.outputFormats.Count == 0) {
+				WriteWarning("No export format is defined! choose at least one format for export: "+cellsPerFile);
+				return false;
+			}
+			if(exportOptions.outputFormats.Contains(FileFormat.MDL_3ds)) {
+				/*if(cellsPerFile >= 65535) {
+					Console.WriteLine("ERROR: Cannot export more than 65535 cells in a single 3ds file! Current amount: "+cellsPerFile);
+					Console.WriteLine("       Reduce splitting interval or increase subsampling to allow for exporting 3ds Files");
+					valid = false;
+				}*/
+			}
+			return valid;
+		}
 
-        private static int GetTotalExportCellsPerFile() {
-            int cells = exportOptions.fileSplitDims >= 32 ? (int)Math.Pow(exportOptions.fileSplitDims, 2) : data.ncols*data.nrows;
-            if(exportOptions.subsampling > 1) cells /= exportOptions.subsampling*exportOptions.subsampling;
-            return cells;
-        }
-    }
+		public static string GetInput() {
+			string s;
+			if(autoInputEnabled && autoInputs != null && autoInputNum < autoInputs.Length) {
+				s = autoInputs[autoInputNum];
+				autoInputNum++;
+				WriteAutoTask("> " + s);
+			} else {
+				s = Console.ReadLine();
+				WriteLine("> " + s);
+			}
+			return s;
+		}
+
+		public static void WriteLine(string str) {
+			Console.WriteLine(str);
+		}
+
+		public static void WriteSuccess(string str) {
+			Console.ForegroundColor = ConsoleColor.Green;
+			Console.Write(str);
+			Console.ResetColor();
+			Console.WriteLine();
+		}
+
+		public static void WriteAutoTask(string str) {
+			Console.BackgroundColor = ConsoleColor.DarkBlue;
+			Console.Write(str);
+			Console.ResetColor();
+			Console.WriteLine();
+		}
+
+		public static void WriteLine(string str, params Object[] args) {
+			Console.WriteLine(str, args);
+		}
+
+		public static void WriteWarning(string str) {
+			Console.ForegroundColor = ConsoleColor.DarkYellow;
+			Console.Write(str);
+			Console.ResetColor();
+			Console.WriteLine();
+		}
+
+		public static void WriteError(string str) {
+			Console.BackgroundColor = ConsoleColor.DarkRed;
+			Console.Write(str);
+			Console.ResetColor();
+			Console.WriteLine();
+			autoInputs = null; //Stop any upcoming automated inputs
+		}
+
+		private static int GetTotalExportCellsPerFile() {
+			int cells = exportOptions.fileSplitDims >= 32 ? (int)Math.Pow(exportOptions.fileSplitDims, 2) : data.ncols*data.nrows;
+			if(exportOptions.subsampling > 1) cells /= exportOptions.subsampling*exportOptions.subsampling;
+			return cells;
+		}
+	}
 }

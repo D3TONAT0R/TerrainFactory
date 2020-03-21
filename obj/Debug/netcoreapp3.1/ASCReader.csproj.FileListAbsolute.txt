@@ -21,3 +21,28 @@ C:\Users\Yanic Gottardi\Documents\ASCReader\bin\Debug\netcoreapp3.1\System.Drawi
 C:\Users\Yanic Gottardi\Documents\ASCReader\bin\Debug\netcoreapp3.1\runtimes\win\lib\netcoreapp2.0\Microsoft.Win32.SystemEvents.dll
 C:\Users\Yanic Gottardi\Documents\ASCReader\bin\Debug\netcoreapp3.1\runtimes\unix\lib\netcoreapp2.0\System.Drawing.Common.dll
 C:\Users\Yanic Gottardi\Documents\ASCReader\bin\Debug\netcoreapp3.1\runtimes\win\lib\netcoreapp2.0\System.Drawing.Common.dll
+C:\Users\gdv\Documents\ASCReader\bin\Debug\netcoreapp3.1\ASCReader.exe
+C:\Users\gdv\Documents\ASCReader\bin\Debug\netcoreapp3.1\ASCReader.deps.json
+C:\Users\gdv\Documents\ASCReader\bin\Debug\netcoreapp3.1\ASCReader.runtimeconfig.json
+C:\Users\gdv\Documents\ASCReader\bin\Debug\netcoreapp3.1\ASCReader.runtimeconfig.dev.json
+C:\Users\gdv\Documents\ASCReader\bin\Debug\netcoreapp3.1\ASCReader.dll
+C:\Users\gdv\Documents\ASCReader\bin\Debug\netcoreapp3.1\ASCReader.pdb
+C:\Users\gdv\Documents\ASCReader\bin\Debug\netcoreapp3.1\Aspose.3D.dll
+C:\Users\gdv\Documents\ASCReader\bin\Debug\netcoreapp3.1\AssimpNet.dll
+C:\Users\gdv\Documents\ASCReader\bin\Debug\netcoreapp3.1\Microsoft.Win32.SystemEvents.dll
+C:\Users\gdv\Documents\ASCReader\bin\Debug\netcoreapp3.1\System.Drawing.Common.dll
+C:\Users\gdv\Documents\ASCReader\bin\Debug\netcoreapp3.1\runtimes\linux-x64\native\libassimp.so
+C:\Users\gdv\Documents\ASCReader\bin\Debug\netcoreapp3.1\runtimes\osx-x64\native\libassimp.dylib
+C:\Users\gdv\Documents\ASCReader\bin\Debug\netcoreapp3.1\runtimes\win-x64\native\assimp.dll
+C:\Users\gdv\Documents\ASCReader\bin\Debug\netcoreapp3.1\runtimes\win-x86\native\assimp.dll
+C:\Users\gdv\Documents\ASCReader\bin\Debug\netcoreapp3.1\runtimes\win\lib\netcoreapp2.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\gdv\Documents\ASCReader\bin\Debug\netcoreapp3.1\runtimes\unix\lib\netcoreapp2.0\System.Drawing.Common.dll
+C:\Users\gdv\Documents\ASCReader\bin\Debug\netcoreapp3.1\runtimes\win\lib\netcoreapp2.0\System.Drawing.Common.dll
+C:\Users\gdv\Documents\ASCReader\obj\Debug\netcoreapp3.1\ASCReader.csprojAssemblyReference.cache
+C:\Users\gdv\Documents\ASCReader\obj\Debug\netcoreapp3.1\ASCReader.csproj.CoreCompileInputs.cache
+C:\Users\gdv\Documents\ASCReader\obj\Debug\netcoreapp3.1\ASCReader.AssemblyInfoInputs.cache
+C:\Users\gdv\Documents\ASCReader\obj\Debug\netcoreapp3.1\ASCReader.AssemblyInfo.cs
+C:\Users\gdv\Documents\ASCReader\obj\Debug\netcoreapp3.1\ASCReader.csproj.CopyComplete
+C:\Users\gdv\Documents\ASCReader\obj\Debug\netcoreapp3.1\ASCReader.dll
+C:\Users\gdv\Documents\ASCReader\obj\Debug\netcoreapp3.1\ASCReader.pdb
+C:\Users\gdv\Documents\ASCReader\obj\Debug\netcoreapp3.1\ASCReader.genruntimeconfig.cache
