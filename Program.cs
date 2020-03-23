@@ -5,6 +5,7 @@ namespace ASCReader {
 	class Program
 	{
 
+		#if DEBUG
 		private static bool autoInputEnabled = false;
 		private static int autoInputNum = 0;
 		private static string[] autoInputs = new string[]{
@@ -15,6 +16,7 @@ namespace ASCReader {
 			"export",
 			"C:\\Users\\gdv\\Desktop\\ascrtest\\out\\testexport"
 		};
+		#endif
 
 		public static bool debugLogging = false;
 		public static int exported3dFiles = 0;
@@ -176,6 +178,7 @@ namespace ASCReader {
 
 		public static string GetInput() {
 			string s;
+			#if DEBUG
 			if(autoInputEnabled && autoInputs != null && autoInputNum < autoInputs.Length) {
 				s = autoInputs[autoInputNum];
 				autoInputNum++;
@@ -184,6 +187,10 @@ namespace ASCReader {
 				s = Console.ReadLine();
 				WriteLine("> " + s);
 			}
+			#else
+			s = Console.ReadLine();
+			WriteLine("> " + s);
+			#endif
 			return s;
 		}
 
