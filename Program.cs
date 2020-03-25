@@ -34,8 +34,7 @@ namespace ASCReader {
 			while(data == null || !data.isValid) {
 				bool batchMode = GetInputFiles();
 				if(data != null && data.isValid) {
-					if(batchMode) WriteLine("Note: The following export options will be applied to all files in the batch");
-					if(!GetValidExportOptions()) {
+					if(!GetValidExportOptions(batchMode)) {
 						data = null;
 						continue;
 					}
@@ -135,16 +134,17 @@ namespace ASCReader {
 			}
 		}
 
-		static bool GetValidExportOptions() {
-			if(!GetExportOptions()) return false;
+		static bool GetValidExportOptions(bool batch) {
+			if(!GetExportOptions(batch)) return false;
 			while(!ValidateExportOptions()) {
 				Console.WriteLine("Cannot export with the current settings / format!");
-				if(!GetExportOptions()) return false;
+				if(!GetExportOptions(batch)) return false;
 			}
 			return true;
 		}
 
-		static bool GetExportOptions() {
+		static bool GetExportOptions(bool batch) {
+			if(batch) WriteLine("Note: The following export options will be applied to all files in the batch");
 			WriteLine("File Information:");
 			WriteLine("    showheader          Shows the header of the loaded file");
 			WriteLine("Export options:");      
@@ -159,6 +159,11 @@ namespace ASCReader {
 			WriteLine("    subsample N         Only export every N-th cell");
 			WriteLine("    split N             Split files every NxN cells (minimum 32)");
 			WriteLine("    overridecellsize N  Override size per cell");
+			if(batch) {
+				WriteLineSpecial("Batch export options:");
+				WriteLineSpecial("    join                Joins all files into one large file");
+
+			}
 			WriteLine("Type 'export' when ready to export");
 			WriteLine("Type 'abort' to abort the export");
 			String input;
@@ -274,6 +279,13 @@ namespace ASCReader {
 
 		public static void WriteSuccess(string str) {
 			Console.ForegroundColor = ConsoleColor.Green;
+			Console.Write(str);
+			Console.ResetColor();
+			Console.WriteLine();
+		}
+
+		public static void WriteLineSpecial(string str) {
+			Console.ForegroundColor = ConsoleColor.DarkMagenta;
 			Console.Write(str);
 			Console.ResetColor();
 			Console.WriteLine();
