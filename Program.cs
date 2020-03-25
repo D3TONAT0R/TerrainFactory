@@ -236,7 +236,7 @@ namespace ASCReader {
 			bool valid = true;
 			int cellsPerFile = GetTotalExportCellsPerFile();
 			if(exportOptions.outputFormats.Count == 0) {
-				WriteWarning("No export format is defined! choose at least one format for export: "+cellsPerFile);
+				WriteWarning("No export format is defined! choose at least one format for export!");
 				return false;
 			}
 			if(exportOptions.outputFormats.Contains(FileFormat.MDL_3ds)) {
@@ -251,19 +251,20 @@ namespace ASCReader {
 
 		public static string GetInput() {
 			string s;
+			bool autoinput = false;
 			#if DEBUG
-			if(autoInputEnabled && autoInputs != null && autoInputNum < autoInputs.Length) {
+			autoinput = autoInputEnabled && autoInputNum < autoInputs.Length;
+			#endif
+			if(autoinput) {
 				s = autoInputs[autoInputNum];
 				autoInputNum++;
 				WriteAutoTask("> " + s);
 			} else {
+				Console.ForegroundColor = ConsoleColor.Yellow;
+				Console.Write("> ");
 				s = Console.ReadLine();
-				WriteLine("> " + s);
+				Console.ResetColor();
 			}
-			#else
-			s = Console.ReadLine();
-			WriteLine("> " + s);
-			#endif
 			return s;
 		}
 
