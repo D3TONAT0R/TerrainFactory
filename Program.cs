@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using ASCReader.Export;
 
 namespace ASCReader {
@@ -20,6 +22,8 @@ namespace ASCReader {
 
 		public static bool debugLogging = false;
 		public static int exported3dFiles = 0;
+		
+		static List<string> inputFileList;
 		static ASCData data;
 		static ExportOptions exportOptions;
 		static void Main(string[] args)
@@ -28,31 +32,100 @@ namespace ASCReader {
 			WriteLine("ASCII-GRID FILE CONVERTER");
 			WriteLine("---------------------------------");
 			while(data == null || !data.isValid) {
-				InputFile();
+				bool batchMode = GetInputFiles();
 				if(data != null && data.isValid) {
+					if(batchMode) WriteLine("Note: The following export options will be applied to all files in the batch");
 					if(!GetValidExportOptions()) {
 						data = null;
 						continue;
 					}
-					if(OutputFiles()) {
-						WriteSuccess("EXPORT SUCCESSFUL");
+					if(batchMode) {
+						string path = GetBatchExportPath();
+						int i = 0;
+						int total = inputFileList.Count+1;
+						while(data != null) {
+							if(WriteFilesForData(path+"\\"+data.filename)) {
+								i++;
+								WriteSuccess(string.Format("EXPORT {0}/{1} SUCCESSFUL", i, total));
+								data = nextFile();
+							} else {
+								data = null;
+								WriteError("EXPORT FAILED");
+							}
+						}
+					} else {
+						if(OutputFiles()) {
+							WriteSuccess("EXPORT SUCCESSFUL");
+						} else {
+							WriteError("EXPORT FAILED");
+						}
 					}
+
 					WriteLine("---------------------------------");
 					data = null;
 				}
 			}
 		}
 
-		static void InputFile() {
+		static bool GetInputFiles() {
 			WriteLine("Enter path to .asc file:");
-			string path = GetInput();
-			WriteLine("Reading file "+path+" ...");
-			data = new ASCData(path);
+			WriteLine("or type 'batch' and a path to perform batch operations");
+			string input = GetInput();
+			inputFileList = new List<string>();
+			bool doBatch = false;
+			if(input.ToLower().StartsWith("batch")) {
+				input = input.Substring(6);
+				if(IsDirectory(input)) {
+					WriteLine("Starting batch in directory "+input+" ...");
+					foreach(string f in Directory.GetFiles(input, "*.asc")) {
+						inputFileList.Add(Path.GetFullPath(f));
+					}
+					WriteLine(inputFileList.Count + " files have been added to the batch queue");
+				}
+				doBatch = true;
+			} else {
+				inputFileList.Add(input);
+				WriteLine("Reading file "+input+" ...");
+			}
+			data = nextFile();
+			return doBatch;
+		}
+
+		static ASCData nextFile() {
+			if(inputFileList.Count > 0) {
+				var d = new ASCData(inputFileList[0]);
+				inputFileList.RemoveAt(0);
+				return d;
+			} else {
+				return null;
+			}
+		}
+
+		static bool IsDirectory(string p) {
+			try {
+				return File.GetAttributes(p).HasFlag(FileAttributes.Directory);
+			} catch {
+				return false;
+			}
+		}
+
+		static string GetBatchExportPath() {
+			WriteLine("Enter path to write the files:");
+			string s = GetInput();
+			while(!IsDirectory(s)) {
+				WriteWarning("Directory not found!");
+				s = GetInput();
+			}
+			return s;
 		}
 
 		static bool OutputFiles() {
 			WriteLine("Enter path & name to write the file(s):");
 			string path = GetInput();
+			return WriteFilesForData(path);
+		}
+
+		static bool WriteFilesForData(string path) {
 			try {
 				return data.WriteAllFiles(path, exportOptions);
 			} catch(Exception e) {

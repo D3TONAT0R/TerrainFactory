@@ -62,7 +62,7 @@ namespace ASCReader {
 			string str = "";
 			if(ff == FileFormat.IMG_PNG_Height) str = "_height";
 			else if(ff == FileFormat.IMG_PNG_Normal) str = "_normal";
-			else if(ff == FileFormat.IMG_PNG_Hillshade) str = "_relief";
+			else if(ff == FileFormat.IMG_PNG_Hillshade) str = "_hillshade";
 			string ext = GetFiletypeString(ff);
 			if(!string.IsNullOrEmpty(ext)) {
 				return str + "." + ext;

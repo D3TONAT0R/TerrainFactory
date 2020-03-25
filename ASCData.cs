@@ -10,6 +10,8 @@ using Microsoft.Win32.SafeHandles;
 namespace ASCReader {
 	public class ASCData {
 
+		public string filename;
+
 		public int ncols;
 		public int nrows;
 		public float xllcorner;
@@ -30,6 +32,7 @@ namespace ASCReader {
 				Program.WriteError("File " + filepath + " does not exist!");
 			}
 			try {
+				filename = Path.GetFileNameWithoutExtension(filepath);
 				FileStream stream = File.OpenRead(filepath);
 				ncols = int.Parse(ExtractValue(ReadHeaderLine(stream), "ncols"));
 				nrows = int.Parse(ExtractValue(ReadHeaderLine(stream), "nrows"));

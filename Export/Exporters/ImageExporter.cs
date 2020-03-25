@@ -28,7 +28,7 @@ namespace ASCReader.Export.Exporters {
 			image = new Bitmap(grid.GetLength(0), grid.GetLength(1));
 			if(type == ImageType.Heightmap) MakeHeightmap();
 			else if(type == ImageType.Normalmap) MakeNormalmap();
-			else if(type == ImageType.Hillshade) MakeReliefmap();
+			else if(type == ImageType.Hillshade) MakeHillshademap();
 		}
 
 		private void MakeHeightmap() {
@@ -75,7 +75,7 @@ namespace ASCReader.Export.Exporters {
 			}
 		}
 
-		private void MakeReliefmap() {
+		private void MakeHillshademap() {
 			CalculateNormals();
 			for(int x = 0; x < image.Width; x++) {
 				for(int y = 0; y < image.Height; y++) {
