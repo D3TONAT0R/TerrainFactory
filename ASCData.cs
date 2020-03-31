@@ -34,26 +34,16 @@ namespace ASCReader {
 			try {
 				filename = Path.GetFileNameWithoutExtension(filepath);
 				FileStream stream = File.OpenRead(filepath);
-				ncols = int.Parse(ExtractValue(ReadHeaderLine(stream), "ncols"));
-				nrows = int.Parse(ExtractValue(ReadHeaderLine(stream), "nrows"));
+				ncols = ExtractInt(ReadHeaderLine(stream), "ncols");
+				nrows = ExtractInt(ReadHeaderLine(stream), "nrows");
 				Program.WriteLine("Dimensions: " + ncols + "x" + nrows);
-				xllcorner = float.Parse(ExtractValue(ReadHeaderLine(stream), "xllcorner"));
-				yllcorner = float.Parse(ExtractValue(ReadHeaderLine(stream), "yllcorner"));
-				cellsize = float.Parse(ExtractValue(ReadHeaderLine(stream), "cellsize"));
-				nodata_value = float.Parse(ExtractValue(ReadHeaderLine(stream), "NODATA_value"));
+				xllcorner = ExtractFloat(ReadHeaderLine(stream), "xllcorner");
+				yllcorner = ExtractFloat(ReadHeaderLine(stream), "yllcorner");
+				cellsize = ExtractFloat(ReadHeaderLine(stream), "cellsize");
+				nodata_value = ExtractFloat(ReadHeaderLine(stream), "NODATA_value");
 				//Read the actual data
 				data = new float[ncols, nrows];
-				for(int y = 0; y < nrows; y++) {
-					string ln = ReadLine(stream);
-					string[] split = ln.Split(' ');
-					if(split.Length != ncols) throw new FormatException("Column count at row " + y + " does not match the required length! Required: " + ncols + " got: " + split.Length);
-					for(int x = 0; x < ncols; x++) {
-						float val = float.Parse(split[x]);
-						if(val < lowestValue) lowestValue = val;
-						if(val > highestValue) highestValue = val;
-						data[x, nrows - y - 1] = val;
-					}
-				}
+				ReadGridData(stream);
 				isValid = true;
 			} catch(Exception e) {
 				Program.WriteError("Error occured while reading ASC file!");
@@ -61,6 +51,28 @@ namespace ASCReader {
 				Program.WriteLine("");
 				isValid = false;
 			}
+		}
+
+		private void ReadGridData(FileStream stream) {
+			int length = ncols*nrows;
+			for(int i = 0; i < length; i++) {
+				var d = NextValue(stream);
+				if(d == "") {
+					//Premature EOF
+					Program.WriteError("Premature EOF reached! Data index "+i+" of "+length);
+					break;
+				}
+				float val = float.Parse(d);
+				if(val < lowestValue) lowestValue = val;
+				if(val > highestValue) highestValue = val;
+				int y = (int)Math.Floor(i / (double)ncols);
+				int x = i % ncols;
+				data[x, nrows - y - 1] = val;
+			}
+		}
+
+		private string NextValue(FileStream stream) {
+			return ReadDataRaw(stream, true);
 		}
 
 		public bool WriteAllFiles(string path, ExportOptions options) {
@@ -104,27 +116,28 @@ namespace ASCReader {
 			}
 		}
 
-		private string ReadLineRaw(FileStream stream) {
+		private string ReadDataRaw(FileStream stream, bool valueOnly) {
 			StringBuilder str = new StringBuilder();
 			int b = stream.ReadByte();
 			if(b < 0) {
 				Program.WriteWarning("WARNING: EOF reached!");
 				return "";
 			}
-			if(!EndString(b)) str.Append((char)b);
-			while(!EndString(b)) {
+			while(str.Length == 0 && EndString(b, valueOnly)) b = stream.ReadByte();
+			if(!EndString(b, valueOnly)) str.Append((char)b);
+			while(!EndString(b, valueOnly)) {
 				b = stream.ReadByte();
-				if(!EndString(b)) str.Append((char)b);
+				if(!EndString(b, valueOnly)) str.Append((char)b);
 			}
 			return str.ToString();
 		}
 
 		private string ReadLine(FileStream stream) {
-			return GetCleanedString(ReadLineRaw(stream));
+			return GetCleanedString(ReadDataRaw(stream, false));
 		}
 
 		private string ReadHeaderLine(FileStream stream) {
-			string str = ReadLineRaw(stream);
+			string str = ReadDataRaw(stream, false);
 			fileHeader += str + "\n";
 			return GetCleanedString(str);
 		}
@@ -137,17 +150,37 @@ namespace ASCReader {
 			return line;
 		}
 
-		private bool EndString(int b) {
+		private bool EndString(int b, bool spaces) {
 			if(b < 0) return true;
 			char c = (char)b;
+			if(spaces && c == ' ') return true;
 			if(c == '\n') return true;
 			return false;
 		}
 
-		private string ExtractValue(string input, string keyname) {
-			input = input.Replace(keyname, "");
+		private string ExtractString(string input, string keyname) {
+			input = input.ToLower();
+			input = input.Replace(keyname.ToLower(), "");
 			input = input.Replace(" ", "");
 			return input;
+		}
+
+		private int ExtractInt(string input, string keyname) {
+			try {
+				return int.Parse(ExtractString(input, keyname));
+			} catch(Exception e) {
+				Program.WriteError("Failed to parse to int: "+ExtractString(input, keyname));
+				throw e;
+			}
+		}
+
+		private float ExtractFloat(string input, string keyname) {
+			try {
+				return float.Parse(ExtractString(input, keyname));
+			} catch(Exception e) {
+				Program.WriteError("Failed to parse to float: "+ExtractString(input, keyname));
+				throw e;
+			}
 		}
 	} 
 }

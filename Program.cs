@@ -72,6 +72,7 @@ namespace ASCReader {
 			string input = GetInput();
 			inputFileList = new List<string>();
 			bool doBatch = false;
+			input = input.Replace("\"", "");
 			if(input.ToLower().StartsWith("batch")) {
 				input = input.Substring(6);
 				if(IsDirectory(input)) {
@@ -162,7 +163,7 @@ namespace ASCReader {
 			if(batch) {
 				WriteLineSpecial("Batch export options:");
 				WriteLineSpecial("    join                Joins all files into one large file");
-
+				WriteLineSpecial("    equalizeheightmaps  Equalizes all heightmaps with the same low and high values");
 			}
 			WriteLine("Type 'export' when ready to export");
 			WriteLine("Type 'abort' to abort the export");
@@ -285,7 +286,7 @@ namespace ASCReader {
 		}
 
 		public static void WriteLineSpecial(string str) {
-			Console.ForegroundColor = ConsoleColor.DarkMagenta;
+			Console.ForegroundColor = ConsoleColor.Cyan;
 			Console.Write(str);
 			Console.ResetColor();
 			Console.WriteLine();
