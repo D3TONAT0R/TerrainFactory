@@ -8,6 +8,13 @@ using ASCReader.Export.Exporters;
 using Microsoft.Win32.SafeHandles;
 
 namespace ASCReader {
+
+	public class ASCSummary {
+		public float lowestValue = float.PositiveInfinity;
+		public float highestValue = float.NegativeInfinity;
+		public float averageValue = 0;
+	}
+
 	public class ASCData {
 
 		public string filename;
@@ -27,6 +34,10 @@ namespace ASCReader {
 
 		public bool isValid;
 
+		public ASCData() {
+
+		}
+
 		public ASCData(string filepath) {
 			if(!File.Exists(filepath)) {
 				Program.WriteError("File " + filepath + " does not exist!");
@@ -34,13 +45,7 @@ namespace ASCReader {
 			try {
 				filename = Path.GetFileNameWithoutExtension(filepath);
 				FileStream stream = File.OpenRead(filepath);
-				ncols = ExtractInt(ReadHeaderLine(stream), "ncols");
-				nrows = ExtractInt(ReadHeaderLine(stream), "nrows");
-				Program.WriteLine("Dimensions: " + ncols + "x" + nrows);
-				xllcorner = ExtractFloat(ReadHeaderLine(stream), "xllcorner");
-				yllcorner = ExtractFloat(ReadHeaderLine(stream), "yllcorner");
-				cellsize = ExtractFloat(ReadHeaderLine(stream), "cellsize");
-				nodata_value = ExtractFloat(ReadHeaderLine(stream), "NODATA_value");
+				ReadHeader(stream);
 				//Read the actual data
 				data = new float[ncols, nrows];
 				ReadGridData(stream);
@@ -53,22 +58,68 @@ namespace ASCReader {
 			}
 		}
 
-		private void ReadGridData(FileStream stream) {
+		public static ASCSummary GetSummary(string filepath) {
+			try {
+				FileStream stream = File.OpenRead(filepath);
+				ASCData asc = new ASCData();
+				asc.ReadHeader(stream);
+				//Read the actual data
+				//The cells will not be saved as long as grid is null
+				asc.ReadGridData(stream);
+				ASCSummary summary = new ASCSummary();
+				double sum = 0;
+				for(int i = 0; i < asc.ncols*asc.nrows; i++) {
+					float value;
+					if(!asc.NextGridValue(stream, out value)) break;
+					sum += value;
+				}
+				summary.lowestValue = asc.lowestValue;
+				summary.highestValue = asc.highestValue;
+				summary.averageValue = (float)(sum/(asc.ncols*asc.nrows));
+				return summary;
+			} catch(Exception e) {
+				Program.WriteError("Error occured while getting summary for ASC file!");
+				Program.WriteLine(e.ToString());
+				Program.WriteLine("");
+				return null;
+			}
+		}
+
+		public void ReadHeader(FileStream stream) {
+			ncols = ExtractInt(ReadHeaderLine(stream), "ncols");
+			nrows = ExtractInt(ReadHeaderLine(stream), "nrows");
+			Program.WriteLine("Dimensions: " + ncols + "x" + nrows);
+			xllcorner = ExtractFloat(ReadHeaderLine(stream), "xllcorner");
+			yllcorner = ExtractFloat(ReadHeaderLine(stream), "yllcorner");
+			cellsize = ExtractFloat(ReadHeaderLine(stream), "cellsize");
+			nodata_value = ExtractFloat(ReadHeaderLine(stream), "NODATA_value");
+		}
+
+		public void ReadGridData(FileStream stream) {
 			int length = ncols*nrows;
 			for(int i = 0; i < length; i++) {
-				var d = NextValue(stream);
-				if(d == "") {
-					//Premature EOF
-					Program.WriteError("Premature EOF reached! Data index "+i+" of "+length);
-					break;
+				float value;
+				if(!NextGridValue(stream, out value)) break;
+				if(Math.Abs(value-nodata_value) > 0.1f) {
+					if(value < lowestValue) lowestValue = value;
+					if(value > highestValue) highestValue = value;
 				}
-				float val = float.Parse(d);
-				if(val < lowestValue) lowestValue = val;
-				if(val > highestValue) highestValue = val;
 				int y = (int)Math.Floor(i / (double)ncols);
 				int x = i % ncols;
-				data[x, nrows - y - 1] = val;
+				if(data != null) data[x, nrows - y - 1] = value;
 			}
+		}
+
+		public bool NextGridValue(FileStream stream, out float value) {
+			var d = NextValue(stream);
+			if(d == "") {
+				//Premature EOF
+				Program.WriteError("Premature EOF reached!");
+				value = 0;
+				return false;
+			}
+			value = float.Parse(d);
+			return true;
 		}
 
 		private string NextValue(FileStream stream) {

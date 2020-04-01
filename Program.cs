@@ -4,8 +4,7 @@ using System.IO;
 using ASCReader.Export;
 
 namespace ASCReader {
-	class Program
-	{
+	class Program {
 
 		#if DEBUG
 		private static bool autoInputEnabled = false;
@@ -26,6 +25,7 @@ namespace ASCReader {
 		static List<string> inputFileList;
 		static ASCData data;
 		static ExportOptions exportOptions;
+		static ASCSummary targetValues;
 		static void Main(string[] args)
 		{
 			WriteLine("---------------------------------");
@@ -231,6 +231,25 @@ namespace ASCReader {
 						WriteLine("Exporting to the following format(s):"+str);
 					} else {
 						WriteWarning("A list of formats is required!");
+					}
+				} else if(batch) {
+					if(input.StartsWith("equalizeheightmaps")) {
+						targetValues = new ASCSummary();
+						WriteLine("Fetching summary from files...");
+						int i = 0;
+						foreach(string path in inputFileList) {
+							i++;
+							var s = ASCData.GetSummary(path);
+							WriteLine(i+"/"+inputFileList.Count);
+							if(s.lowestValue < targetValues.lowestValue) targetValues.lowestValue = s.lowestValue;
+							if(s.highestValue > targetValues.highestValue) targetValues.highestValue = s.highestValue;
+							targetValues.averageValue += s.averageValue;
+						}
+						WriteLine("Success:");
+						WriteLine("    lowest:   "+targetValues.lowestValue);
+						WriteLine("    highest:  "+targetValues.highestValue);
+						WriteLine("    average:  "+targetValues.averageValue);
+						targetValues.averageValue /= i;
 					}
 				} else {
 					WriteWarning("Unknown option :"+input);
