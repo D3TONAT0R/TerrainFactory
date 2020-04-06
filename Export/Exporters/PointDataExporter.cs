@@ -43,7 +43,7 @@ namespace ASCReader.Export.Exporters {
 				StringBuilder str = new StringBuilder();
 				while(x < xMax) {
 					if(str.Length > 0) str.Append(" ");
-					str.Append(data.data[x, xMax-y]);
+					str.Append(data.data[x, yMax-y]);
 					x += subsampling;
 				}
 				str.Append("\n");

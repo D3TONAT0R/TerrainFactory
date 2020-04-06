@@ -31,11 +31,22 @@ namespace ASCReader {
 		public float[,] data;
 		public float lowestValue = float.PositiveInfinity;
 		public float highestValue = float.NegativeInfinity;
+		
+		//Used for scaling operations. In data created from an image, these values represent the black and white values of the source image (default 0 and 1 respectively)
+		//In data created from ASC data itself, these are equal to lowestValue and highestValue unless overridden for heightmap export.
+		public float lowPoint;
+		public float highPoint;
 
 		public bool isValid;
 
 		public ASCData() {
 
+		}
+
+		public ASCData(int ncols, int nrows) {
+			data = new float[ncols, nrows];
+			this.ncols = ncols;
+			this.nrows = nrows;
 		}
 
 		public ASCData(string filepath) {
@@ -106,6 +117,8 @@ namespace ASCReader {
 				}
 				int y = (int)Math.Floor(i / (double)ncols);
 				int x = i % ncols;
+				lowPoint = lowestValue;
+				highPoint = highestValue;
 				if(data != null) data[x, nrows - y - 1] = value;
 			}
 		}
@@ -124,6 +137,34 @@ namespace ASCReader {
 
 		private string NextValue(FileStream stream) {
 			return ReadDataRaw(stream, true);
+		}
+
+		public void SetRange(float low, float high) {
+			float dataRange = high - low;
+			for(int x = 0; x < ncols; x++) {
+				for(int y = 0; y < nrows; y++) {
+					double h = (data[x,y] - lowPoint) / (highPoint-lowPoint);
+					h *= dataRange;
+					h += low;
+					data[x,y] = (float)h;
+				}
+			}
+			RecalculateValues(false);
+			lowPoint = low;
+			highPoint = high;
+		}
+
+		public void RecalculateValues(bool updateLowHighPoints) {
+			foreach(float f in data) {
+				if(Math.Abs(f-nodata_value) > 0.1f) {
+					if(f < lowestValue) lowestValue = f;
+					if(f > highestValue) highestValue = f;
+				}
+			}
+			if(updateLowHighPoints) {
+				lowPoint = lowestValue;
+				highPoint = highestValue;
+			}
 		}
 
 		public bool WriteAllFiles(string path, ExportOptions options) {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using ASCReader.Export;
+using ASCReader.Import;
 
 namespace ASCReader {
 	class Program {
@@ -59,7 +60,6 @@ namespace ASCReader {
 							WriteError("EXPORT FAILED");
 						}
 					}
-
 					WriteLine("---------------------------------");
 					data = null;
 				}
@@ -67,7 +67,7 @@ namespace ASCReader {
 		}
 
 		static bool GetInputFiles() {
-			WriteLine("Enter path to .asc file:");
+			WriteLine("Enter path to the input file:");
 			WriteLine("or type 'batch' and a path to perform batch operations");
 			string input = GetInput();
 			inputFileList = new List<string>();
@@ -93,7 +93,18 @@ namespace ASCReader {
 
 		static ASCData nextFile() {
 			if(inputFileList.Count > 0) {
-				var d = new ASCData(inputFileList[0]);
+				string f = inputFileList[0];
+				string ext = Path.GetExtension(f).ToLower();
+				ASCData d;
+				if(ext == ".asc") d = new ASCData(inputFileList[0]);
+				else if(ext == ".png" || ext == ".jpeg"  || ext == ".jpg" || ext == ".bmp" || ext == ".tif" ) {
+					d = HeightmapImporter.ImportHeightmap(f);
+					Program.WriteLineSpecial("Heightmap imported. Override cellsize and low/high values for the desired result.");
+					Program.WriteLineSpecial("Default cell size: 1.0     Default data range 0.0-1.0");
+				} else {
+					WriteError("Don't know how to read file with extension: "+ext);
+					d = null;
+				}
 				inputFileList.RemoveAt(0);
 				return d;
 			} else {
@@ -160,6 +171,7 @@ namespace ASCReader {
 			WriteLine("    subsample N         Only export every N-th cell");
 			WriteLine("    split N             Split files every NxN cells (minimum 32)");
 			WriteLine("    overridecellsize N  Override size per cell");
+			WriteLine("    setrange N N        Change the height data range (min - max)");
 			if(batch) {
 				WriteLineSpecial("Batch export options:");
 				WriteLineSpecial("    join                Joins all files into one large file");
@@ -231,6 +243,21 @@ namespace ASCReader {
 						WriteLine("Exporting to the following format(s):"+str);
 					} else {
 						WriteWarning("A list of formats is required!");
+					}
+				} else if(input.StartsWith("setrange")) {
+					string[] split = input.Split(' ');
+					if(split.Length > 2) {
+						bool b = true;
+						float min;
+						float max;
+						b &= float.TryParse(split[1], out min) & float.TryParse(split[2], out max);
+						if(b) {
+							data.SetRange(min, max);
+						} else {
+							WriteWarning("Failed to parse to float");
+						}
+					} else {
+						WriteWarning("Two numbers are required!");
 					}
 				} else if(batch) {
 					if(input.StartsWith("equalizeheightmaps")) {
