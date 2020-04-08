@@ -11,12 +11,13 @@ namespace ASCReader {
 		private static bool autoInputEnabled = false;
 		private static int autoInputNum = 0;
 		private static string[] autoInputs = new string[]{
-			"C:\\Users\\gdv\\Desktop\\ascrtest\\DOM_26920_12490.asc",
-			"format asc xyz 3ds fbx png-hm png-nm png-hs",
-			"split 1000",
-			"subsample 2",
+			"C:\\Users\\Yanic Gottardi\\Desktop\\ascr\\zh test\\in\\dhm200_4,2.asc",
+			"format 3ds png-hm png-nm png-hs",
+			//"split 500",
+			//"subsample 2",
 			"export",
-			"C:\\Users\\gdv\\Desktop\\ascrtest\\out\\testexport"
+			"C:\\Users\\Yanic Gottardi\\Desktop\\ascr\\zh test\\out auto\\autoexport_{datetime}",
+			"quit"
 		};
 		#endif
 
@@ -29,11 +30,18 @@ namespace ASCReader {
 		static ASCSummary targetValues;
 		static void Main(string[] args)
 		{
+			#if DEBUG
+			if(args.Length > 0 && args[0] == "auto") autoInputEnabled = true;
+			#endif
 			WriteLine("---------------------------------");
 			WriteLine("ASCII-GRID FILE CONVERTER");
 			WriteLine("---------------------------------");
 			while(data == null || !data.isValid) {
-				bool batchMode = GetInputFiles();
+				int result = GetInputFiles();
+				bool batchMode = result == 1;
+				if(result == -1) {
+					break; //quit the application by leaving the while loop
+				}
 				if(data != null && data.isValid) {
 					if(!GetValidExportOptions(batchMode)) {
 						data = null;
@@ -66,12 +74,12 @@ namespace ASCReader {
 			}
 		}
 
-		static bool GetInputFiles() {
+		static int GetInputFiles() {
 			WriteLine("Enter path to the input file:");
 			WriteLine("or type 'batch' and a path to perform batch operations");
 			string input = GetInput();
 			inputFileList = new List<string>();
-			bool doBatch = false;
+			int result = 0;
 			input = input.Replace("\"", "");
 			if(input.ToLower().StartsWith("batch")) {
 				input = input.Substring(6);
@@ -82,13 +90,15 @@ namespace ASCReader {
 					}
 					WriteLine(inputFileList.Count + " files have been added to the batch queue");
 				}
-				doBatch = true;
+				result = 1;
+			} else if(input.ToLower().StartsWith("quit")) {
+				return -1;
 			} else {
 				inputFileList.Add(input);
 				WriteLine("Reading file "+input+" ...");
 			}
 			data = nextFile();
-			return doBatch;
+			return result;
 		}
 
 		static ASCData nextFile() {
@@ -122,7 +132,7 @@ namespace ASCReader {
 
 		static string GetBatchExportPath() {
 			WriteLine("Enter path to write the files:");
-			string s = GetInput();
+			string s = ReplacePathVars(GetInput());
 			while(!IsDirectory(s)) {
 				WriteWarning("Directory not found!");
 				s = GetInput();
@@ -132,7 +142,7 @@ namespace ASCReader {
 
 		static bool OutputFiles() {
 			WriteLine("Enter path & name to write the file(s):");
-			string path = GetInput();
+			string path = ReplacePathVars(GetInput());
 			return WriteFilesForData(path);
 		}
 
@@ -144,6 +154,11 @@ namespace ASCReader {
 				WriteLine(e.ToString());
 				return false;
 			}
+		}
+
+		static string ReplacePathVars(string path) {
+			path = path.Replace("{datetime}", System.DateTime.Now.ToString("yy-MM-dd_HH-mm-ss"));
+			return path;
 		}
 
 		static bool GetValidExportOptions(bool batch) {

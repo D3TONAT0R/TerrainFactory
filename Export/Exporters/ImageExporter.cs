@@ -25,7 +25,6 @@ namespace ASCReader.Export.Exporters {
 			imageType = type;
 			lowValue = blackValue;
 			highValue = whiteValue;
-			image = new Bitmap(grid.GetLength(0), grid.GetLength(1));
 			if(type == ImageType.Heightmap) MakeHeightmap();
 			else if(type == ImageType.Normalmap) MakeNormalmap();
 			else if(type == ImageType.Hillshade) MakeHillshademap();
@@ -49,15 +48,15 @@ namespace ASCReader.Export.Exporters {
 					float l = GetSlope(m, GetValueAt(x - 1, y));
 					float u = GetSlope(GetValueAt(x, y + 1), m);
 					float d = GetSlope(m, GetValueAt(x, y - 1));
-					float rl = (r + l) / 2f;
-					float ud = (u + d) / 2f;
-					float power = Math.Abs(rl) + Math.Abs(ud);
+					float nrmX = (r + l) / 2f;
+					float nrmY = (u + d) / 2f;
+					float power = Math.Abs(nrmX) + Math.Abs(nrmY);
 					if(power > 1) {
-						rl /= power;
-						ud /= power;
+						nrmX /= power;
+						nrmY /= power;
 					}
-					float vert = 1f - power;
-					normals[x, y] = new Vector3(rl, ud, vert);
+					float nrmZ = 1f - power;
+					normals[x, y] = Normalize(new Vector3(nrmX, nrmY, nrmZ));
 				}
 			}
 		}
@@ -99,12 +98,21 @@ namespace ASCReader.Export.Exporters {
 			return (float)(Rad2Deg(Math.Atan(hdiff / gridSpacing )) / 90f);
 		}
 
+		private Vector3 Normalize(Vector3 src) {
+			float power = Math.Abs(src.X) + Math.Abs(src.Y) + Math.Abs(src.Z);
+			return src / power;
+		}
+
 		private Color CreateColor(float r, float g, float b, float a) {
-			return Color.FromArgb(ToColorByte(a), ToColorByte(r), ToColorByte(g), ToColorByte(b));
+			try {
+				return Color.FromArgb(ToColorByte(a), ToColorByte(r), ToColorByte(g), ToColorByte(b));
+			} catch {
+				return Color.FromArgb(0,0,0,0);
+			}
 		}
 
 		private int ToColorByte(float f) {
-			return (int)Math.Round(Math.Clamp(f, 0f, 1f) * 255);
+			return (int)(Math.Clamp(f, 0d, 1d) * 255d);
 		}
 
 		private Color CreateColorGrayscale(float b) {
