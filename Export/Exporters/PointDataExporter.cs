@@ -37,18 +37,18 @@ namespace ASCReader.Export.Exporters {
 			WriteString(stream, "yllcorner    " + (data.xllcorner + yMin * data.cellsize) + "\n");
 			WriteString(stream, "cellsize     " + (data.cellsize * subsampling) + "\n");
 			WriteString(stream, "NODATA_value " + data.nodata_value + "\n");
-			int y = yMin;
-			while(y < yMax) {
+			int y = yMax-1;
+			while(y >= yMin) {
 				int x = xMin;
 				StringBuilder str = new StringBuilder();
 				while(x < xMax) {
 					if(str.Length > 0) str.Append(" ");
-					str.Append(data.data[x, yMax-y]);
+					str.Append(data.data[x, y]);
 					x += subsampling;
 				}
 				str.Append("\n");
 				WriteString(stream, str.ToString());
-				y += subsampling;
+				y -= subsampling;
 			}
 			stream.Close();
 		}

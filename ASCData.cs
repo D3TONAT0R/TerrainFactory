@@ -60,6 +60,7 @@ namespace ASCReader {
 				//Read the actual data
 				data = new float[ncols, nrows];
 				ReadGridData(stream);
+				stream.Close();
 				isValid = true;
 			} catch(Exception e) {
 				Program.WriteError("Error occured while reading ASC file!");
@@ -87,6 +88,7 @@ namespace ASCReader {
 				summary.lowestValue = asc.lowestValue;
 				summary.highestValue = asc.highestValue;
 				summary.averageValue = (float)(sum/(asc.ncols*asc.nrows));
+				stream.Close();
 				return summary;
 			} catch(Exception e) {
 				Program.WriteError("Error occured while getting summary for ASC file!");

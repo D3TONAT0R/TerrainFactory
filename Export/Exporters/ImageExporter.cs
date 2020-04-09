@@ -26,11 +26,12 @@ namespace ASCReader.Export.Exporters {
 			lowValue = blackValue;
 			highValue = whiteValue;
 			if(type == ImageType.Heightmap) MakeHeightmap();
-			else if(type == ImageType.Normalmap) MakeNormalmap();
+			else if(type == ImageType.Normalmap) MakeNormalmap(true);
 			else if(type == ImageType.Hillshade) MakeHillshademap();
 		}
 
 		private void MakeHeightmap() {
+			image = new Bitmap(grid.GetLength(0), grid.GetLength(1));
 			for(int x = 0; x < image.Width; x++) {
 				for(int y = 0; y < image.Height; y++) {
 					float v = (grid[x, y] - lowValue) / (highValue - lowValue);
@@ -39,30 +40,56 @@ namespace ASCReader.Export.Exporters {
 			}
 		}
 
-		private void CalculateNormals() {
-			normals = new Vector3[grid.GetLength(0), grid.GetLength(1)];
-			for(int x = 0; x < image.Width; x++) {
-				for(int y = 0; y < image.Height; y++) {
-					float m = GetValueAt(x, y);
-					float r = GetSlope(GetValueAt(x + 1, y), m);
-					float l = GetSlope(m, GetValueAt(x - 1, y));
-					float u = GetSlope(GetValueAt(x, y + 1), m);
-					float d = GetSlope(m, GetValueAt(x, y - 1));
-					float nrmX = (r + l) / 2f;
-					float nrmY = (u + d) / 2f;
-					float power = Math.Abs(nrmX) + Math.Abs(nrmY);
-					if(power > 1) {
-						nrmX /= power;
-						nrmY /= power;
+		private void CalculateNormals(bool sharpMode) {
+			if(sharpMode) {
+				normals = new Vector3[grid.GetLength(0), grid.GetLength(1)];
+				for(int x = 0; x < image.Width; x++) {
+					for(int y = 0; y < image.Height; y++) {
+						float ll = GetValueAt(x,y);
+						float lr = GetValueAt(x+1,y);
+						float ul = GetValueAt(x,y+1);
+						float ur = GetValueAt(x+1,y+1);
+						float nrmX = (GetSlope(lr,ll) + GetSlope(ur,ul)) / 2f;
+						float nrmY = (GetSlope(ul,ll) + GetSlope(ur,lr)) / 2f;
+						float power = Math.Abs(nrmX) + Math.Abs(nrmY);
+						if(power > 1) {
+							nrmX /= power;
+							nrmY /= power;
+						}
+						float nrmZ = 1f - power;
+						normals[x, y] = Normalize(new Vector3(nrmX, nrmY, nrmZ));
 					}
-					float nrmZ = 1f - power;
-					normals[x, y] = Normalize(new Vector3(nrmX, nrmY, nrmZ));
+				}
+			} else {
+				normals = new Vector3[grid.GetLength(0)-1, grid.GetLength(1)-1];
+				for(int x = 0; x < image.Width; x++) {
+					for(int y = 0; y < image.Height; y++) {
+						float m = GetValueAt(x, y);
+						float r = GetSlope(GetValueAt(x + 1, y), m);
+						float l = GetSlope(m, GetValueAt(x - 1, y));
+						float u = GetSlope(GetValueAt(x, y + 1), m);
+						float d = GetSlope(m, GetValueAt(x, y - 1));
+						float nrmX = (r + l) / 2f;
+						float nrmY = (u + d) / 2f;
+						float power = Math.Abs(nrmX) + Math.Abs(nrmY);
+						if(power > 1) {
+							nrmX /= power;
+							nrmY /= power;
+						}
+						float nrmZ = 1f - power;
+						normals[x, y] = Normalize(new Vector3(nrmX, nrmY, nrmZ));
+					}
 				}
 			}
 		}
 
-		private void MakeNormalmap() {
-			CalculateNormals();
+		private void MakeNormalmap(bool sharp) {
+			if(sharp) {
+				image = new Bitmap(grid.GetLength(0)-1, grid.GetLength(1)-1);
+			} else {
+				image = new Bitmap(grid.GetLength(0), grid.GetLength(1));
+			}
+			CalculateNormals(sharp);
 			for(int x = 0; x < image.Width; x++) {
 				for(int y = 0; y < image.Height; y++) {
 					Vector3 nrm = normals[x, y];
@@ -75,7 +102,8 @@ namespace ASCReader.Export.Exporters {
 		}
 
 		private void MakeHillshademap() {
-			CalculateNormals();
+			image = new Bitmap(grid.GetLength(0)-1, grid.GetLength(1)-1);
+			CalculateNormals(true);
 			for(int x = 0; x < image.Width; x++) {
 				for(int y = 0; y < image.Height; y++) {
 					Vector3 nrm = normals[x, y];
