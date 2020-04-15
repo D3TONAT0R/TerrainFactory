@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Numerics;
-using System.Text;
 
 namespace ASCReader.Export.Exporters {
 	public class ImageExporter : IExporter {

@@ -210,6 +210,20 @@ namespace ASCReader {
 			}
 		}
 
+		public float[,] GetDataRange(int x1, int y1, int x2, int y2) {
+			float[,] newdata = new float[x2-x1+1,y2-y1+1];
+			for(int x = 0; x <= x2-x1; x++) {
+				for(int y = 0; y <= y2-y1; y++) {
+					newdata[x,y] = data[x1+x,y1+y];
+				}
+			}
+			return newdata;
+		}
+
+		public float[,] GetDataRange((int x1, int y1, int x2, int y2) tuple) {
+			return GetDataRange(tuple.x1, tuple.y1, tuple.x2, tuple.y2);
+		}
+
 		private string ReadDataRaw(FileStream stream, bool valueOnly) {
 			StringBuilder str = new StringBuilder();
 			int b = stream.ReadByte();

@@ -172,21 +172,25 @@ namespace ASCReader {
 
 		static bool GetExportOptions(bool batch) {
 			if(batch) WriteLine("Note: The following export options will be applied to all files in the batch");
+			WriteLine("* = Required setting");
 			WriteLine("File Information:");
-			WriteLine("    showheader          Shows the header of the loaded file");
+			WriteLine("    showheader              Shows the header of the loaded file");
+			WriteLine("    preview                 Previews the grid data in an image");
+			WriteLine("    preview-hm              Previews the grid data in a heightmap");
 			WriteLine("Export options:");      
-			WriteLine("    format N..          Export to the specified format(s)");
-			WriteLine("        asc             ASCII-Grid (same as input)");
-			WriteLine("        xyz             ASCII-XYZ points");
-			WriteLine("        3ds             3d Mesh");
-			WriteLine("        fbx             3d Mesh");
-			WriteLine("        png-hm          Heightmap");
-			WriteLine("        png-nm          Normalmap");
-			WriteLine("        png-hs          Hillshade");
-			WriteLine("    subsample N         Only export every N-th cell");
-			WriteLine("    split N             Split files every NxN cells (minimum 32)");
-			WriteLine("    overridecellsize N  Override size per cell");
-			WriteLine("    setrange N N        Change the height data range (min - max)");
+			WriteLine("*   format N..              Export to the specified format(s)");
+			WriteLine("        asc                 ASCII-Grid (same as input)");
+			WriteLine("        xyz                 ASCII-XYZ points");
+			WriteLine("        3ds                 3d Mesh");
+			WriteLine("        fbx                 3d Mesh");
+			WriteLine("        png-hm              Heightmap");
+			WriteLine("        png-nm              Normalmap");
+			WriteLine("        png-hs              Hillshade");
+			WriteLine("    subsample N             Only export every N-th cell");
+			WriteLine("    split N                 Split files every NxN cells (minimum 32)");
+			WriteLine("    selection x1 y1 x2 y2   Export only the selected data range (use 'preview' to see the data grid)");
+			WriteLine("    overridecellsize N      Override size per cell");
+			WriteLine("    setrange N N            Change the height data range (min - max)");
 			if(batch) {
 				WriteLineSpecial("Batch export options:");
 				WriteLineSpecial("    join                Joins all files into one large file");
@@ -206,6 +210,12 @@ namespace ASCReader {
 					return false;
 				} else if(input.StartsWith("showheader")) {
 					WriteLine(data.fileHeader);
+				} else if(input.StartsWith("preview")) {
+					WriteLine("Opening preview...");
+					Previewer.OpenDataPreview(data, exportOptions, false);
+				} else if(input.StartsWith("preview-hm")) {
+					WriteLine("Opening preview...");
+					Previewer.OpenDataPreview(data, exportOptions, true);
 				} else if(input.StartsWith("subsample")) {
 					string[] split = input.Split(' ');
 					if(split.Length > 1) {
@@ -258,6 +268,30 @@ namespace ASCReader {
 						WriteLine("Exporting to the following format(s):"+str);
 					} else {
 						WriteWarning("A list of formats is required!");
+					}
+				} else if(input.StartsWith("selection")) {
+					string[] split = input.Split(' ');
+					if(split.Length > 4) {
+						int[] nums = new int[4];
+						bool b = true;
+						for(int i = 0; i < 4; i++) {
+							b &= int.TryParse(split[i], out nums[i]);
+						}
+						if(b) {
+							if(exportOptions.SetExportRange(data,nums[0],nums[1],nums[2],nums[3])) {
+								WriteLine("Selection set ("+exportOptions.ExportRangeCellCount+" cells total)");
+							} else {
+								WriteWarning("The specified input is invalid!");
+							}
+						} else {
+							WriteWarning("Failed to parse to float");
+						}
+					} else {
+						if(split.Length == 0) {
+							WriteLine("Selection reset");
+						} else {
+							WriteWarning("Four integers are required!");
+						}
 					}
 				} else if(input.StartsWith("setrange")) {
 					string[] split = input.Split(' ');
