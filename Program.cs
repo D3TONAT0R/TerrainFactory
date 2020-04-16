@@ -275,7 +275,7 @@ namespace ASCReader {
 						int[] nums = new int[4];
 						bool b = true;
 						for(int i = 0; i < 4; i++) {
-							b &= int.TryParse(split[i], out nums[i]);
+							b &= int.TryParse(split[i+1], out nums[i]);
 						}
 						if(b) {
 							if(exportOptions.SetExportRange(data,nums[0],nums[1],nums[2],nums[3])) {
@@ -284,10 +284,10 @@ namespace ASCReader {
 								WriteWarning("The specified input is invalid!");
 							}
 						} else {
-							WriteWarning("Failed to parse to float");
+							WriteWarning("Failed to parse to int");
 						}
 					} else {
-						if(split.Length == 0) {
+						if(split.Length == 1) {
 							WriteLine("Selection reset");
 						} else {
 							WriteWarning("Four integers are required!");

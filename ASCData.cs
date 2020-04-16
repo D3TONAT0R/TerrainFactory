@@ -170,19 +170,29 @@ namespace ASCReader {
 		}
 
 		public bool WriteAllFiles(string path, ExportOptions options) {
+			int rangeMinX = 0;
+			int rangeMinY = 0;
+			int rangeMaxX = ncols;
+			int rangeMaxY = nrows;
+			if(options.useExportRange) {
+				rangeMinX = options.exportRange.xMin;
+				rangeMinY = options.exportRange.yMin;
+				rangeMaxX = options.exportRange.xMax;
+				rangeMaxY = options.exportRange.yMax;
+			}
 			string dir = Path.GetDirectoryName(path);
 			if(Directory.Exists(dir)) {
 				if(options.fileSplitDims < 32) {
-					ExportUtility.CreateFilesForSection(this, path, null, options, 0, 0, ncols, nrows);
+					ExportUtility.CreateFilesForSection(this, path, null, options, rangeMinX, rangeMinY, rangeMaxX, rangeMaxY);
 				} else {
 					int dims = options.fileSplitDims;
-					int yMin = 0;
+					int yMin = rangeMinY;
 					int fileY = 0;
-					while(yMin + dims <= nrows) {
-						int xMin = 0;
+					while(yMin + dims <= rangeMaxY) {
+						int xMin = rangeMinX;
 						int fileX = 0;
 						int yMax = Math.Min(yMin + dims, nrows);
-						while(xMin + dims <= ncols) {
+						while(xMin + dims <= rangeMaxX) {
 							int xMax = Math.Min(xMin + dims, ncols);
 							bool success = ExportUtility.CreateFilesForSection(this, path, fileX + "," + fileY, options, xMin, yMin, xMax, yMax);
 							if(!success) throw new IOException("Failed to write file " + fileX + "," + fileY);
