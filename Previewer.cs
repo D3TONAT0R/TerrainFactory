@@ -61,9 +61,6 @@ namespace ASCReader {
 		}
 
 		private static void DrawGrid(Bitmap img, int size, Color color, float opacity, bool drawCoords, ExportOptions range) {
-			var graphics = Graphics.FromImage(img);
-			var font = SystemFonts.MessageBoxFont;
-			var brush = new SolidBrush(Color.Black);
 			int shiftX = range.exportRange.xMin;
 			int shiftY = range.exportRange.yMin;
 			//vertical lines
@@ -72,7 +69,11 @@ namespace ASCReader {
 					for(int y = 0; y < img.Height; y++) {
 						SetPixel(img,x,y,color,opacity);
 					}
-					if(drawCoords) graphics.DrawString((x+shiftX).ToString(), font, brush, new PointF(x,0));
+					if(drawCoords && x > 20) {
+						int tx = x;
+						int ty = 0;
+						DrawString(img, (x+shiftX).ToString(), color, ref tx, ref ty);
+					}
 				}
 			}
 			//horizontal lines
@@ -81,16 +82,29 @@ namespace ASCReader {
 					for(int x = 0; x < img.Width; x++) {
 						SetPixel(img,x,y,color,opacity);
 					}
-					if(drawCoords) graphics.DrawString((y+shiftY).ToString(), font, brush, new PointF(0,img.Height-y-1));
+					if(drawCoords && y > 20) {
+						int tx = 0;
+						int ty = img.Height-y-1;
+						DrawString(img, (y+shiftY).ToString(), color, ref tx, ref ty);
+					}
 				}
 			}
 		}
 
 		private static void DrawGridLegend(Bitmap img, int size, Color color, int index) {
 			//Draw info text in the corner
-			Graphics g = Graphics.FromImage(img);
-			Font f = SystemFonts.MessageBoxFont;
-			g.DrawString(size.ToString(), SystemFonts.MessageBoxFont, new SolidBrush(color), new PointF(2,2+index*(f.Size+2)));
+			int x = 2;
+			int y = (int)(2+index*(SystemFonts.MessageBoxFont.Size+2));
+			DrawString(img, size.ToString(), color, ref x, ref y);
+		}
+
+		private static void DrawString(Bitmap img, string str, Color color, ref int x, ref int y) {
+			if(MinDim(img) > 200) {
+				Graphics g = Graphics.FromImage(img);
+				g.DrawString(str, SystemFonts.MessageBoxFont, new SolidBrush(color), new PointF(x,y));
+			} else {
+				PixelFont.DrawString(img, str, ref x, ref y, color, 1);
+			}
 		}
 
 		private static int MinDim(Image img) {
@@ -105,8 +119,9 @@ namespace ASCReader {
 			return Color.FromArgb(255,r,g,b);
 		}
 
-		private static void SetPixel(Bitmap img, int x, int y, Color color, float opacity) {
+		public static void SetPixel(Bitmap img, int x, int y, Color color, float opacity) {
 			y = img.Height-y-1;
+			if(x < 0 || x >= img.Width || y < 0 || y >= img.Height) return;
 			Color src = img.GetPixel(x,y);
 			img.SetPixel(x,y,Lerp(src,color,opacity));
 		}

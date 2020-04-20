@@ -222,8 +222,8 @@ namespace ASCReader {
 
 		public float[,] GetDataRange(int x1, int y1, int x2, int y2) {
 			float[,] newdata = new float[x2-x1+1,y2-y1+1];
-			for(int x = 0; x <= x2-x1; x++) {
-				for(int y = 0; y <= y2-y1; y++) {
+			for(int x = 0; x < x2-x1; x++) {
+				for(int y = 0; y < y2-y1; y++) {
 					newdata[x,y] = data[x1+x,y1+y];
 				}
 			}

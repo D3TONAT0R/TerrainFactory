@@ -32,10 +32,10 @@ namespace ASCReader.Export {
 		}
 
 		public bool SetExportRange(ASCData checkData, int x1, int y1, int x2, int y2) {
-			if(x1 < 0 || x1 >= checkData.ncols) return false;
-			if(y1 < 0 || y1 >= checkData.nrows) return false;
-			if(x2 < 0 || x2 >= checkData.ncols) return false;
-			if(y2 < 0 || y2 >= checkData.nrows) return false;
+			if(x1 < 0 || x1 > checkData.ncols) return false;
+			if(y1 < 0 || y1 > checkData.nrows) return false;
+			if(x2 < 0 || x2 > checkData.ncols) return false;
+			if(y2 < 0 || y2 > checkData.nrows) return false;
 			if(x1 > x2) return false;
 			if(y1 > y2) return false;
 			exportRange = (x1,y1,x2,y2);
