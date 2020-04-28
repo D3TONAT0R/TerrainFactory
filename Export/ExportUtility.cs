@@ -72,6 +72,7 @@ namespace ASCReader.Export {
 				if(Program.exported3dFiles < 50) {
 					exporter = new Aspose3DExporter(meshList);
 				} else {
+					Program.WriteWarning("Aspose3D's export limit was reached! Attempting to export using Assimp, which may throw an error.");
 					exporter = new Assimp3DExporter(meshList);
 				}
 				WriteFile(exporter, filename, ff);

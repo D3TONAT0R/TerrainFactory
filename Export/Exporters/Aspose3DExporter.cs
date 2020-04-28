@@ -26,7 +26,8 @@ namespace ASCReader.Export.Exporters {
 						Node n = new Node("mesh" + (i + 1), m);
 						scene.RootNode.ChildNodes.Add(n);
 					} else {
-						scene.RootNode.AddEntity(m);
+						Node n = new Node("mesh", m);
+						scene.RootNode.ChildNodes.Add(n);
 					}
 				}
 			} catch(Exception e) {
