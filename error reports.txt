@@ -1,0 +1,3 @@
+ERROR while creating 3D data for Assimp:
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at ASCReader.Export.Exporters.Assimp3DExporter..ctor(List`1 meshInfo) in C:\Users\Yanic Gottardi\Documents\ASCReader\Export\Exporters\Assimp3DExporter.cs:line 26
