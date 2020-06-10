@@ -9,7 +9,7 @@ namespace ASCReader.Export.Exporters {
 
 		private Scene scene;
 
-		public Assimp3DExporter(List<(List<Vector3> verts, List<int> tris)> meshInfo) {
+		public Assimp3DExporter(List<(List<Vector3> verts, List<int> tris, List<Vector2> uvs)> meshInfo) {
 			try {
 				bool makeChildNodes = meshInfo.Count > 1;
 				scene = new Scene();

@@ -11,7 +11,7 @@ namespace ASCReader.Export.Exporters {
 
 		private Scene scene;
 
-		public Aspose3DExporter(List<(List<Vector3> verts, List<int> tris)> meshInfo) {
+		public Aspose3DExporter(List<(List<Vector3> verts, List<int> tris, List<Vector2> uvs)> meshInfo) {
 			try {
 				bool makeChildNodes = meshInfo.Count > 1;
 				scene = new Scene();
@@ -22,6 +22,13 @@ namespace ASCReader.Export.Exporters {
 					for(int j = 0; j < tuple.tris.Count; j += 3) {
 						m.CreatePolygon(tuple.tris[j], tuple.tris[j + 1], tuple.tris[j + 2]);
 					}
+					var elem = m.CreateElementUV(TextureMapping.Diffuse, MappingMode.PolygonVertex, ReferenceMode.Direct);
+					List<Aspose.ThreeD.Utilities.Vector4> uv = new List<Aspose.ThreeD.Utilities.Vector4>();
+					for(int k = 0; k < meshInfo[i].uvs.Count; k++) {
+						uv.Add(new Aspose.ThreeD.Utilities.Vector4(meshInfo[i].uvs[k].X, meshInfo[i].uvs[k].Y, 0, 1));
+					}
+					elem.Data.AddRange(uv);
+					elem.Indices.AddRange(meshInfo[i].tris);
 					if(makeChildNodes) {
 						Node n = new Node("mesh" + (i + 1), m);
 						scene.RootNode.ChildNodes.Add(n);

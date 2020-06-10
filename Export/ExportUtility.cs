@@ -48,7 +48,7 @@ namespace ASCReader.Export {
 		}
 
 		public static bool WriteFile3D(ASCData source, string filename, int subsampling, int xMin, int yMin, int xMax, int yMax, FileFormat ff) {
-			var meshList = new List<(List<Vector3> verts, List<int> tris)>();
+			var meshList = new List<(List<Vector3> verts, List<int> tris, List<Vector2> uvs)>();
 			//Increase boundaries for lossless tiling
 			if(xMax < source.ncols) xMax++;
 			if(yMax < source.nrows) yMax++;
@@ -109,10 +109,11 @@ namespace ASCReader.Export {
 			stream.Close();
 		}
 
-		private static (List<Vector3> verts, List<int> tris) CreateMeshData(ASCData source, int subsampling, int xMin, int yMin, int xMax, int yMax) {
+		private static (List<Vector3> verts, List<int> tris, List<Vector2> uvs) CreateMeshData(ASCData source, int subsampling, int xMin, int yMin, int xMax, int yMax) {
 			Vector3[,] points = new Vector3[xMax - xMin + 1, yMax - yMin + 1];
 			List<Vector3> verts = new List<Vector3>();
 			List<int> tris = new List<int>();
+			List<Vector2> uvs = new List<Vector2>();
 			for(int i = 0; i <= xMax - xMin; i++) for(int j = 0; j <= yMax - yMin; j++) points[i, j] = Vector3.Zero;
 			for(int y = yMin; y <= yMax; y++) {
 				for(int x = xMin; x <= xMax; x++) {
@@ -121,7 +122,12 @@ namespace ASCReader.Export {
 						if(f != source.nodata_value) {
 							Vector3 vec = new Vector3(-x * source.cellsize, source.data[x, y], y * source.cellsize);
 							points[x - xMin, y - yMin] = vec;
-							if(!verts.Contains(vec)) verts.Add(vec);
+							if(!verts.Contains(vec)) {
+								verts.Add(vec);
+								float uvX = (x - xMin) / (float)(xMax - xMin);
+								float uvY = (y - yMin) / (float)(yMax - yMin);
+								uvs.Add(new Vector2(uvX, uvY));
+							}
 						}
 					}
 				}
@@ -151,7 +157,7 @@ namespace ASCReader.Export {
 					}
 				}
 			}
-			return (verts, tris);
+			return (verts, tris, uvs);
 		}
 
 		private static Vector3[] GetPointsForFace(Vector3[,] points, int x, int y, int subsample) {
