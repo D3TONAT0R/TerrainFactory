@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using ASCReader.Export;
+using ASCReader.Import;
 
 namespace ASCReader {
 	class Program {
@@ -10,12 +11,13 @@ namespace ASCReader {
 		private static bool autoInputEnabled = false;
 		private static int autoInputNum = 0;
 		private static string[] autoInputs = new string[]{
-			"C:\\Users\\gdv\\Desktop\\ascrtest\\DOM_26920_12490.asc",
-			"format asc xyz 3ds fbx png-hm png-nm png-hs",
-			"split 1000",
-			"subsample 2",
+			"C:\\Users\\Yanic Gottardi\\Desktop\\ascr\\zh test\\in\\dhm200_4,2.asc",
+			"format 3ds png-hm png-nm png-hs",
+			//"split 500",
+			//"subsample 2",
 			"export",
-			"C:\\Users\\gdv\\Desktop\\ascrtest\\out\\testexport"
+			"C:\\Users\\Yanic Gottardi\\Desktop\\ascr\\zh test\\out auto\\autoexport_{datetime}",
+			"quit"
 		};
 		#endif
 
@@ -28,11 +30,18 @@ namespace ASCReader {
 		static ASCSummary targetValues;
 		static void Main(string[] args)
 		{
+			#if DEBUG
+			if(args.Length > 0 && args[0] == "auto") autoInputEnabled = true;
+			#endif
 			WriteLine("---------------------------------");
 			WriteLine("ASCII-GRID FILE CONVERTER");
 			WriteLine("---------------------------------");
 			while(data == null || !data.isValid) {
-				bool batchMode = GetInputFiles();
+				int result = GetInputFiles();
+				bool batchMode = result == 1;
+				if(result == -1) {
+					break; //quit the application by leaving the while loop
+				}
 				if(data != null && data.isValid) {
 					if(!GetValidExportOptions(batchMode)) {
 						data = null;
@@ -59,19 +68,18 @@ namespace ASCReader {
 							WriteError("EXPORT FAILED");
 						}
 					}
-
 					WriteLine("---------------------------------");
 					data = null;
 				}
 			}
 		}
 
-		static bool GetInputFiles() {
-			WriteLine("Enter path to .asc file:");
+		static int GetInputFiles() {
+			WriteLine("Enter path to the input file:");
 			WriteLine("or type 'batch' and a path to perform batch operations");
 			string input = GetInput();
 			inputFileList = new List<string>();
-			bool doBatch = false;
+			int result = 0;
 			input = input.Replace("\"", "");
 			if(input.ToLower().StartsWith("batch")) {
 				input = input.Substring(6);
@@ -82,18 +90,31 @@ namespace ASCReader {
 					}
 					WriteLine(inputFileList.Count + " files have been added to the batch queue");
 				}
-				doBatch = true;
+				result = 1;
+			} else if(input.ToLower().StartsWith("quit")) {
+				return -1;
 			} else {
 				inputFileList.Add(input);
 				WriteLine("Reading file "+input+" ...");
 			}
 			data = nextFile();
-			return doBatch;
+			return result;
 		}
 
 		static ASCData nextFile() {
 			if(inputFileList.Count > 0) {
-				var d = new ASCData(inputFileList[0]);
+				string f = inputFileList[0];
+				string ext = Path.GetExtension(f).ToLower();
+				ASCData d;
+				if(ext == ".asc") d = new ASCData(inputFileList[0]);
+				else if(ext == ".png" || ext == ".jpeg"  || ext == ".jpg" || ext == ".bmp" || ext == ".tif" ) {
+					d = HeightmapImporter.ImportHeightmap(f);
+					Program.WriteLineSpecial("Heightmap imported. Override cellsize and low/high values for the desired result.");
+					Program.WriteLineSpecial("Default cell size: 1.0     Default data range 0.0-1.0");
+				} else {
+					WriteError("Don't know how to read file with extension: "+ext);
+					d = null;
+				}
 				inputFileList.RemoveAt(0);
 				return d;
 			} else {
@@ -111,7 +132,7 @@ namespace ASCReader {
 
 		static string GetBatchExportPath() {
 			WriteLine("Enter path to write the files:");
-			string s = GetInput();
+			string s = ReplacePathVars(GetInput());
 			while(!IsDirectory(s)) {
 				WriteWarning("Directory not found!");
 				s = GetInput();
@@ -121,7 +142,7 @@ namespace ASCReader {
 
 		static bool OutputFiles() {
 			WriteLine("Enter path & name to write the file(s):");
-			string path = GetInput();
+			string path = ReplacePathVars(GetInput());
 			return WriteFilesForData(path);
 		}
 
@@ -135,6 +156,11 @@ namespace ASCReader {
 			}
 		}
 
+		static string ReplacePathVars(string path) {
+			path = path.Replace("{datetime}", System.DateTime.Now.ToString("yy-MM-dd_HH-mm-ss"));
+			return path;
+		}
+
 		static bool GetValidExportOptions(bool batch) {
 			if(!GetExportOptions(batch)) return false;
 			while(!ValidateExportOptions()) {
@@ -146,20 +172,25 @@ namespace ASCReader {
 
 		static bool GetExportOptions(bool batch) {
 			if(batch) WriteLine("Note: The following export options will be applied to all files in the batch");
+			WriteLine("* = Required setting");
 			WriteLine("File Information:");
-			WriteLine("    showheader          Shows the header of the loaded file");
+			WriteLine("    showheader              Shows the header of the loaded file");
+			WriteLine("    preview                 Previews the grid data in an image");
+			WriteLine("    preview-hm              Previews the grid data in a heightmap");
 			WriteLine("Export options:");      
-			WriteLine("    format N..          Export to the specified format(s)");
-			WriteLine("        asc             ASCII-Grid (same as input)");
-			WriteLine("        xyz             ASCII-XYZ points");
-			WriteLine("        3ds             3d Mesh");
-			WriteLine("        fbx             3d Mesh");
-			WriteLine("        png-hm          Heightmap");
-			WriteLine("        png-nm          Normalmap");
-			WriteLine("        png-hs          Hillshade");
-			WriteLine("    subsample N         Only export every N-th cell");
-			WriteLine("    split N             Split files every NxN cells (minimum 32)");
-			WriteLine("    overridecellsize N  Override size per cell");
+			WriteLine("*   format N..              Export to the specified format(s)");
+			WriteLine("        asc                 ASCII-Grid (same as input)");
+			WriteLine("        xyz                 ASCII-XYZ points");
+			WriteLine("        3ds                 3d Mesh");
+			WriteLine("        fbx                 3d Mesh");
+			WriteLine("        png-hm              Heightmap");
+			WriteLine("        png-nm              Normalmap");
+			WriteLine("        png-hs              Hillshade");
+			WriteLine("    subsample N             Only export every N-th cell");
+			WriteLine("    split N                 Split files every NxN cells (minimum 32)");
+			WriteLine("    selection x1 y1 x2 y2   Export only the selected data range (use 'preview' to see the data grid)");
+			WriteLine("    overridecellsize N      Override size per cell");
+			WriteLine("    setrange N N            Change the height data range (min - max)");
 			if(batch) {
 				WriteLineSpecial("Batch export options:");
 				WriteLineSpecial("    join                Joins all files into one large file");
@@ -179,6 +210,12 @@ namespace ASCReader {
 					return false;
 				} else if(input.StartsWith("showheader")) {
 					WriteLine(data.fileHeader);
+				} else if(input.StartsWith("preview")) {
+					WriteLine("Opening preview...");
+					Previewer.OpenDataPreview(data, exportOptions, false);
+				} else if(input.StartsWith("preview-hm")) {
+					WriteLine("Opening preview...");
+					Previewer.OpenDataPreview(data, exportOptions, true);
 				} else if(input.StartsWith("subsample")) {
 					string[] split = input.Split(' ');
 					if(split.Length > 1) {
@@ -231,6 +268,45 @@ namespace ASCReader {
 						WriteLine("Exporting to the following format(s):"+str);
 					} else {
 						WriteWarning("A list of formats is required!");
+					}
+				} else if(input.StartsWith("selection")) {
+					string[] split = input.Split(' ');
+					if(split.Length > 4) {
+						int[] nums = new int[4];
+						bool b = true;
+						for(int i = 0; i < 4; i++) {
+							b &= int.TryParse(split[i+1], out nums[i]);
+						}
+						if(b) {
+							if(exportOptions.SetExportRange(data,nums[0],nums[1],nums[2],nums[3])) {
+								WriteLine("Selection set ("+exportOptions.ExportRangeCellCount+" cells total)");
+							} else {
+								WriteWarning("The specified input is invalid!");
+							}
+						} else {
+							WriteWarning("Failed to parse to int");
+						}
+					} else {
+						if(split.Length == 1) {
+							WriteLine("Selection reset");
+						} else {
+							WriteWarning("Four integers are required!");
+						}
+					}
+				} else if(input.StartsWith("setrange")) {
+					string[] split = input.Split(' ');
+					if(split.Length > 2) {
+						bool b = true;
+						float min;
+						float max;
+						b &= float.TryParse(split[1], out min) & float.TryParse(split[2], out max);
+						if(b) {
+							data.SetRange(min, max);
+						} else {
+							WriteWarning("Failed to parse to float");
+						}
+					} else {
+						WriteWarning("Two numbers are required!");
 					}
 				} else if(batch) {
 					if(input.StartsWith("equalizeheightmaps")) {

@@ -31,11 +31,22 @@ namespace ASCReader {
 		public float[,] data;
 		public float lowestValue = float.PositiveInfinity;
 		public float highestValue = float.NegativeInfinity;
+		
+		//Used for scaling operations. In data created from an image, these values represent the black and white values of the source image (default 0 and 1 respectively)
+		//In data created from ASC data itself, these are equal to lowestValue and highestValue unless overridden for heightmap export.
+		public float lowPoint;
+		public float highPoint;
 
 		public bool isValid;
 
 		public ASCData() {
 
+		}
+
+		public ASCData(int ncols, int nrows) {
+			data = new float[ncols, nrows];
+			this.ncols = ncols;
+			this.nrows = nrows;
 		}
 
 		public ASCData(string filepath) {
@@ -49,6 +60,7 @@ namespace ASCReader {
 				//Read the actual data
 				data = new float[ncols, nrows];
 				ReadGridData(stream);
+				stream.Close();
 				isValid = true;
 			} catch(Exception e) {
 				Program.WriteError("Error occured while reading ASC file!");
@@ -76,6 +88,7 @@ namespace ASCReader {
 				summary.lowestValue = asc.lowestValue;
 				summary.highestValue = asc.highestValue;
 				summary.averageValue = (float)(sum/(asc.ncols*asc.nrows));
+				stream.Close();
 				return summary;
 			} catch(Exception e) {
 				Program.WriteError("Error occured while getting summary for ASC file!");
@@ -106,6 +119,8 @@ namespace ASCReader {
 				}
 				int y = (int)Math.Floor(i / (double)ncols);
 				int x = i % ncols;
+				lowPoint = lowestValue;
+				highPoint = highestValue;
 				if(data != null) data[x, nrows - y - 1] = value;
 			}
 		}
@@ -126,20 +141,58 @@ namespace ASCReader {
 			return ReadDataRaw(stream, true);
 		}
 
+		public void SetRange(float low, float high) {
+			float dataRange = high - low;
+			for(int x = 0; x < ncols; x++) {
+				for(int y = 0; y < nrows; y++) {
+					double h = (data[x,y] - lowPoint) / (highPoint-lowPoint);
+					h *= dataRange;
+					h += low;
+					data[x,y] = (float)h;
+				}
+			}
+			RecalculateValues(false);
+			lowPoint = low;
+			highPoint = high;
+		}
+
+		public void RecalculateValues(bool updateLowHighPoints) {
+			foreach(float f in data) {
+				if(Math.Abs(f-nodata_value) > 0.1f) {
+					if(f < lowestValue) lowestValue = f;
+					if(f > highestValue) highestValue = f;
+				}
+			}
+			if(updateLowHighPoints) {
+				lowPoint = lowestValue;
+				highPoint = highestValue;
+			}
+		}
+
 		public bool WriteAllFiles(string path, ExportOptions options) {
+			int rangeMinX = 0;
+			int rangeMinY = 0;
+			int rangeMaxX = ncols;
+			int rangeMaxY = nrows;
+			if(options.useExportRange) {
+				rangeMinX = options.exportRange.xMin;
+				rangeMinY = options.exportRange.yMin;
+				rangeMaxX = options.exportRange.xMax;
+				rangeMaxY = options.exportRange.yMax;
+			}
 			string dir = Path.GetDirectoryName(path);
 			if(Directory.Exists(dir)) {
 				if(options.fileSplitDims < 32) {
-					ExportUtility.CreateFilesForSection(this, path, null, options, 0, 0, ncols, nrows);
+					ExportUtility.CreateFilesForSection(this, path, null, options, rangeMinX, rangeMinY, rangeMaxX, rangeMaxY);
 				} else {
 					int dims = options.fileSplitDims;
-					int yMin = 0;
+					int yMin = rangeMinY;
 					int fileY = 0;
-					while(yMin + dims <= nrows) {
-						int xMin = 0;
+					while(yMin + dims <= rangeMaxY) {
+						int xMin = rangeMinX;
 						int fileX = 0;
 						int yMax = Math.Min(yMin + dims, nrows);
-						while(xMin + dims <= ncols) {
+						while(xMin + dims <= rangeMaxX) {
 							int xMax = Math.Min(xMin + dims, ncols);
 							bool success = ExportUtility.CreateFilesForSection(this, path, fileX + "," + fileY, options, xMin, yMin, xMax, yMax);
 							if(!success) throw new IOException("Failed to write file " + fileX + "," + fileY);
@@ -165,6 +218,20 @@ namespace ASCReader {
 			} else {
 				return data[x, y];
 			}
+		}
+
+		public float[,] GetDataRange(int x1, int y1, int x2, int y2) {
+			float[,] newdata = new float[x2-x1+1,y2-y1+1];
+			for(int x = 0; x < x2-x1; x++) {
+				for(int y = 0; y < y2-y1; y++) {
+					newdata[x,y] = data[x1+x,y1+y];
+				}
+			}
+			return newdata;
+		}
+
+		public float[,] GetDataRange((int x1, int y1, int x2, int y2) tuple) {
+			return GetDataRange(tuple.x1, tuple.y1, tuple.x2, tuple.y2);
 		}
 
 		private string ReadDataRaw(FileStream stream, bool valueOnly) {
