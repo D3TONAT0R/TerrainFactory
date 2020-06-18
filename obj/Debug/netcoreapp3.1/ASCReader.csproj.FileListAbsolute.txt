@@ -46,3 +46,5 @@ C:\Users\gdv\Documents\ASCReader\bin\Debug\netcoreapp3.1\runtimes\win\lib\netcor
 C:\Users\gdv\Documents\ASCReader\bin\Debug\netcoreapp3.1\runtimes\unix\lib\netcoreapp2.0\System.Drawing.Common.dll
 C:\Users\gdv\Documents\ASCReader\bin\Debug\netcoreapp3.1\runtimes\win\lib\netcoreapp2.0\System.Drawing.Common.dll
 C:\Users\gdv\Documents\ASCReader\obj\Debug\netcoreapp3.1\ASCReader.csproj.CoreCompileInputs.cache
+C:\Users\Yanic Gottardi\Documents\ASCReader\bin\Debug\netcoreapp3.1\DotNetZip.dll
+C:\Users\Yanic Gottardi\Documents\ASCReader\bin\Debug\netcoreapp3.1\System.Security.Permissions.dll

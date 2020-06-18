@@ -111,6 +111,9 @@ namespace ASCReader {
 					d = HeightmapImporter.ImportHeightmap(f);
 					Program.WriteLineSpecial("Heightmap imported. Override cellsize and low/high values for the desired result.");
 					Program.WriteLineSpecial("Default cell size: 1.0     Default data range 0.0-1.0");
+				} else if(ext == ".mca") {
+					d = MinecraftRegionImporter.ImportHeightmap(f);
+					Program.WriteLineSpecial("Minecraft region heightmap imported.");
 				} else {
 					WriteError("Don't know how to read file with extension: "+ext);
 					d = null;

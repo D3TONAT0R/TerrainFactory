@@ -11,6 +11,7 @@ namespace ASCReader.Import {
 
 		public static ASCData ImportHeightmap(string filepath) {
 			FileStream fs = File.Open(filepath, FileMode.Open);
+			stream = new MemoryStream();
 			fs.CopyTo(stream);
 			byte[] locationBytes = Read(0, 4096);
 			byte[] timestampBytes = Read(4096, 4096);
@@ -19,6 +20,11 @@ namespace ASCReader.Import {
 			for(int i = 0; i < 1024; i++) {
 				locations[i] = ReadAsInt(locationBytes, i*4, 3);
 				sizes[i] = Read(i*4+3, 1)[0];
+			}
+			for(int i = 0; i < 1024; i++) {
+				if(locations[i] > 0 && sizes[i] > 0) {
+					var nbt = new MinecraftNBTContent(GetChunkData(locations[i], sizes[i]));
+				}
 			}
 			ASCData asc = new ASCData(512,512);
 			asc.cellsize = 1;
@@ -46,7 +52,8 @@ namespace ASCReader.Import {
 
 		private static byte[] GetChunkData(int loc, byte size) {
 			loc *= 4096;
-			int length = ReadAsInt(Read(loc,4),0,4);
+			int length = size*4096;
+			//int length = ReadAsInt(Read(loc,4),0,4);
 			byte[] compressed = Read(loc+5, length-1);
 			return ZlibStream.UncompressBuffer(compressed);
 		}

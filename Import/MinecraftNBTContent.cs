@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using ASCReader;
 
 public class MinecraftNBTContent {
 	
@@ -22,19 +23,25 @@ public class MinecraftNBTContent {
 
 	public Dictionary<string,object> content;
 
+ 	List<Dictionary<string,object>> parentTree;
+	Dictionary<string,object> compound;
+
 	public MinecraftNBTContent() {
 		content = new Dictionary<string, object>();
+		parentTree = new List<Dictionary<string, object>>();
+		compound = content;
 	}
 
 	public MinecraftNBTContent(byte[] nbt) : this() {
 		int i = 0;
 		Dictionary<string,object> compound = content;
 		while(i < nbt.Length) {
-			
+			RegisterTag(nbt, ref i);
 		}
+		Program.WriteLine("NBT Loaded!");
 	}
 
-	NBTTag ReadTag(byte[] data, ref int i, Dictionary<string,object> compound) {
+	void RegisterTag(byte[] data, ref int i) {
 		NBTTag tag = (NBTTag)data[i];
 		i++;
 		if(tag != NBTTag.TAG_End) {
@@ -45,34 +52,41 @@ public class MinecraftNBTContent {
 				name += (char)data[i+j];
 			}
 			i += nameLength;
+			object value = null;
 			if(tag == NBTTag.TAG_Byte) {
-				content.Add(name, data[i]);
-				i++;
+				value = Get<byte>(data, ref i);
 			} else if(tag == NBTTag.TAG_Short) {
-				short s = BitConverter.ToInt16(new byte[]{data[i], data[i+1]});
-				content.Add(name, s);
-				i += 2;
+				value = Get<short>(data, ref i);
 			} else if(tag == NBTTag.TAG_Int) {
-				content.Add(name, GetInt(data, ref i));
+				value = Get<int>(data, ref i);
 			} else if(tag == NBTTag.TAG_Long) {
-				long l = BitConverter.ToInt64(new byte[]{data[i], data[i+1], data[i+2], data[i+3], data[i+4], data[i+5], data[i+6], data[i+7]});
-				content.Add(name, l);
-				i += 8;
+				value = Get<long>(data, ref i);
 			} else if(tag == NBTTag.TAG_Float) {
-				float f = BitConverter.ToSingle(new byte[]{data[i], data[i+1], data[i+2], data[i+3]});
-				content.Add(name, f);
-				i += 4;
+				value = Get<float>(data, ref i);
 			} else if(tag == NBTTag.TAG_Double) {
-				double d = BitConverter.ToDouble(new byte[]{data[i], data[i+1], data[i+2], data[i+3], data[i+4], data[i+5], data[i+6], data[i+7]});
-				content.Add(name, d);
-				i += 8;
+				value = Get<double>(data, ref i);
 			} else if(tag == NBTTag.TAG_Byte_Array) {
-				double d = BitConverter.ToDouble(new byte[]{data[i], data[i+1], data[i+2], data[i+3], data[i+4], data[i+5], data[i+6], data[i+7]});
-				content.Add(name, d);
-				i += 8;
+				value = Get<byte[]>(data, ref i);
+			} else if(tag == NBTTag.TAG_String) {
+				value = Get<string>(data, ref i);
+			} else if(tag == NBTTag.TAG_List) {
+				value = Get<object[]>(data, ref i);
+			} else if(tag == NBTTag.TAG_Compound) {
+				value = Get<Dictionary<string,object>>(data, ref i);
+			} else if(tag == NBTTag.TAG_Int_Array) {
+				value = Get<int[]>(data, ref i);
+			} else if(tag == NBTTag.TAG_Long_Array) {
+				value = Get<long[]>(data, ref i);
 			}
+			compound.Add(name, content);
+			if(tag == NBTTag.TAG_Compound) {
+				parentTree.Add(compound);
+				compound = (Dictionary<string,object>)value;
+			}
+		} else {
+			compound = parentTree[parentTree.Count-1];
+			parentTree.RemoveAt(parentTree.Count-1);
 		}
-		return tag;
 	}
 
 	object[] GetList(NBTTag tag, int length, byte[] data, ref int i) {
@@ -81,27 +95,21 @@ public class MinecraftNBTContent {
 			switch(tag) {
 				case NBTTag.TAG_End: return null;
 				case NBTTag.TAG_Byte: arr[i] = Get<byte>(data, ref i); break;
-				case NBTTag.TAG_Short: arr[i] = Get<byte>(data, ref i); break;
-				case NBTTag.TAG_Int: arr[i] = Get<byte>(data, ref i); break;
-				case NBTTag.TAG_Long: arr[i] = Get<byte>(data, ref i); break;
-				case NBTTag.TAG_Float: arr[i] = Get<byte>(data, ref i); break;
-				case NBTTag.TAG_Double: arr[i] = Get<byte>(data, ref i); break;
-				case NBTTag.TAG_Byte_Array: arr[i] = Get<byte>(data, ref i); break;
-				case NBTTag.TAG_String: arr[i] = Get<byte>(data, ref i); break;
-				case NBTTag.TAG_List: arr[i] = Get<byte>(data, ref i); break;
-				case NBTTag.TAG_Compound: arr[i] = Get<byte>(data, ref i); break;
-				case NBTTag.TAG_Int_Array: arr[i] = Get<byte>(data, ref i); break;
-				case NBTTag.TAG_Long_Array: arr[i] = Get<byte>(data, ref i); break;
+				case NBTTag.TAG_Short: arr[i] = Get<short>(data, ref i); break;
+				case NBTTag.TAG_Int: arr[i] = Get<int>(data, ref i); break;
+				case NBTTag.TAG_Long: arr[i] = Get<long>(data, ref i); break;
+				case NBTTag.TAG_Float: arr[i] = Get<float>(data, ref i); break;
+				case NBTTag.TAG_Double: arr[i] = Get<double>(data, ref i); break;
+				case NBTTag.TAG_Byte_Array: arr[i] = Get<byte[]>(data, ref i); break;
+				case NBTTag.TAG_String: arr[i] = Get<string>(data, ref i); break;
+				case NBTTag.TAG_List: arr[i] = Get<object[]>(data, ref i); break;
+				case NBTTag.TAG_Compound: arr[i] = Get<Dictionary<string,object>>(data, ref i); break;
+				case NBTTag.TAG_Int_Array: arr[i] = Get<int[]>(data, ref i); break;
+				case NBTTag.TAG_Long_Array: arr[i] = Get<long[]>(data, ref i); break;
 				default: return null;
 			}
 		}
-		Get<typeof(i)>(data, ref i); 
-	}
-
-	int GetInt(byte[] data, ref int i) {
-		int r = BitConverter.ToInt32(new byte[]{data[i], data[i+1], data[i+2], data[i+3]});
-		i += 4;
-		return r;
+		return arr;
 	}
 
 	Type GetTypeOfTag(NBTTag tag) {
@@ -160,11 +168,7 @@ public class MinecraftNBTContent {
 		} else if(typeof(T) == typeof(object[])) {
 			NBTTag type = (NBTTag)Get<byte>(data, ref i);
 			int len = Get<int>(data, ref i);
-			object[] arr = new object[len];
-			Type t2 = GetTypeOfTag(type);
-			for(int j = 0; j < len; j++) {
-				arr[j] = Get<t2>(data, ref i);
-			}
+			ret = GetList(type, len, data, ref i);
 		}
 		return (T)Convert.ChangeType(ret, typeof(T));
 	}
