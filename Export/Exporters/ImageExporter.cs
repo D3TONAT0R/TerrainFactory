@@ -23,7 +23,7 @@ namespace ASCReader.Export.Exporters {
 			imageType = type;
 			lowValue = blackValue;
 			highValue = whiteValue;
-			if(type == ImageType.Heightmap) MakeHeightmap();
+			if(type == ImageType.Heightmap) MakeHeightmap256();
 			else if(type == ImageType.Normalmap) MakeNormalmap(true);
 			else if(type == ImageType.Hillshade) MakeHillshademap();
 		}
@@ -34,6 +34,16 @@ namespace ASCReader.Export.Exporters {
 				for(int y = 0; y < image.Height; y++) {
 					float v = (grid[x, y] - lowValue) / (highValue - lowValue);
 					image.SetPixel(x, image.Height-y-1, CreateColorGrayscale(v));
+				}
+			}
+		}
+
+		private void MakeHeightmap256() {
+			image = new Bitmap(grid.GetLength(0), grid.GetLength(1));
+			for(int x = 0; x < image.Width; x++) {
+				for(int y = 0; y < image.Height; y++) {
+					float v = grid[x, y] / 255f;
+					image.SetPixel(x, image.Height - y - 1, CreateColorGrayscale(v));
 				}
 			}
 		}

@@ -11,13 +11,10 @@ namespace ASCReader {
 		private static bool autoInputEnabled = false;
 		private static int autoInputNum = 0;
 		private static string[] autoInputs = new string[]{
-			"C:\\Users\\Yanic Gottardi\\Desktop\\ascr\\zh test\\in\\dhm200_4,2.asc",
-			"format 3ds png-hm png-nm png-hs",
-			//"split 500",
-			//"subsample 2",
+			"C:\\Users\\gdv\\Dropbox\\r.13.27.mca",
+			"format png-hm",
 			"export",
-			"C:\\Users\\Yanic Gottardi\\Desktop\\ascr\\zh test\\out auto\\autoexport_{datetime}",
-			"quit"
+			"C:\\Users\\gdv\\Dropbox\\r.13.27.mca-export-{datetime}"
 		};
 		#endif
 
@@ -86,6 +83,9 @@ namespace ASCReader {
 				if(IsDirectory(input)) {
 					WriteLine("Starting batch in directory "+input+" ...");
 					foreach(string f in Directory.GetFiles(input, "*.asc")) {
+						inputFileList.Add(Path.GetFullPath(f));
+					}
+					foreach(string f in Directory.GetFiles(input, "*.mca")) {
 						inputFileList.Add(Path.GetFullPath(f));
 					}
 					WriteLine(inputFileList.Count + " files have been added to the batch queue");
