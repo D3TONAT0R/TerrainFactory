@@ -358,17 +358,19 @@ namespace ASCReader {
 			bool autoinput = false;
 			#if DEBUG
 			autoinput = autoInputEnabled && autoInputNum < autoInputs.Length;
-			#endif
 			if(autoinput) {
 				s = autoInputs[autoInputNum];
 				autoInputNum++;
 				WriteAutoTask("> " + s);
 			} else {
+			#endif
 				Console.ForegroundColor = ConsoleColor.Yellow;
 				Console.Write("> ");
 				s = Console.ReadLine();
 				Console.ResetColor();
+			#if DEBUG
 			}
+			#endif
 			return s;
 		}
 
@@ -413,7 +415,9 @@ namespace ASCReader {
 			Console.Write(str);
 			Console.ResetColor();
 			Console.WriteLine();
+			#if DEBUG
 			autoInputs = null; //Stop any upcoming automated inputs
+			#endif
 		}
 
 		private static int GetTotalExportCellsPerFile() {

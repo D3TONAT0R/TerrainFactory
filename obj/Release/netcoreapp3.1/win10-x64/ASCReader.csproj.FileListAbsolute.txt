@@ -230,3 +230,10 @@ C:\Users\Yanic Gottardi\Documents\ASCReader\obj\Release\netcoreapp3.1\win10-x64\
 C:\Users\Yanic Gottardi\Documents\ASCReader\obj\Release\netcoreapp3.1\win10-x64\ASCReader.csproj.CopyComplete
 C:\Users\Yanic Gottardi\Documents\ASCReader\obj\Release\netcoreapp3.1\win10-x64\ASCReader.dll
 C:\Users\Yanic Gottardi\Documents\ASCReader\obj\Release\netcoreapp3.1\win10-x64\ASCReader.pdb
+C:\Users\Yanic Gottardi\Documents\ASCReader\bin\Release\netcoreapp3.1\win10-x64\Aspose.3D.dll
+C:\Users\Yanic Gottardi\Documents\ASCReader\bin\Release\netcoreapp3.1\win10-x64\AssimpNet.dll
+C:\Users\Yanic Gottardi\Documents\ASCReader\bin\Release\netcoreapp3.1\win10-x64\DotNetZip.dll
+C:\Users\Yanic Gottardi\Documents\ASCReader\bin\Release\netcoreapp3.1\win10-x64\Microsoft.Win32.SystemEvents.dll
+C:\Users\Yanic Gottardi\Documents\ASCReader\bin\Release\netcoreapp3.1\win10-x64\System.Drawing.Common.dll
+C:\Users\Yanic Gottardi\Documents\ASCReader\bin\Release\netcoreapp3.1\win10-x64\System.Security.Permissions.dll
+C:\Users\Yanic Gottardi\Documents\ASCReader\bin\Release\netcoreapp3.1\win10-x64\assimp.dll
