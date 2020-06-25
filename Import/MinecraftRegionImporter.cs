@@ -4,6 +4,7 @@ using System.Drawing.Imaging;
 using System;
 using Ionic.Zlib;
 using System.Collections;
+using static MinecraftNBTContent;
 
 namespace ASCReader.Import {
 	public static class MinecraftRegionImporter {
@@ -29,9 +30,10 @@ namespace ASCReader.Import {
 			for(int i = 0; i < 1024; i++) {
 				if(locations[i] > 0 && sizes[i] > 0) {
 					var nbt = new MinecraftNBTContent(GetChunkData(locations[i], sizes[i]));
-					int localChunkX = (int)nbt.contents.GetAsCompound("").GetAsCompound("Level").Get("xPos") - regionX * 32;
-					int localChunkZ = (int)nbt.contents.GetAsCompound("").GetAsCompound("Level").Get("zPos") - regionZ * 32;
+					int localChunkX = (int)nbt.contents.Get("xPos") - regionX * 32;
+					int localChunkZ = (int)nbt.contents.Get("zPos") - regionZ * 32;
 					WriteToHeightmap(hm, nbt, localChunkX, localChunkZ);
+					//Temp_PrintBlockInfo(nbt);
 				}
 			}
 			ASCData asc = new ASCData(512,512);
@@ -48,7 +50,30 @@ namespace ASCReader.Import {
 			Program.WriteLine("Hightest: " + asc.highestValue);
 			asc.lowestValue = 0;
 			asc.highestValue = 255;
+			fs.Close();
 			return asc;
+		}
+
+		private static void Temp_PrintBlockInfo(MinecraftNBTContent nbt) {
+			try{
+				var list = nbt.contents.GetAsList("Sections");
+				foreach(var sec in list.cont) {
+					try {
+					var compound = sec as CompoundContainer;
+					byte y = (byte)compound.Get("Y");
+					int palSize = ((ListContainer)compound.Get("Palette")).cont.Count;
+					int longs = ((long[])compound.Get("BlockStates")).Length;
+					Program.WriteLine("Section Y"+y+" has "+palSize+" blockstates defined, data has "+longs+" longs");
+					}
+					catch {
+						
+					}
+				}
+				Program.WriteLine("---");
+			}
+			catch {
+
+			}
 		}
 
 		private static byte[] Read(uint start, int length) {
@@ -84,24 +109,36 @@ namespace ASCReader.Import {
 
 		private static void WriteToHeightmap(float[,] hm, MinecraftNBTContent nbt, int localChunkX, int localChunkZ) {
 			try {
-				long[] hmlongs = (long[])nbt.contents.GetAsCompound("").GetAsCompound("Level").GetAsCompound("Heightmaps").Get("OCEAN_FLOOR");
-				string hmbits = "";
-				for(int i = 0; i < 36; i++) {
-					byte[] bytes = BitConverter.GetBytes(hmlongs[i]);
-					//Array.Reverse(bytes);
-					for(int j = 0; j < 8; j++) {
-						hmbits += ByteToBinary(bytes[j], true);
+				if(nbt.contents.Contains("Heightmaps")) {
+					//It's the "new" format
+					long[] hmlongs = (long[])nbt.contents.GetAsCompound("Heightmaps").Get("OCEAN_FLOOR");
+					string hmbits = "";
+					for(int i = 0; i < 36; i++) {
+						byte[] bytes = BitConverter.GetBytes(hmlongs[i]);
+						//Array.Reverse(bytes);
+						for(int j = 0; j < 8; j++) {
+							hmbits += ByteToBinary(bytes[j], true);
+						}
 					}
-				}
-				ushort[] hmap = new ushort[256];
-				for(int i = 0; i < 256; i++) {
-					hmap[i] = Read9BitValue(hmbits, i);
-				}
+					ushort[] hmap = new ushort[256];
+					for(int i = 0; i < 256; i++) {
+						hmap[i] = Read9BitValue(hmbits, i);
+					}
 
-				if(hmbits != null) {
+					if(hmbits != null) {
+						for(int z = 0; z < 16; z++) {
+							for(int x = 0; x < 16; x++) {
+								var value = hmap[z * 16 + x];
+								hm[localChunkX * 16 + x, 511 - (localChunkZ * 16 + z)] = value;
+							}
+						}
+					}
+				} else {
+					//It's the old, simple format
+					int[] hmints = (int[])nbt.contents.Get("HeightMap");
 					for(int z = 0; z < 16; z++) {
 						for(int x = 0; x < 16; x++) {
-							var value = hmap[z * 16 + x];
+							var value = hmints[z * 16 + x];
 							hm[localChunkX * 16 + x, 511 - (localChunkZ * 16 + z)] = value;
 						}
 					}
