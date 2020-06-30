@@ -109,11 +109,11 @@ namespace ASCReader {
 				if(ext == ".asc") d = new ASCData(inputFileList[0]);
 				else if(ext == ".png" || ext == ".jpeg"  || ext == ".jpg" || ext == ".bmp" || ext == ".tif" ) {
 					d = HeightmapImporter.ImportHeightmap(f);
-					Program.WriteLineSpecial("Heightmap imported. Override cellsize and low/high values for the desired result.");
-					Program.WriteLineSpecial("Default cell size: 1.0     Default data range 0.0-1.0");
+					WriteLineSpecial("Heightmap imported. Override cellsize and low/high values for the desired result.");
+					WriteLineSpecial("Default cell size: 1.0     Default data range 0.0-1.0");
 				} else if(ext == ".mca") {
 					d = MinecraftRegionImporter.ImportHeightmap(f);
-					Program.WriteLineSpecial("Minecraft region heightmap imported.");
+					WriteLineSpecial("Minecraft region heightmap imported.");
 				} else {
 					WriteError("Don't know how to read file with extension: "+ext);
 					d = null;
@@ -189,6 +189,7 @@ namespace ASCReader {
 			WriteLine("        png-hm              Heightmap");
 			WriteLine("        png-nm              Normalmap");
 			WriteLine("        png-hs              Hillshade");
+			WriteLine("        mca                 Minecraft Region format (1.16)");
 			WriteLine("    subsample N             Only export every N-th cell");
 			WriteLine("    split N                 Split files every NxN cells (minimum 32)");
 			WriteLine("    selection x1 y1 x2 y2   Export only the selected data range (use 'preview' to see the data grid)");
@@ -201,7 +202,7 @@ namespace ASCReader {
 			}
 			WriteLine("Type 'export' when ready to export");
 			WriteLine("Type 'abort' to abort the export");
-			String input;
+			string input;
 			exportOptions = new ExportOptions(); 
 			while(true) {
 				input = GetInput();

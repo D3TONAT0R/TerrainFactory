@@ -17,21 +17,21 @@ public class MinecraftChunkData {
 		}
 	}
 
-	public ushort[][,,]blocks = new ushort[8][,,];
-	public List<BlockState>[] palettes = new List<BlockState>[8];
+	public ushort[][,,]blocks = new ushort[16][,,];
+	public List<BlockState>[] palettes = new List<BlockState>[16];
 
 	public MinecraftChunkData() {
-		for(int i = 0; i < 8; i++) {
+		for(int i = 0; i < 16; i++) {
 			palettes[i] = new List<BlockState>();
 			palettes[i].Add(new BlockState("air"));
 		}
 	}
 
 	public MinecraftChunkData(MinecraftNBTContent chunk) {
-		for(int i = 0; i < 8; i++) {
+		for(int i = 0; i < 16; i++) {
 			palettes[i] = new List<BlockState>();
 		}
-		ReadFromNBT(chunk.contents.GetAsList("Sections"), true);
+		ReadFromNBT(chunk.contents.GetAsList("Sections"), chunk.dataVersion < 2504);
 	}
 
 	public ushort GetPaletteIndex(BlockState state, int palette) {
@@ -61,7 +61,7 @@ public class MinecraftChunkData {
 	public void ReadFromNBT(ListContainer sectionsList, bool isVersion_prior_1_16) {
 		foreach(var o in sectionsList.cont) {
 			var compound = (CompoundContainer)o;
-			if(!compound.Contains("Y") || (byte)compound.Get("Y") > 8 || !compound.Contains("Palette")) continue;
+			if(!compound.Contains("Y") || (byte)compound.Get("Y") > 7 || !compound.Contains("Palette")) continue;
 			byte secY = (byte)compound.Get("Y");
 			var palette = palettes[secY];
 			foreach(var cont in compound.GetAsList("Palette").cont) {
@@ -71,7 +71,7 @@ public class MinecraftChunkData {
 				palette.Add(bs);
 			}
 			//1.15 uses the full range of bits where 1.16 doesn't use the last bits if they can't contain a block index
-			int indexLength = Math.Max(4, (int)Math.Log(palette.Count, 2.0) + 1); 
+			int indexLength = Math.Max(4, (int)Math.Log(palette.Count-1, 2.0) + 1); 
 			long[] longs = (long[])compound.Get("BlockStates");
 			string bits = "";
 			for(int i = 0; i < longs.Length; i++) {
@@ -121,7 +121,7 @@ public class MinecraftChunkData {
 	}
 
 	public void WriteToNBT(ListContainer sectionsList, bool use_1_16_Format) {
-		for(byte secY = 0; secY < 8; secY++) {
+		for(byte secY = 0; secY < 16; secY++) {
 			if(IsSectionEmpty(secY)) continue;
 			var comp = GetSection(sectionsList, secY);
 			if(comp == null) {
@@ -132,7 +132,7 @@ public class MinecraftChunkData {
 					CompoundContainer paletteBlock = new CompoundContainer();
 					paletteBlock.Add("Name", bs.block);
 					if(bs.properties != null) paletteBlock.Add("Properties", bs.properties);
-					paletteBlock.Add("", paletteBlock);
+					palette.Add("", paletteBlock);
 				}
 				comp.Add("Palette", palette);
 				//Encode block indexes to bits and longs, oof
@@ -201,7 +201,7 @@ public class MinecraftChunkData {
 	private CompoundContainer GetSection(ListContainer sectionsList, byte y) {
 		foreach(var o in sectionsList.cont) {
 			var compound = (CompoundContainer)o;
-			if(!compound.Contains("Y") || (byte)compound.Get("Y") > 8 || !compound.Contains("Palette")) continue;
+			if(!compound.Contains("Y") || (byte)compound.Get("Y") > 15 || !compound.Contains("Palette")) continue;
 			if((byte)compound.Get("Y") == y) return compound;
 		}
 		return null;

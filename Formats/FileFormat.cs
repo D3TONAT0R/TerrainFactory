@@ -9,5 +9,6 @@ namespace ASCReader {
 		IMG_PNG_Height,
 		IMG_PNG_Normal,
 		IMG_PNG_Hillshade,
+		MINECRAFT_REGION
 	} 
 }
