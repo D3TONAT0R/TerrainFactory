@@ -48,6 +48,7 @@ namespace ASCReader {
 			else if(str == "png-hm") return FileFormat.IMG_PNG_Height;
 			else if(str == "png-nm") return FileFormat.IMG_PNG_Normal;
 			else if(str == "png-hs") return FileFormat.IMG_PNG_Hillshade;
+			else if(str == "mca") return FileFormat.MINECRAFT_REGION;
 			else return FileFormat.UNKNOWN;
 		}
 

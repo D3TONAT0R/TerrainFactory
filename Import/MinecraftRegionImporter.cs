@@ -33,7 +33,6 @@ namespace ASCReader.Import {
 					int localChunkX = (int)nbt.contents.Get("xPos") - regionX * 32;
 					int localChunkZ = (int)nbt.contents.Get("zPos") - regionZ * 32;
 					WriteToHeightmap(hm, nbt, localChunkX, localChunkZ);
-					//Temp_PrintBlockInfo(nbt);
 				}
 			}
 			ASCData asc = new ASCData(512,512);
@@ -52,28 +51,6 @@ namespace ASCReader.Import {
 			asc.highestValue = 255;
 			fs.Close();
 			return asc;
-		}
-
-		private static void Temp_PrintBlockInfo(MinecraftNBTContent nbt) {
-			try{
-				var list = nbt.contents.GetAsList("Sections");
-				foreach(var sec in list.cont) {
-					try {
-					var compound = sec as CompoundContainer;
-					byte y = (byte)compound.Get("Y");
-					int palSize = ((ListContainer)compound.Get("Palette")).cont.Count;
-					int longs = ((long[])compound.Get("BlockStates")).Length;
-					Program.WriteLine("Section Y"+y+" has "+palSize+" blockstates defined, data has "+longs+" longs");
-					}
-					catch {
-						
-					}
-				}
-				Program.WriteLine("---");
-			}
-			catch {
-
-			}
 		}
 
 		private static byte[] Read(uint start, int length) {
@@ -102,7 +79,6 @@ namespace ASCReader.Import {
 		private static byte[] GetChunkData(uint loc, byte size) {
 			loc *= 4096;
 			int length = size*4096;
-			//int length = ReadAsInt(Read(loc,4),0,4);
 			byte[] compressed = Read(loc+5, length);
 			return ZlibStream.UncompressBuffer(compressed);
 		}

@@ -23,6 +23,8 @@ namespace ASCReader.Export {
 					if(!WriteFile3D(source, fullpath, options.subsampling, xMin, yMin, xMax, yMax, ff)) return false;
 				} else if(ff.IsImage()) {
 					if(!WriteFileImage(source, fullpath, options.subsampling, xMin, yMin, xMax, yMax, ff)) return false;
+				} else if(ff == FileFormat.MINECRAFT_REGION) {
+					if(!WriteFileMCA(source, fullpath, options.subsampling, xMin, yMin, xMax, yMax)) return false;
 				}
 				Program.WriteSuccess(ff.GetFiletypeString() + " file created successfully!");
 			}
@@ -98,6 +100,26 @@ namespace ASCReader.Export {
 				WriteFile(exporter, filename, ff);
 				return true;
 			} catch(Exception e) {
+				Program.WriteError("Failed to create Image file!");
+				Program.WriteLine(e.ToString());
+				return false;
+			}
+		}
+
+		public static bool WriteFileMCA(ASCData source, string filename, int subsampling, int xMin, int yMin, int xMax, int yMax) {
+			if(subsampling < 1) subsampling = 1;
+			float[,] grid = new float[(xMax - xMin) / subsampling, (yMax - yMin) / subsampling];
+			for(int x = 0; x < grid.GetLength(0); x++) {
+				for(int y = 0; y < grid.GetLength(1); y++) {
+					grid[x, y] = source.data[xMin + x * subsampling, yMin + y * subsampling];
+				}
+			}
+			try {
+				IExporter exporter = new MinecraftRegionExporter(grid, true);
+				WriteFile(exporter, filename, FileFormat.MINECRAFT_REGION);
+				return true;
+			}
+			catch(Exception e) {
 				Program.WriteError("Failed to create Image file!");
 				Program.WriteLine(e.ToString());
 				return false;

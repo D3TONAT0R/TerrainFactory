@@ -39,7 +39,7 @@ public class VegetationPostProcessor : IMinecraftTerrainPostProcessor
 		}
 	};
 	readonly int treeRadius = 2;
-	readonly int treeTopHeight = 2;
+	readonly int treeTopHeight = 5;
 
 	private Random random;
 	private float grassChance;
@@ -63,7 +63,7 @@ public class VegetationPostProcessor : IMinecraftTerrainPostProcessor
 			}
 		}
 		//Place tall grass
-		if(random.NextDouble() <= treesChance) {
+		if(random.NextDouble() <= grassChance) {
 			PlaceGrass(region, x, y+1, z);
 		}
 	}
@@ -73,14 +73,15 @@ public class VegetationPostProcessor : IMinecraftTerrainPostProcessor
 		if(b == null || !(b != "minecraft:grass_block" || b != "minecraft:dirt")) return false;
 		int bareTrunkHeight = random.Next(2,5);
 		int w = treeRadius;
-		if(IsObstructed(region, x, y, z, x, y+bareTrunkHeight, z) || IsObstructed(region, x-w, y+bareTrunkHeight, z-w, x+w, y+bareTrunkHeight+treeTopHeight, z+w)) return false;
+		if(!region.IsAir(x, y + 1, z)) return false;
+		//if(IsObstructed(region, x, y+1, z, x, y+bareTrunkHeight, z) || IsObstructed(region, x-w, y+bareTrunkHeight, z-w, x+w, y+bareTrunkHeight+treeTopHeight, z+w)) return false;
 		region.SetBlock(x, y-1, z, "minecraft:dirt");
 		for(int i = 0; i <= bareTrunkHeight; i++) {
 			region.SetBlock(x, y+i, z, "minecraft:oak_log");
 		}
-		for(int ly = 0; ly <= treeTopHeight; ly++) {
-			for(int lz = 0; lz <= 2*treeRadius+1; lz++) {
-				for(int lx = 0; lx <= 2*treeRadius+1; lx++) {
+		for(int ly = 0; ly < treeTopHeight; ly++) {
+			for(int lz = 0; lz < 2*treeRadius+1; lz++) {
+				for(int lx = 0; lx < 2*treeRadius+1; lx++) {
 					int palette = blueprintOakTreeTop[ly,lz,lx];
 					if(palette > 0) {
 						string block = palette == 1 ? "minecraft:oak_log" : "minecraft:oak_leaves";

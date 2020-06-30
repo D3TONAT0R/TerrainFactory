@@ -1,22 +1,19 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
+using System.Text.Encodings.Web;
 using ASCReader;
 
 public class MinecraftNBTContent {
 
-	static int instanceNo = 0;
-	
 	public abstract class Container {
 
-		protected int no;
-		
 		public Container() {
-			instanceNo++;
-			no = instanceNo;
+
 		}
 
 		public abstract NBTTag containerType {
@@ -39,10 +36,10 @@ public class MinecraftNBTContent {
 		}
 
 		public override void Add(string key, object value) {
-			if(key == null || key == "") {
+			/*if(key == null || key == "") {
 				Program.WriteError("WTF?");
 				key = "WTF-" + new Random().Next(1000, 9999);
-			}
+			}*/
 			if(!cont.ContainsKey(key)) {
 				cont.Add(key, value);
 			} else {
@@ -127,6 +124,21 @@ public class MinecraftNBTContent {
 		UNSPECIFIED = 99
 	}
 
+	public static Dictionary<Type, NBTTag> NBTTagDictionary = new Dictionary<Type, NBTTag> {
+			{ typeof(byte), NBTTag.TAG_Byte },
+			{ typeof(short), NBTTag.TAG_Short },
+			{ typeof(int), NBTTag.TAG_Int },
+			{ typeof(long), NBTTag.TAG_Long },
+			{ typeof(float), NBTTag.TAG_Float },
+			{ typeof(double), NBTTag.TAG_Double },
+			{ typeof(byte[]), NBTTag.TAG_Byte_Array },
+			{ typeof(string), NBTTag.TAG_String },
+			{ typeof(ListContainer), NBTTag.TAG_List },
+			{ typeof(CompoundContainer), NBTTag.TAG_Compound },
+			{ typeof(int[]), NBTTag.TAG_Int_Array },
+			{ typeof(long[]), NBTTag.TAG_Long_Array }
+		};
+
 	public CompoundContainer contents;
 	public int dataVersion;
 
@@ -145,28 +157,33 @@ public class MinecraftNBTContent {
 	}
 	Container actualCompound;
 
-	public MinecraftNBTContent(byte[] nbt) {
+	public MinecraftNBTContent() {
 		contents = new CompoundContainer();
 		parentTree = new List<Container>();
 		currentCompound = contents;
+	}
+
+	public MinecraftNBTContent(byte[] nbt) : this() {
 		int i = 0;
 		while(i < nbt.Length) {
 			RegisterTag(nbt, currentCompound, ref i);
 		}
 		var root = contents.GetAsCompound("");
 		if(root != null) {
-			//Remove the unnessecary root compound
+			//Remove the unnessecary root compound and unpack the level compound
 			foreach(string k in root.cont.Keys) {
 				contents.Add(k, root.cont[k]);
 			}
 			contents.cont.Remove("");
 		}
-		var level = contents.GetAsCompound("Level");
-		foreach(string k in level.cont.Keys) {
-			contents.Add(k, level.cont[k]);
+		if(contents.Contains("DataVersion")) dataVersion = (int)contents.Get("DataVersion");
+		if(contents.Contains("Level")) {
+			var level = contents.GetAsCompound("Level");
+			foreach(string k in level.cont.Keys) {
+				contents.Add(k, level.cont[k]);
+			}
+			contents.cont.Remove("Level");
 		}
-		dataVersion = (int)contents.Get("DataVersion");
-		contents.cont.Remove("Level");
 		//Program.writeLine("NBT Loaded!");
 		var chunk = new MinecraftChunkData(this);
 	}
@@ -194,7 +211,7 @@ public class MinecraftNBTContent {
 			if(predef == NBTTag.UNSPECIFIED) {
 				short nameLength = BitConverter.ToInt16(Reverse(new byte[] { data[i], data[i + 1] }));
 				if(nameLength > 64) {
-					//Program.writeWarning("NL=" + nameLength + "! Something is going wrong");
+					Program.WriteWarning("NL=" + nameLength + "! Something is going wrong");
 				}
 				i += 2;
 				for(int j = 0; j < nameLength; j++) {
@@ -323,6 +340,102 @@ public class MinecraftNBTContent {
 			ret = arr;
 		}
 		return (T)Convert.ChangeType(ret, typeof(T));
+	}
+
+	public void WriteToBytes(List<byte> bytes) {
+		//Repackage into the original structure
+		
+		CompoundContainer root = new CompoundContainer();
+		CompoundContainer level = new CompoundContainer();
+		foreach(string k in contents.cont.Keys) {
+			level.Add(k, contents.Get(k));
+		}
+		root.Add("Level", level);
+		root.Add("DataVersion", 2504);
+		Write(bytes, "", root);
+		/*CompoundContainer root = new CompoundContainer();
+		CompoundContainer comp1 = new CompoundContainer();
+		CompoundContainer comp2 = new CompoundContainer();
+		comp2.Add("int", 8888);
+		comp2.Add("a byte", (byte)255);
+		comp1.Add("CompString", "This is another string");
+		comp1.Add("Comp integer", 32332);
+		comp1.Add("Comp array", new int[] { 10, 20, 33, 44, 55, 66, 99, 11111 });
+		comp1.Add("SUb comp", comp2);
+		root.Add("AString", "ThisIsA TEST string!!!");
+		root.Add("Byte", (byte)128);
+		root.Add("Shortvalue", (short)2556);
+		root.Add("IntVAl", 335353);
+		root.Add("Comp1", comp1);
+		root.Add("LOOONG", 1234567890L);
+		root.Add("bytearr", new byte[] { 1, 2, 3, 4 });
+		ListContainer list = new ListContainer(NBTTag.TAG_Int);
+		list.Add("", 11212);
+		list.Add("", 22222);
+		list.Add("", 3333333);
+		root.Add("List", list);
+		root.Add("longs", new long[] { 10000, 20000, 30000, 40000, 55555 });
+		ListContainer endlist = new ListContainer(NBTTag.TAG_End);
+		comp1.Add("Endlist", endlist);
+		Write(bytes, "", root);*/
+	}
+
+	void Write(List<byte> bytes, string name, object o) {
+		var tag = NBTTagDictionary[o.GetType()];
+		bytes.Add((byte)tag);
+		byte[] nameBytes = Encoding.UTF8.GetBytes(name);
+		byte[] lengthBytes = Reverse(BitConverter.GetBytes((short)nameBytes.Length));
+		bytes.AddRange(lengthBytes);
+		bytes.AddRange(nameBytes);
+		WriteValue(bytes, tag, o);
+	}
+
+	void WriteValue(List<byte> bytes, NBTTag tag, object o) {
+		if(tag == NBTTag.TAG_Byte) {
+			bytes.Add((byte)o);
+		} else if(tag == NBTTag.TAG_Short) {
+			bytes.AddRange(Reverse(BitConverter.GetBytes((short)o)));
+		} else if(tag == NBTTag.TAG_Int) {
+			bytes.AddRange(Reverse(BitConverter.GetBytes((int)o)));
+		} else if(tag == NBTTag.TAG_Long) {
+			bytes.AddRange(Reverse(BitConverter.GetBytes((long)o)));
+		} else if(tag == NBTTag.TAG_Float) {
+			bytes.AddRange(Reverse(BitConverter.GetBytes((float)o)));
+		} else if(tag == NBTTag.TAG_Double) {
+			bytes.AddRange(Reverse(BitConverter.GetBytes((double)o)));
+		} else if(tag == NBTTag.TAG_Byte_Array) {
+			WriteValue(bytes, NBTTag.TAG_Int, ((byte[])o).Length);
+			foreach(byte b in (byte[])o) {
+				WriteValue(bytes, NBTTag.TAG_Byte, b);
+			}
+		} else if(tag == NBTTag.TAG_String) {
+			byte[] utf8 = Encoding.UTF8.GetBytes((string)o);
+			WriteValue(bytes, NBTTag.TAG_Short, (short)utf8.Length);
+			bytes.AddRange(utf8);
+		} else if(tag == NBTTag.TAG_List) {
+			ListContainer list = (ListContainer)o;
+			bytes.Add((byte)list.contentsType);
+			WriteValue(bytes, NBTTag.TAG_Int, list.cont.Count);
+			foreach(object item in list.cont) {
+				WriteValue(bytes, list.contentsType, item);
+			}
+		} else if(tag == NBTTag.TAG_Compound) {
+			CompoundContainer compound = (CompoundContainer)o;
+			foreach(string k in compound.cont.Keys) {
+				Write(bytes, k, compound.cont[k]);
+			}
+			bytes.Add((byte)NBTTag.TAG_End);
+		} else if(tag == NBTTag.TAG_Int_Array) {
+			WriteValue(bytes, NBTTag.TAG_Int, ((int[])o).Length);
+			foreach(var item in (int[])o) {
+				WriteValue(bytes, NBTTag.TAG_Int, item);
+			}
+		} else if(tag == NBTTag.TAG_Long_Array) {
+			WriteValue(bytes, NBTTag.TAG_Int, ((long[])o).Length);
+			foreach(var item in (long[])o) {
+				WriteValue(bytes, NBTTag.TAG_Long, item);
+			}
+		}
 	}
 
 	byte[] Reverse(byte[] input) {
