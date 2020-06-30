@@ -16,7 +16,7 @@ public class NaturalTerrainPostProcessor : IMinecraftTerrainPostProcessor
 		}
 		//Fill the terrain with water up to the waterLevel
 		if(y <= waterLevel) {
-			if(!region.IsDefaultBlock(x,0,z)) region.SetBlock(x,0,z,"minecraft:water");
+			if(region.IsAir(x,y,z)) region.SetBlock(x,y,z,"minecraft:water");
 		}
 	}
 
