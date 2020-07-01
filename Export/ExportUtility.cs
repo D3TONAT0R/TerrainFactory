@@ -24,7 +24,16 @@ namespace ASCReader.Export {
 				} else if(ff.IsImage()) {
 					if(!WriteFileImage(source, fullpath, options.subsampling, xMin, yMin, xMax, yMax, ff)) return false;
 				} else if(ff == FileFormat.MINECRAFT_REGION) {
-					if(!WriteFileMCA(source, fullpath, options.subsampling, xMin, yMin, xMax, yMax)) return false;
+					int regionX = 0;
+					int regionZ = 0;
+					if(!string.IsNullOrEmpty(subname)) {
+						string[] s = subname.Split('.');
+						if(s.Length >= 3) {
+							regionX = int.Parse(s[1]);
+							regionZ = int.Parse(s[2]);
+						}
+					}
+					if(!WriteFileMCA(source, fullpath, options.subsampling, xMin, yMin, xMax, yMax, regionX, regionZ)) return false;
 				}
 				Program.WriteSuccess(ff.GetFiletypeString() + " file created successfully!");
 			}
@@ -106,7 +115,7 @@ namespace ASCReader.Export {
 			}
 		}
 
-		public static bool WriteFileMCA(ASCData source, string filename, int subsampling, int xMin, int yMin, int xMax, int yMax) {
+		public static bool WriteFileMCA(ASCData source, string filename, int subsampling, int xMin, int yMin, int xMax, int yMax, int regionX, int regionZ) {
 			if(subsampling < 1) subsampling = 1;
 			float[,] grid = new float[(xMax - xMin) / subsampling, (yMax - yMin) / subsampling];
 			for(int x = 0; x < grid.GetLength(0); x++) {
@@ -115,7 +124,8 @@ namespace ASCReader.Export {
 				}
 			}
 			try {
-				IExporter exporter = new MinecraftRegionExporter(grid, true);
+				if(!filename.EndsWith(".mca")) filename += ".mca";
+				IExporter exporter = new MinecraftRegionExporter(grid, regionX, regionZ, true);
 				WriteFile(exporter, filename, FileFormat.MINECRAFT_REGION);
 				return true;
 			}

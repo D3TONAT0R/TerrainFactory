@@ -48,7 +48,7 @@ public class VegetationPostProcessor : IMinecraftTerrainPostProcessor
 	public VegetationPostProcessor(float grassAmount, float treesAmount) {
 		random = new Random();
 		grassChance = grassAmount;
-		treesChance = treesAmount/16f;
+		treesChance = treesAmount/128f;
 	}
 
 	public void ProcessBlock(MinecraftRegionExporter region, int x, int y, int z) {
@@ -71,7 +71,7 @@ public class VegetationPostProcessor : IMinecraftTerrainPostProcessor
 	private bool PlaceTree(MinecraftRegionExporter region, int x, int y, int z) {
 		var b = region.GetBlock(x,y-1,z);
 		if(b == null || !(b != "minecraft:grass_block" || b != "minecraft:dirt")) return false;
-		int bareTrunkHeight = random.Next(2,5);
+		int bareTrunkHeight = random.Next(1,4);
 		int w = treeRadius;
 		if(!region.IsAir(x, y + 1, z)) return false;
 		//if(IsObstructed(region, x, y+1, z, x, y+bareTrunkHeight, z) || IsObstructed(region, x-w, y+bareTrunkHeight, z-w, x+w, y+bareTrunkHeight+treeTopHeight, z+w)) return false;

@@ -194,8 +194,14 @@ namespace ASCReader {
 						int yMax = Math.Min(yMin + dims, nrows);
 						while(xMin + dims <= rangeMaxX) {
 							int xMax = Math.Min(xMin + dims, ncols);
-							bool success = ExportUtility.CreateFilesForSection(this, path, fileX + "," + fileY, options, xMin, yMin, xMax, yMax);
-							if(!success) throw new IOException("Failed to write file " + fileX + "," + fileY);
+							string subname;
+							if(options.outputFormats.Contains(FileFormat.MINECRAFT_REGION)) {
+								subname = "r."+(fileX+options.mcaOffsetX)+"."+(fileY+options.mcaOffsetZ);
+							} else {
+								subname = fileX+","+fileY;
+							}
+							bool success = ExportUtility.CreateFilesForSection(this, path, subname, options, xMin, yMin, xMax, yMax);
+							if(!success) throw new IOException("Failed to write file " + subname);
 							xMin += dims;
 							xMin = Math.Min(xMin, ncols);
 							fileX++;

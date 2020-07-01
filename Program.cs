@@ -195,6 +195,7 @@ namespace ASCReader {
 			WriteLine("    selection x1 y1 x2 y2   Export only the selected data range (use 'preview' to see the data grid)");
 			WriteLine("    overridecellsize N      Override size per cell");
 			WriteLine("    setrange N N            Change the height data range (min - max)");
+			WriteLine("    mcaoffset X Z           Apply offset to region terrain, in regions (512) (MCA format only)");
 			if(batch) {
 				WriteLineSpecial("Batch export options:");
 				WriteLineSpecial("    join                Joins all files into one large file");
@@ -312,6 +313,22 @@ namespace ASCReader {
 					} else {
 						WriteWarning("Two numbers are required!");
 					}
+				} else if(input.StartsWith("mcaoffset")) {
+					string[] split = input.Split(' ');
+					if(split.Length > 2) {
+						bool b = true;
+						int x, z;
+						b &= int.TryParse(split[1], out x) & int.TryParse(split[2], out z);
+						if(b) {
+							exportOptions.mcaOffsetX = x;
+							exportOptions.mcaOffsetZ = z;
+							WriteLine("MCA terrain offset set to "+x+","+z+" ("+(x*512)+" blocks , "+z*512+" blocks)");
+						} else {
+							WriteWarning("Failed to parse to int");
+						}
+					} else {
+						WriteWarning("Two integers are required!");
+					}
 				} else if(batch) {
 					if(input.StartsWith("equalizeheightmaps")) {
 						targetValues = new ASCSummary();
@@ -350,6 +367,12 @@ namespace ASCReader {
 					Console.WriteLine("       Reduce splitting interval or increase subsampling to allow for exporting 3ds Files");
 					valid = false;
 				}*/
+			}
+			if(exportOptions.outputFormats.Contains(FileFormat.MINECRAFT_REGION)) {
+				if(exportOptions.fileSplitDims != 512 && (data.nrows != 512 || data.ncols != 512)) {
+					WriteError("File splitting dimensions must be 512 when exporting to minecraft regions!");
+					valid = false;
+				}
 			}
 			return valid;
 		}

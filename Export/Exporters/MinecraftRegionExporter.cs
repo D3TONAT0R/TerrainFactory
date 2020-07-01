@@ -14,9 +14,12 @@ namespace ASCReader.Export.Exporters {
 		public byte[,] heightmap;
 		public MinecraftChunkData[,] chunks;
 
+		public int regionOffsetX;
+		public int regionOffsetZ;
+
 		public IMinecraftTerrainPostProcessor[] postProcessors;
 
-		public MinecraftRegionExporter(float[,] hmap, params IMinecraftTerrainPostProcessor[] postProcessors) {
+		public MinecraftRegionExporter(float[,] hmap, int rOffsetX, int rOffsetZ, params IMinecraftTerrainPostProcessor[] postProcessors) {
 			this.postProcessors = postProcessors;
 			chunks = new MinecraftChunkData[32,32];
 			for(int x = 0; x < 32; x++) {
@@ -30,13 +33,16 @@ namespace ASCReader.Export.Exporters {
 					heightmap[x, z] = (byte)Math.Round(hmap[x, z]);
 				}
 			}
+			regionOffsetX = rOffsetX;
+			regionOffsetZ = rOffsetZ;
 		}
 
-		public MinecraftRegionExporter(float[,] hmap, bool useDefaultPostProcessors) : this(hmap) {
+		public MinecraftRegionExporter(float[,] hmap, int rOffsetX, int rOffsetZ, bool useDefaultPostProcessors) : this(hmap, rOffsetX, rOffsetZ) {
 			if(useDefaultPostProcessors) {
 				postProcessors = new IMinecraftTerrainPostProcessor[] {
 					new NaturalTerrainPostProcessor(true),
-					new VegetationPostProcessor(0.1f, 0.02f),
+					new VegetationPostProcessor(0.1f, 0.01f),
+					new OrePostProcessor(1),
 					new RandomTorchPostProcessor(0.001f)
 				};
 			}
@@ -97,6 +103,7 @@ namespace ASCReader.Export.Exporters {
 		public string GetBlock(int x, int y, int z) {
 			int chunkX = (int)Math.Floor(x/16.0);
 			int chunkZ = (int)Math.Floor(z/16.0);
+			if(x < 0 || x >= 512 || y < 0 || y >= 256 || z < 0 || z >= 512) return null;
 			if(chunks[chunkX,chunkZ] != null) {
 				var b = chunks[chunkX,chunkZ].GetBlockAt(x%16,y,z%16);
 				return b != null ? b.block : "minecraft:air";
@@ -128,7 +135,7 @@ namespace ASCReader.Export.Exporters {
 				for(int x = 0; x < 32; x++) {
 					int i = z * 32 + x;
 					locations[i] = (int)(stream.Position / 4096);
-					var chunkData = MakeCompoundForChunk(chunks[x, z], x, z);
+					var chunkData = MakeCompoundForChunk(chunks[x, z], 32*regionOffsetX+x, 32*regionOffsetZ+z);
 					List<byte> bytes = new List<byte>();
 					chunkData.WriteToBytes(bytes);
 					byte[] compressed = ZlibStream.CompressBuffer(bytes.ToArray());
