@@ -37,15 +37,22 @@ namespace ASCReader.Export.Exporters {
 			regionOffsetZ = rOffsetZ;
 		}
 
-		public MinecraftRegionExporter(float[,] hmap, int rOffsetX, int rOffsetZ, bool useDefaultPostProcessors) : this(hmap, rOffsetX, rOffsetZ) {
+		public MinecraftRegionExporter(string importPath, float[,] hmap, int rOffsetX, int rOffsetZ, bool useDefaultPostProcessors, bool useSplatmaps) : this(hmap, rOffsetX, rOffsetZ) {
+			List<IMinecraftTerrainPostProcessor> pps = new List<IMinecraftTerrainPostProcessor>();
+			if(useSplatmaps) {
+				pps.Add(new SplatmappedSurfacePostProcessor(importPath, 255));
+			}
 			if(useDefaultPostProcessors) {
-				postProcessors = new IMinecraftTerrainPostProcessor[] {
-					new NaturalTerrainPostProcessor(true),
+				if(!useSplatmaps) {
+					pps.Add(new NaturalTerrainPostProcessor(true));
+				}
+				pps.AddRange(new IMinecraftTerrainPostProcessor[] {
 					new VegetationPostProcessor(0.1f, 0.01f),
 					new OrePostProcessor(1),
 					new RandomTorchPostProcessor(0.001f)
-				};
+				});
 			}
+			postProcessors = pps.ToArray();
 		}
 
 		private void CreateWorld() {

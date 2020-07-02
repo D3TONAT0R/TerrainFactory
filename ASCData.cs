@@ -43,7 +43,8 @@ namespace ASCReader {
 
 		}
 
-		public ASCData(int ncols, int nrows) {
+		public ASCData(int ncols, int nrows, string sourceFile) {
+			filename = sourceFile;
 			data = new float[ncols, nrows];
 			this.ncols = ncols;
 			this.nrows = nrows;
@@ -183,7 +184,7 @@ namespace ASCReader {
 			string dir = Path.GetDirectoryName(path);
 			if(Directory.Exists(dir)) {
 				if(options.fileSplitDims < 32) {
-					ExportUtility.CreateFilesForSection(this, path, null, options, rangeMinX, rangeMinY, rangeMaxX, rangeMaxY);
+					ExportUtility.CreateFilesForSection(this, filename, path, null, options, rangeMinX, rangeMinY, rangeMaxX, rangeMaxY);
 				} else {
 					int dims = options.fileSplitDims;
 					int yMin = rangeMinY;
@@ -200,7 +201,7 @@ namespace ASCReader {
 							} else {
 								subname = fileX+","+fileY;
 							}
-							bool success = ExportUtility.CreateFilesForSection(this, path, subname, options, xMin, yMin, xMax, yMax);
+							bool success = ExportUtility.CreateFilesForSection(this, filename, path, subname, options, xMin, yMin, xMax, yMax);
 							if(!success) throw new IOException("Failed to write file " + subname);
 							xMin += dims;
 							xMin = Math.Min(xMin, ncols);

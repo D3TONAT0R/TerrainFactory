@@ -35,7 +35,7 @@ namespace ASCReader.Import {
 					WriteToHeightmap(hm, nbt, localChunkX, localChunkZ);
 				}
 			}
-			ASCData asc = new ASCData(512,512);
+			ASCData asc = new ASCData(512, 512, filepath);
 			asc.filename = Path.GetFileNameWithoutExtension(filepath);
 			asc.data = hm;
 			asc.cellsize = 1;

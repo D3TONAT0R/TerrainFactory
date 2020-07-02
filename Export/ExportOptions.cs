@@ -21,6 +21,7 @@ namespace ASCReader.Export {
 		//Format specific settings
 		public int mcaOffsetX = 0;
 		public int mcaOffsetZ = 0;
+		public bool useSplatmaps;
 
 		public void SetOutputFormats(string[] inputs, bool append) {
 			if(!append) outputFormats.Clear();

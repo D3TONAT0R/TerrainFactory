@@ -196,6 +196,7 @@ namespace ASCReader {
 			WriteLine("    overridecellsize N      Override size per cell");
 			WriteLine("    setrange N N            Change the height data range (min - max)");
 			WriteLine("    mcaoffset X Z           Apply offset to region terrain, in regions (512) (MCA format only)");
+			WriteLine("    mcasplatmapper          Use splatmap files to define the world's surface (MCA format only, file <name>.splat required)");
 			if(batch) {
 				WriteLineSpecial("Batch export options:");
 				WriteLineSpecial("    join                Joins all files into one large file");
@@ -307,6 +308,7 @@ namespace ASCReader {
 						b &= float.TryParse(split[1], out min) & float.TryParse(split[2], out max);
 						if(b) {
 							data.SetRange(min, max);
+							Program.WriteLine("Height rescaled successfully");
 						} else {
 							WriteWarning("Failed to parse to float");
 						}
@@ -329,6 +331,9 @@ namespace ASCReader {
 					} else {
 						WriteWarning("Two integers are required!");
 					}
+				} else if(input.StartsWith("mcasplatmapper")) {
+					exportOptions.useSplatmaps = !exportOptions.useSplatmaps;
+					Program.WriteLine("MCA splatmapping "+ (exportOptions.useSplatmaps? "enabled" : "disabled"));
 				} else if(batch) {
 					if(input.StartsWith("equalizeheightmaps")) {
 						targetValues = new ASCSummary();
