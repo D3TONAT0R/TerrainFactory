@@ -29,7 +29,7 @@ public class SplatmappedSurfacePostProcessor : IMinecraftTerrainPostProcessor
 
 	public void ProcessSurface(MinecraftRegionExporter region, int x, int y, int z) {
 		foreach(string map in maps.Keys) {
-			byte mappedValue = maps[map][x,y];
+			byte mappedValue = maps[map][x,z];
 			if(mappedValue > 0) {
 				MakeLayer(region, x, y, z, layers[mappedValue]);
 			}

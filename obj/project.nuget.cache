@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "0h9g5vMbZbCadpP3ke3IZNv0JRU+xDTwuU0qtZTDnuQ0k7Y7dE5sA7bWNTPhHsEo82S/3h+5MRI/M39YUFrXmw==",
+  "dgSpecHash": "6paa4abUi+BLAblsVFk0zkCW4pwE/S+CXKVRByBl/iOU+78pASIiYWt8u2lohMACnNCwA8bOzpC+afLycEKWCg==",
   "success": true,
   "projectFilePath": "C:\\Users\\gdv\\Documents\\ASCReader\\ASCReader.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\gdv\\.nuget\\packages\\aspose.3d\\20.3.0\\aspose.3d.20.3.0.nupkg.sha512",
+    "C:\\Users\\gdv\\.nuget\\packages\\aspose.3d\\20.6.1\\aspose.3d.20.6.1.nupkg.sha512",
     "C:\\Users\\gdv\\.nuget\\packages\\assimpnet\\5.0.0-beta1\\assimpnet.5.0.0-beta1.nupkg.sha512",
     "C:\\Users\\gdv\\.nuget\\packages\\dotnetzip\\1.13.8\\dotnetzip.1.13.8.nupkg.sha512",
     "C:\\Users\\gdv\\.nuget\\packages\\microsoft.netcore.platforms\\2.0.0\\microsoft.netcore.platforms.2.0.0.nupkg.sha512",

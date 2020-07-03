@@ -2,7 +2,7 @@
   "version": 3,
   "targets": {
     ".NETCoreApp,Version=v3.1": {
-      "Aspose.3D/20.3.0": {
+      "Aspose.3D/20.6.1": {
         "type": "package",
         "dependencies": {
           "System.Drawing.Common": "4.5.0"
@@ -1374,16 +1374,16 @@
     }
   },
   "libraries": {
-    "Aspose.3D/20.3.0": {
-      "sha512": "7r05Zu8C4V9qLIZig2XAhlZA+a1x+OdwJu6cV762T2qQPEwG2ZuyrBYj+Tx/3LuEYzVhcErMxdgPR4mJxhiXKg==",
+    "Aspose.3D/20.6.1": {
+      "sha512": "illrJItbPOLQUQ+sr/aPsuYI8KmsQUd3Iydn2pxxjkAVoKoppTNZHhUPcMpBaToB10KOnJw9FSWFu/d5g+36qQ==",
       "type": "package",
-      "path": "aspose.3d/20.3.0",
+      "path": "aspose.3d/20.6.1",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "Licenses/Aspose_End-User-License-Agreement.txt",
         "Licenses/thirdpartylicense.Aspose.3D.for.NET.pdf",
-        "aspose.3d.20.3.0.nupkg.sha512",
+        "aspose.3d.20.6.1.nupkg.sha512",
         "aspose.3d.nuspec",
         "icon.png",
         "lib/net40/Aspose.3D.dll",
@@ -4947,30 +4947,32 @@
   },
   "projectFileDependencyGroups": {
     ".NETCoreApp,Version=v3.1": [
-      "Aspose.3D >= 20.3.0",
+      "Aspose.3D >= 20.6.1",
       "AssimpNet >= 5.0.0-beta1",
       "DotNetZip >= 1.13.8"
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Yanic Gottardi\\.nuget\\packages\\": {}
+    "C:\\Users\\gdv\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Yanic Gottardi\\Documents\\ASCReader\\ASCReader.csproj",
+      "projectUniqueName": "C:\\Users\\gdv\\Documents\\ASCReader\\ASCReader.csproj",
       "projectName": "ASCReader",
-      "projectPath": "C:\\Users\\Yanic Gottardi\\Documents\\ASCReader\\ASCReader.csproj",
-      "packagesPath": "C:\\Users\\Yanic Gottardi\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Yanic Gottardi\\Documents\\ASCReader\\obj\\",
+      "projectPath": "C:\\Users\\gdv\\Documents\\ASCReader\\ASCReader.csproj",
+      "packagesPath": "C:\\Users\\gdv\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\gdv\\Documents\\ASCReader\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Yanic Gottardi\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\gdv\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "netcoreapp3.1"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -4989,7 +4991,7 @@
         "dependencies": {
           "Aspose.3D": {
             "target": "Package",
-            "version": "[20.3.0, )"
+            "version": "[20.6.1, )"
           },
           "AssimpNet": {
             "target": "Package",
@@ -5015,7 +5017,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.102\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.200\\RuntimeIdentifierGraph.json"
       }
     }
   }

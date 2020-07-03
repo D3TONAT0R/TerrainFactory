@@ -8,7 +8,7 @@
     ".NETCoreApp,Version=v3.1": {
       "ASCReader/1.0.0": {
         "dependencies": {
-          "Aspose.3D": "20.3.0",
+          "Aspose.3D": "20.6.1",
           "AssimpNet": "5.0.0-beta1",
           "DotNetZip": "1.13.8"
         },
@@ -16,14 +16,14 @@
           "ASCReader.dll": {}
         }
       },
-      "Aspose.3D/20.3.0": {
+      "Aspose.3D/20.6.1": {
         "dependencies": {
           "System.Drawing.Common": "4.5.0"
         },
         "runtime": {
           "lib/netstandard20/Aspose.3D.dll": {
-            "assemblyVersion": "20.3.0.0",
-            "fileVersion": "20.3.0.0"
+            "assemblyVersion": "20.6.1.0",
+            "fileVersion": "20.6.1.0"
           }
         }
       },
@@ -821,12 +821,12 @@
       "serviceable": false,
       "sha512": ""
     },
-    "Aspose.3D/20.3.0": {
+    "Aspose.3D/20.6.1": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-7r05Zu8C4V9qLIZig2XAhlZA+a1x+OdwJu6cV762T2qQPEwG2ZuyrBYj+Tx/3LuEYzVhcErMxdgPR4mJxhiXKg==",
-      "path": "aspose.3d/20.3.0",
-      "hashPath": "aspose.3d.20.3.0.nupkg.sha512"
+      "sha512": "sha512-illrJItbPOLQUQ+sr/aPsuYI8KmsQUd3Iydn2pxxjkAVoKoppTNZHhUPcMpBaToB10KOnJw9FSWFu/d5g+36qQ==",
+      "path": "aspose.3d/20.6.1",
+      "hashPath": "aspose.3d.20.6.1.nupkg.sha512"
     },
     "AssimpNet/5.0.0-beta1": {
       "type": "package",
