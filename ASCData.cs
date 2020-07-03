@@ -188,7 +188,7 @@ namespace ASCReader {
 					if(options.outputFormats.Contains(FileFormat.MINECRAFT_REGION)) {
 						subname = "r."+options.mcaOffsetX+"."+options.mcaOffsetZ;
 					}
-					ExportUtility.CreateFilesForSection(this, filename, path, subname, options, rangeMinX, rangeMinY, rangeMaxX, rangeMaxY);
+					ExportUtility.CreateFilesForSection(this, filename, path, subname, options, rangeMinX, rangeMinY, rangeMaxX, rangeMaxY, options.mcaOffsetX, options.mcaOffsetZ);
 				} else {
 					int dims = options.fileSplitDims;
 					int yMin = rangeMinY;
@@ -205,7 +205,7 @@ namespace ASCReader {
 							} else {
 								subname = fileX+","+fileY;
 							}
-							bool success = ExportUtility.CreateFilesForSection(this, filename, path, subname, options, xMin, yMin, xMax, yMax);
+							bool success = ExportUtility.CreateFilesForSection(this, filename, path, subname, options, xMin, yMin, xMax, yMax, options.mcaOffsetX, options.mcaOffsetZ);
 							if(!success) throw new IOException("Failed to write file " + subname);
 							xMin += dims;
 							xMin = Math.Min(xMin, ncols);

@@ -37,10 +37,10 @@ namespace ASCReader.Export.Exporters {
 			regionOffsetZ = rOffsetZ;
 		}
 
-		public MinecraftRegionExporter(string importPath, float[,] hmap, int rOffsetX, int rOffsetZ, bool useDefaultPostProcessors, bool useSplatmaps) : this(hmap, rOffsetX, rOffsetZ) {
+		public MinecraftRegionExporter(string importPath, float[,] hmap, int rPivotX, int rPivotZ, int rOffsetX, int rOffsetZ, bool useDefaultPostProcessors, bool useSplatmaps) : this(hmap, rOffsetX, rOffsetZ) {
 			List<IMinecraftTerrainPostProcessor> pps = new List<IMinecraftTerrainPostProcessor>();
 			if(useSplatmaps) {
-				pps.Add(new SplatmappedSurfacePostProcessor(importPath, 255));
+				pps.Add(new SplatmappedSurfacePostProcessor(importPath, 255, rOffsetX, rOffsetZ));
 			}
 			if(useDefaultPostProcessors) {
 				if(!useSplatmaps) {
