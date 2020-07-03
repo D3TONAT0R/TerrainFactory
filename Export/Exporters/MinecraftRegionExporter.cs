@@ -48,11 +48,13 @@ namespace ASCReader.Export.Exporters {
 				}
 				pps.AddRange(new IMinecraftTerrainPostProcessor[] {
 					new VegetationPostProcessor(0.1f, 0.01f),
-					new OrePostProcessor(1),
+					new OrePostProcessor(2),
 					new RandomTorchPostProcessor(0.001f)
 				});
 			}
 			postProcessors = pps.ToArray();
+			regionOffsetX = rOffsetX;
+			regionOffsetZ = rOffsetZ;
 		}
 
 		private void CreateWorld() {
@@ -172,6 +174,9 @@ namespace ASCReader.Export.Exporters {
 			ListContainer sections = new ListContainer(NBTTag.TAG_Compound);
 			nbt.contents.Add("Sections", sections);
 			chunk.WriteToNBT(sections, true);
+			int[] biomes = new int[1024];
+			Array.Fill(biomes, 1);
+			nbt.contents.Add("Biomes", biomes);
 			//Add the rest of the tags and leave them empty
 			nbt.contents.Add("Heightmaps", new CompoundContainer());
 			nbt.contents.Add("Structures", new CompoundContainer());

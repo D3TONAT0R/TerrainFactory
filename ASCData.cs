@@ -184,7 +184,11 @@ namespace ASCReader {
 			string dir = Path.GetDirectoryName(path);
 			if(Directory.Exists(dir)) {
 				if(options.fileSplitDims < 32) {
-					ExportUtility.CreateFilesForSection(this, filename, path, null, options, rangeMinX, rangeMinY, rangeMaxX, rangeMaxY);
+					string subname = null;
+					if(options.outputFormats.Contains(FileFormat.MINECRAFT_REGION)) {
+						subname = "r."+options.mcaOffsetX+"."+options.mcaOffsetZ;
+					}
+					ExportUtility.CreateFilesForSection(this, filename, path, subname, options, rangeMinX, rangeMinY, rangeMaxX, rangeMaxY);
 				} else {
 					int dims = options.fileSplitDims;
 					int yMin = rangeMinY;
