@@ -7,11 +7,11 @@ public static class SplatmapImporter {
 
 	public static Random random = new Random();
 
-	public static byte[,] GetFixedSplatmap(string path, SplatmapMapping[] mappings, int ditherLimit) {
+	public static byte[,] GetFixedSplatmap(string path, SplatmapMapping[] mappings, int ditherLimit, int localRegionX, int localRegionZ) {
 		var splat = GetBitmap(path);
 		byte[,] map = new byte[splat.Width, splat.Height];
-		for(int x = 0; x < splat.Width; x++) {
-			for(int y = 0; y < splat.Height; y++) {
+		for(int x = localRegionX*512; x < localRegionX*512+512; x++) {
+			for(int y = localRegionZ*512; y < localRegionZ*512+512; y++) {
 				Color c = splat.GetPixel(x,y);
 				SplatmapMapping mapping;
 				if(ditherLimit > 1) {

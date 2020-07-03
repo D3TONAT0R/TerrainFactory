@@ -8,7 +8,7 @@ public class SplatmappedSurfacePostProcessor : IMinecraftTerrainPostProcessor
 	public Dictionary<string, byte[,]> maps = new Dictionary<string, byte[,]>();
 	public Dictionary<byte, string[]> layers = new Dictionary<byte, string[]>();
 
-	public SplatmappedSurfacePostProcessor(string importedFilePath, int ditherLimit) {
+	public SplatmappedSurfacePostProcessor(string importedFilePath, int ditherLimit, int localRegionX, int localRegionZ) {
 		var desc = new SplatmapDescriptorReader(importedFilePath);
 		foreach(string k in desc.maps.Keys) {
 			string path = Path.GetDirectoryName(importedFilePath);
@@ -17,7 +17,7 @@ public class SplatmappedSurfacePostProcessor : IMinecraftTerrainPostProcessor
 				if(sm.mapName == k) mappings.Add(sm);
 			}
 			mappings.Add(new SplatmapMapping(k, Color.Black, 0));
-			maps.Add(k, SplatmapImporter.GetFixedSplatmap(path+"\\"+desc.maps[k], mappings.ToArray(), ditherLimit));
+			maps.Add(k, SplatmapImporter.GetFixedSplatmap(path+"\\"+desc.maps[k], mappings.ToArray(), ditherLimit, localRegionX, localRegionZ));
 		}
 		foreach(var sm in desc.layers.Keys) {
 			layers.Add((byte)sm.value, desc.layers[sm].Split(','));

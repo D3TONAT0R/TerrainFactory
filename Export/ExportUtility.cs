@@ -8,7 +8,7 @@ using ASCReader.Export.Exporters;
 namespace ASCReader.Export {
 	public static class ExportUtility {
 
-		public static bool CreateFilesForSection(ASCData source, string sourceFilePath, string path, string subname, ExportOptions options, int xMin, int yMin, int xMax, int yMax) {
+		public static bool CreateFilesForSection(ASCData source, string sourceFilePath, string path, string subname, ExportOptions options, int xMin, int yMin, int xMax, int yMax, int regionPivotX, int regionPivotZ) {
 			if(!string.IsNullOrEmpty(subname)) {
 				string ext = Path.GetExtension(path);
 				string p = path.Substring(0, path.Length - ext.Length);
@@ -33,7 +33,7 @@ namespace ASCReader.Export {
 							regionZ = int.Parse(s[2]);
 						}
 					}
-					if(!WriteFileMCA(sourceFilePath, options.useSplatmaps, source, fullpath, options.subsampling, xMin, yMin, xMax, yMax, regionX, regionZ)) return false;
+					if(!WriteFileMCA(sourceFilePath, options.useSplatmaps, source, fullpath, options.subsampling, xMin, yMin, xMax, yMax, regionPivotX, regionPivotZ, regionX-regionPivotX, regionZ-regionPivotZ)) return false;
 				}
 				Program.WriteSuccess(ff.GetFiletypeString() + " file created successfully!");
 			}
@@ -115,7 +115,7 @@ namespace ASCReader.Export {
 			}
 		}
 
-		public static bool WriteFileMCA(string importPath, bool useSplatmaps, ASCData source, string filename, int subsampling, int xMin, int yMin, int xMax, int yMax, int regionX, int regionZ) {
+		public static bool WriteFileMCA(string importPath, bool useSplatmaps, ASCData source, string filename, int subsampling, int xMin, int yMin, int xMax, int yMax, int regionPivotX, int regionPivotZ, int regionX, int regionZ) {
 			if(subsampling < 1) subsampling = 1;
 			float[,] grid = new float[(xMax - xMin) / subsampling, (yMax - yMin) / subsampling];
 			for(int x = 0; x < grid.GetLength(0); x++) {
@@ -125,7 +125,7 @@ namespace ASCReader.Export {
 			}
 			try {
 				if(!filename.EndsWith(".mca")) filename += ".mca";
-				IExporter exporter = new MinecraftRegionExporter(importPath, grid, regionX, regionZ, true, useSplatmaps);
+				IExporter exporter = new MinecraftRegionExporter(importPath, grid, regionPivotX, regionPivotZ, regionX, regionZ, true, useSplatmaps);
 				WriteFile(exporter, filename, FileFormat.MINECRAFT_REGION);
 				return true;
 			}

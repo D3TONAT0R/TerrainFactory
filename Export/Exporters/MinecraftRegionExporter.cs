@@ -37,10 +37,10 @@ namespace ASCReader.Export.Exporters {
 			regionOffsetZ = rOffsetZ;
 		}
 
-		public MinecraftRegionExporter(string importPath, float[,] hmap, int rOffsetX, int rOffsetZ, bool useDefaultPostProcessors, bool useSplatmaps) : this(hmap, rOffsetX, rOffsetZ) {
+		public MinecraftRegionExporter(string importPath, float[,] hmap, int rPivotX, int rPivotZ, int rOffsetX, int rOffsetZ, bool useDefaultPostProcessors, bool useSplatmaps) : this(hmap, rOffsetX, rOffsetZ) {
 			List<IMinecraftTerrainPostProcessor> pps = new List<IMinecraftTerrainPostProcessor>();
 			if(useSplatmaps) {
-				pps.Add(new SplatmappedSurfacePostProcessor(importPath, 255));
+				pps.Add(new SplatmappedSurfacePostProcessor(importPath, 255, rOffsetX, rOffsetZ));
 			}
 			if(useDefaultPostProcessors) {
 				if(!useSplatmaps) {
@@ -48,11 +48,13 @@ namespace ASCReader.Export.Exporters {
 				}
 				pps.AddRange(new IMinecraftTerrainPostProcessor[] {
 					new VegetationPostProcessor(0.1f, 0.01f),
-					new OrePostProcessor(1),
+					new OrePostProcessor(2),
 					new RandomTorchPostProcessor(0.001f)
 				});
 			}
 			postProcessors = pps.ToArray();
+			regionOffsetX = rOffsetX;
+			regionOffsetZ = rOffsetZ;
 		}
 
 		private void CreateWorld() {
@@ -172,6 +174,9 @@ namespace ASCReader.Export.Exporters {
 			ListContainer sections = new ListContainer(NBTTag.TAG_Compound);
 			nbt.contents.Add("Sections", sections);
 			chunk.WriteToNBT(sections, true);
+			int[] biomes = new int[1024];
+			Array.Fill(biomes, 1);
+			nbt.contents.Add("Biomes", biomes);
 			//Add the rest of the tags and leave them empty
 			nbt.contents.Add("Heightmaps", new CompoundContainer());
 			nbt.contents.Add("Structures", new CompoundContainer());
