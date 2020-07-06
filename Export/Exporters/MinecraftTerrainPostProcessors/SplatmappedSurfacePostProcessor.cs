@@ -9,7 +9,7 @@ public class SplatmappedSurfacePostProcessor : IMinecraftTerrainPostProcessor
 	public Dictionary<byte, string[]> layers = new Dictionary<byte, string[]>();
 
 	public SplatmappedSurfacePostProcessor(string importedFilePath, int ditherLimit, int localRegionX, int localRegionZ) {
-		var desc = new SplatmapDescriptorReader(importedFilePath);
+		var desc = new SplatmapDescriptorReader(importedFilePath, SplatmapDescriptorReader.Type.SurfaceSplatmapDesc);
 		foreach(string k in desc.maps.Keys) {
 			string path = Path.GetDirectoryName(importedFilePath);
 			List<SplatmapMapping> mappings = new List<SplatmapMapping>();

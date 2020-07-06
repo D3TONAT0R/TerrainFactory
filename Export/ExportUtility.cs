@@ -8,11 +8,15 @@ using ASCReader.Export.Exporters;
 namespace ASCReader.Export {
 	public static class ExportUtility {
 
-		public static bool CreateFilesForSection(ASCData source, string sourceFilePath, string path, string subname, ExportOptions options, int xMin, int yMin, int xMax, int yMax, int regionPivotX, int regionPivotZ) {
+		public static bool CreateFilesForSection(ASCData source, string sourceFilePath, string path, string subname, ExportOptions options, int xMin, int yMin, int xMax, int yMax) {
 			if(!string.IsNullOrEmpty(subname)) {
 				string ext = Path.GetExtension(path);
 				string p = path.Substring(0, path.Length - ext.Length);
-				path = p + "_" + subname;
+				if(!path.EndsWith("\\")) {
+					path = p + "_" + subname;
+				} else {
+					path = p + subname;
+				}
 			}
 			foreach(FileFormat ff in options.outputFormats) {
 				string fullpath = path + ff.GetSuffixWithExtension();
@@ -33,7 +37,7 @@ namespace ASCReader.Export {
 							regionZ = int.Parse(s[2]);
 						}
 					}
-					if(!WriteFileMCA(sourceFilePath, options.useSplatmaps, source, fullpath, options.subsampling, xMin, yMin, xMax, yMax, regionPivotX, regionPivotZ, regionX-regionPivotX, regionZ-regionPivotZ)) return false;
+					if(!WriteFileMCA(sourceFilePath, options.useSplatmaps, source, fullpath, options.subsampling, xMin, yMin, xMax, yMax)) return false;
 				}
 				Program.WriteSuccess(ff.GetFiletypeString() + " file created successfully!");
 			}
@@ -115,7 +119,7 @@ namespace ASCReader.Export {
 			}
 		}
 
-		public static bool WriteFileMCA(string importPath, bool useSplatmaps, ASCData source, string filename, int subsampling, int xMin, int yMin, int xMax, int yMax, int regionPivotX, int regionPivotZ, int regionX, int regionZ) {
+		public static bool WriteFileMCA(string importPath, bool useSplatmaps, ASCData source, string filename, int subsampling, int xMin, int yMin, int xMax, int yMax) {
 			if(subsampling < 1) subsampling = 1;
 			float[,] grid = new float[(xMax - xMin) / subsampling, (yMax - yMin) / subsampling];
 			for(int x = 0; x < grid.GetLength(0); x++) {
@@ -125,7 +129,7 @@ namespace ASCReader.Export {
 			}
 			try {
 				if(!filename.EndsWith(".mca")) filename += ".mca";
-				IExporter exporter = new MinecraftRegionExporter(importPath, grid, regionPivotX, regionPivotZ, regionX, regionZ, true, useSplatmaps);
+				IExporter exporter = new MinecraftRegionExporter(importPath, grid, true, useSplatmaps);
 				WriteFile(exporter, filename, FileFormat.MINECRAFT_REGION);
 				return true;
 			}
@@ -137,7 +141,7 @@ namespace ASCReader.Export {
 		}
 
 		public static void WriteFile(IExporter ie, string path, FileFormat ff) {
-			FileStream stream = new FileStream(path, FileMode.CreateNew);
+			FileStream stream = new FileStream(path, FileMode.Create);
 			ie.WriteFile(stream, ff);
 			stream.Close();
 		}

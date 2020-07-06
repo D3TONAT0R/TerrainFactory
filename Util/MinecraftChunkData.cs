@@ -19,6 +19,7 @@ public class MinecraftChunkData {
 
 	public ushort[][,,]blocks = new ushort[16][,,];
 	public List<BlockState>[] palettes = new List<BlockState>[16];
+	public byte[,,] biomes = new byte[16, 256, 16];
 
 	public MinecraftChunkData() {
 		for(int i = 0; i < 16; i++) {
@@ -56,6 +57,10 @@ public class MinecraftChunkData {
 		int section = (int)Math.Floor(y/16f);
 		if(blocks[section] == null) return new BlockState("minecraft:air");
 		return palettes[section][blocks[section][x,y%16,z]];
+	}
+
+	public void SetBiomeAt(int x, int y, int z, byte biomeID) {
+		biomes[x, y, z] = biomeID;
 	}
 
 	public void ReadFromNBT(ListContainer sectionsList, bool isVersion_prior_1_16) {
@@ -136,7 +141,7 @@ public class MinecraftChunkData {
 				}
 				comp.Add("Palette", palette);
 				//Encode block indexes to bits and longs, oof
-				int indexLength = Math.Max(4, (int)Math.Log(palettes[secY].Count, 2.0) + 1); 
+				int indexLength = Math.Max(4, (int)Math.Log(palettes[secY].Count-1, 2.0) + 1); 
 				long[] longs = new long[(int)Math.Ceiling(4096*indexLength/64.0)];
 				string[] longsBinary = new string[longs.Length];
 				Array.Fill(longsBinary, "");

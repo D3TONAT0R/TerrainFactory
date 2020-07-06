@@ -70,7 +70,7 @@ public class VegetationPostProcessor : IMinecraftTerrainPostProcessor
 
 	private bool PlaceTree(MinecraftRegionExporter region, int x, int y, int z) {
 		var b = region.GetBlock(x,y-1,z);
-		if(b == null || !(b != "minecraft:grass_block" || b != "minecraft:dirt")) return false;
+		if(b == null || !CanGrowPlant(b)) return false;
 		int bareTrunkHeight = random.Next(1,4);
 		int w = treeRadius;
 		if(!region.IsAir(x, y + 1, z)) return false;
@@ -108,5 +108,9 @@ public class VegetationPostProcessor : IMinecraftTerrainPostProcessor
 			}
 		}
 		return true;
+	}
+
+	private bool CanGrowPlant(string block) {
+		return block == "minecraft:grass_block" || block == "minecraft:dirt";
 	}
 }

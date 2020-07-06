@@ -353,31 +353,6 @@ public class MinecraftNBTContent {
 		root.Add("Level", level);
 		root.Add("DataVersion", 2504);
 		Write(bytes, "", root);
-		/*CompoundContainer root = new CompoundContainer();
-		CompoundContainer comp1 = new CompoundContainer();
-		CompoundContainer comp2 = new CompoundContainer();
-		comp2.Add("int", 8888);
-		comp2.Add("a byte", (byte)255);
-		comp1.Add("CompString", "This is another string");
-		comp1.Add("Comp integer", 32332);
-		comp1.Add("Comp array", new int[] { 10, 20, 33, 44, 55, 66, 99, 11111 });
-		comp1.Add("SUb comp", comp2);
-		root.Add("AString", "ThisIsA TEST string!!!");
-		root.Add("Byte", (byte)128);
-		root.Add("Shortvalue", (short)2556);
-		root.Add("IntVAl", 335353);
-		root.Add("Comp1", comp1);
-		root.Add("LOOONG", 1234567890L);
-		root.Add("bytearr", new byte[] { 1, 2, 3, 4 });
-		ListContainer list = new ListContainer(NBTTag.TAG_Int);
-		list.Add("", 11212);
-		list.Add("", 22222);
-		list.Add("", 3333333);
-		root.Add("List", list);
-		root.Add("longs", new long[] { 10000, 20000, 30000, 40000, 55555 });
-		ListContainer endlist = new ListContainer(NBTTag.TAG_End);
-		comp1.Add("Endlist", endlist);
-		Write(bytes, "", root);*/
 	}
 
 	void Write(List<byte> bytes, string name, object o) {

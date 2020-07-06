@@ -9,10 +9,10 @@ public static class SplatmapImporter {
 
 	public static byte[,] GetFixedSplatmap(string path, SplatmapMapping[] mappings, int ditherLimit, int localRegionX, int localRegionZ) {
 		var splat = GetBitmap(path);
-		byte[,] map = new byte[splat.Width, splat.Height];
-		for(int x = localRegionX*512; x < localRegionX*512+512; x++) {
-			for(int y = localRegionZ*512; y < localRegionZ*512+512; y++) {
-				Color c = splat.GetPixel(x,y);
+		byte[,] map = new byte[512,512];
+		for(int x = 0; x < 512; x++) {
+			for(int y = 0; y < 512; y++) {
+				Color c = splat.GetPixel(localRegionX*512+x, localRegionZ*512+y);
 				SplatmapMapping mapping;
 				if(ditherLimit > 1) {
 					mapping = GetDitheredMapping(c, mappings, ditherLimit);
@@ -24,7 +24,6 @@ public static class SplatmapImporter {
 		}
 		return map;
 	}
-
 
 	static Bitmap GetBitmap(string path) {
 		FileStream stream = File.Open(path, FileMode.Open);

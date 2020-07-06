@@ -8,23 +8,20 @@ using static MinecraftNBTContent;
 
 namespace ASCReader.Export.Exporters {
 	public class MinecraftRegionExporter : IExporter {
-		
+
 		public static readonly string defaultBlock = "minecraft:stone";
 
 		public byte[,] heightmap;
 		public MinecraftChunkData[,] chunks;
 
-		public int regionOffsetX;
-		public int regionOffsetZ;
-
 		public IMinecraftTerrainPostProcessor[] postProcessors;
 
-		public MinecraftRegionExporter(float[,] hmap, int rOffsetX, int rOffsetZ, params IMinecraftTerrainPostProcessor[] postProcessors) {
+		public MinecraftRegionExporter(float[,] hmap, params IMinecraftTerrainPostProcessor[] postProcessors) {
 			this.postProcessors = postProcessors;
-			chunks = new MinecraftChunkData[32,32];
+			chunks = new MinecraftChunkData[32, 32];
 			for(int x = 0; x < 32; x++) {
 				for(int z = 0; z < 32; z++) {
-					chunks[x,z] = new MinecraftChunkData();
+					chunks[x, z] = new MinecraftChunkData();
 				}
 			}
 			heightmap = new byte[512, 512];
@@ -33,28 +30,25 @@ namespace ASCReader.Export.Exporters {
 					heightmap[x, z] = (byte)Math.Round(hmap[x, z]);
 				}
 			}
-			regionOffsetX = rOffsetX;
-			regionOffsetZ = rOffsetZ;
 		}
 
-		public MinecraftRegionExporter(string importPath, float[,] hmap, int rPivotX, int rPivotZ, int rOffsetX, int rOffsetZ, bool useDefaultPostProcessors, bool useSplatmaps) : this(hmap, rOffsetX, rOffsetZ) {
+		public MinecraftRegionExporter(string importPath, float[,] hmap, bool useDefaultPostProcessors, bool useSplatmaps) : this(hmap) {
 			List<IMinecraftTerrainPostProcessor> pps = new List<IMinecraftTerrainPostProcessor>();
 			if(useSplatmaps) {
-				pps.Add(new SplatmappedSurfacePostProcessor(importPath, 255, rOffsetX, rOffsetZ));
+				pps.Add(new SplatmappedSurfacePostProcessor(importPath, 255, CurrentExportJobInfo.exportNumX, CurrentExportJobInfo.exportNumZ));
+				pps.Add(new SplatmappedBiomePostProcessor(importPath, 0, CurrentExportJobInfo.exportNumX, CurrentExportJobInfo.exportNumZ));
 			}
 			if(useDefaultPostProcessors) {
 				if(!useSplatmaps) {
 					pps.Add(new NaturalTerrainPostProcessor(true));
+					new VegetationPostProcessor(0.1f, 0.01f);
 				}
 				pps.AddRange(new IMinecraftTerrainPostProcessor[] {
-					new VegetationPostProcessor(0.1f, 0.01f),
 					new OrePostProcessor(2),
 					new RandomTorchPostProcessor(0.001f)
 				});
 			}
 			postProcessors = pps.ToArray();
-			regionOffsetX = rOffsetX;
-			regionOffsetZ = rOffsetZ;
 		}
 
 		private void CreateWorld() {
@@ -66,7 +60,7 @@ namespace ASCReader.Export.Exporters {
 		private void MakeBaseTerrain() {
 			for(int x = 0; x < 512; x++) {
 				for(int z = 0; z < 512; z++) {
-					for(int y = 0; y <= heightmap[x,z]; y++) {
+					for(int y = 0; y <= heightmap[x, z]; y++) {
 						SetBlock(x, y, z, defaultBlock);
 					}
 				}
@@ -81,7 +75,7 @@ namespace ASCReader.Export.Exporters {
 			//Iterate the postprocessors over every block
 			for(int x = 0; x < 512; x++) {
 				for(int z = 0; z < 512; z++) {
-					for(int y = 0; y <= heightmap[x,z]; y++) {
+					for(int y = 0; y <= heightmap[x, z]; y++) {
 						foreach(var post in postProcessors) {
 							post.ProcessBlock(this, x, y, z);
 						}
@@ -92,29 +86,34 @@ namespace ASCReader.Export.Exporters {
 			for(int x = 0; x < 512; x++) {
 				for(int z = 0; z < 512; z++) {
 					foreach(var post in postProcessors) {
-						post.ProcessSurface(this, x, heightmap[x,z], z);
+						post.ProcessSurface(this, x, heightmap[x, z], z);
 					}
 				}
 			}
 		}
 
 		public bool IsAir(int x, int y, int z) {
-			var b = GetBlock(x,y,z);
-			return b == null || b == "minecraft:air"; 
+			var b = GetBlock(x, y, z);
+			return b == null || b == "minecraft:air";
+		}
+
+		public bool IsWithinBoundaries(int x, int y, int z) {
+			if(x < 0 || x >= 512 || y < 0 || y >= 256 || z < 0 || z >= 512) return false;
+			else return true;
 		}
 
 		public bool IsDefaultBlock(int x, int y, int z) {
-			var b = GetBlock(x,y,z);
+			var b = GetBlock(x, y, z);
 			if(b == null) return false;
-			return b == defaultBlock; 
+			return b == defaultBlock;
 		}
 
 		public string GetBlock(int x, int y, int z) {
-			int chunkX = (int)Math.Floor(x/16.0);
-			int chunkZ = (int)Math.Floor(z/16.0);
+			int chunkX = (int)Math.Floor(x / 16.0);
+			int chunkZ = (int)Math.Floor(z / 16.0);
 			if(x < 0 || x >= 512 || y < 0 || y >= 256 || z < 0 || z >= 512) return null;
-			if(chunks[chunkX,chunkZ] != null) {
-				var b = chunks[chunkX,chunkZ].GetBlockAt(x%16,y,z%16);
+			if(chunks[chunkX, chunkZ] != null) {
+				var b = chunks[chunkX, chunkZ].GetBlockAt(x % 16, y, z % 16);
 				return b != null ? b.block : "minecraft:air";
 			} else {
 				return null;
@@ -122,14 +121,25 @@ namespace ASCReader.Export.Exporters {
 		}
 
 		public bool SetBlock(int x, int y, int z, string block) {
-			int chunkX = (int)Math.Floor(x/16.0);
-			int chunkZ = (int)Math.Floor(z/16.0);
+			int chunkX = (int)Math.Floor(x / 16.0);
+			int chunkZ = (int)Math.Floor(z / 16.0);
 			if(chunkX < 0 || chunkX > 31 || chunkZ < 0 || chunkZ > 31) return false;
-			if(chunks[chunkX,chunkZ] != null) {
-				chunks[chunkX,chunkZ].SetBlockAt(x%16,y,z%16,new BlockState(block));
+			if(chunks[chunkX, chunkZ] != null) {
+				chunks[chunkX, chunkZ].SetBlockAt(x % 16, y, z % 16, new BlockState(block));
 				return true;
 			} else {
 				return false;
+			}
+		}
+
+		public void SetBiome(int x, int z, byte biome) {
+			int chunkX = (int)Math.Floor(x / 16.0);
+			int chunkZ = (int)Math.Floor(z / 16.0);
+			if(chunkX < 0 || chunkX > 31 || chunkZ < 0 || chunkZ > 31) return;
+			if(chunks[chunkX, chunkZ] != null) {
+				for(int y = 0; y < 256; y++) {
+					chunks[chunkX, chunkZ].SetBiomeAt(x % 16, y, z % 16, biome);
+				}
 			}
 		}
 
@@ -144,7 +154,7 @@ namespace ASCReader.Export.Exporters {
 				for(int x = 0; x < 32; x++) {
 					int i = z * 32 + x;
 					locations[i] = (int)(stream.Position / 4096);
-					var chunkData = MakeCompoundForChunk(chunks[x, z], 32*regionOffsetX+x, 32*regionOffsetZ+z);
+					var chunkData = MakeCompoundForChunk(chunks[x, z], 32 * (CurrentExportJobInfo.mcaGlobalPosX+CurrentExportJobInfo.exportNumX) + x, 32 * (CurrentExportJobInfo.mcaGlobalPosZ + CurrentExportJobInfo.exportNumZ) + z);
 					List<byte> bytes = new List<byte>();
 					chunkData.WriteToBytes(bytes);
 					byte[] compressed = ZlibStream.CompressBuffer(bytes.ToArray());

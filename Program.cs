@@ -8,13 +8,16 @@ namespace ASCReader {
 	class Program {
 
 		#if DEBUG
-		private static bool autoInputEnabled = false;
+		private static bool autoInputEnabled = true;
 		private static int autoInputNum = 0;
 		private static string[] autoInputs = new string[]{
-			"C:\\Users\\gdv\\Dropbox\\r.13.27.mca",
-			"format png-hm",
+			"C:\\Users\\gdv\\Dropbox\\World Machine\\World Machine Documents\\heightmap.png",
+			"format mca",
+			"mcasplatmapper",
+			"setrange 0 255",
+			"split 512",
 			"export",
-			"C:\\Users\\gdv\\Dropbox\\r.13.27.mca-export-{datetime}"
+			"C:\\Users\\gdv\\Dropbox\\World Machine\\World Machine Documents\\"
 		};
 		#endif
 
@@ -118,6 +121,7 @@ namespace ASCReader {
 					WriteError("Don't know how to read file with extension: "+ext);
 					d = null;
 				}
+				CurrentExportJobInfo.importedFilePath = f;
 				inputFileList.RemoveAt(0);
 				return d;
 			} else {

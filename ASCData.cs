@@ -182,13 +182,15 @@ namespace ASCReader {
 				rangeMaxY = options.exportRange.yMax;
 			}
 			string dir = Path.GetDirectoryName(path);
+			CurrentExportJobInfo.mcaGlobalPosX = options.mcaOffsetX;
+			CurrentExportJobInfo.mcaGlobalPosZ = options.mcaOffsetZ;
 			if(Directory.Exists(dir)) {
 				if(options.fileSplitDims < 32) {
 					string subname = null;
 					if(options.outputFormats.Contains(FileFormat.MINECRAFT_REGION)) {
 						subname = "r."+options.mcaOffsetX+"."+options.mcaOffsetZ;
 					}
-					ExportUtility.CreateFilesForSection(this, filename, path, subname, options, rangeMinX, rangeMinY, rangeMaxX, rangeMaxY, options.mcaOffsetX, options.mcaOffsetZ);
+					ExportUtility.CreateFilesForSection(this, filename, path, subname, options, rangeMinX, rangeMinY, rangeMaxX, rangeMaxY);
 				} else {
 					int dims = options.fileSplitDims;
 					int yMin = rangeMinY;
@@ -200,12 +202,14 @@ namespace ASCReader {
 						while(xMin + dims <= rangeMaxX) {
 							int xMax = Math.Min(xMin + dims, ncols);
 							string subname;
+							CurrentExportJobInfo.exportNumX = fileX;
+							CurrentExportJobInfo.exportNumZ = fileY;
 							if(options.outputFormats.Contains(FileFormat.MINECRAFT_REGION)) {
 								subname = "r."+(fileX+options.mcaOffsetX)+"."+(fileY+options.mcaOffsetZ);
 							} else {
 								subname = fileX+","+fileY;
 							}
-							bool success = ExportUtility.CreateFilesForSection(this, filename, path, subname, options, xMin, yMin, xMax, yMax, options.mcaOffsetX, options.mcaOffsetZ);
+							bool success = ExportUtility.CreateFilesForSection(this, filename, path, subname, options, xMin, yMin, xMax, yMax);
 							if(!success) throw new IOException("Failed to write file " + subname);
 							xMin += dims;
 							xMin = Math.Min(xMin, ncols);
