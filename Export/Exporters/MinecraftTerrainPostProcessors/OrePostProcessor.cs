@@ -56,4 +56,8 @@ public class OrePostProcessor : IMinecraftTerrainPostProcessor
 	private int RandomRange(int min, int max) {
 		return random.Next(min,max+1);
 	}
+
+	public void OnFinish(MinecraftRegionExporter region) {
+
+	}
 }

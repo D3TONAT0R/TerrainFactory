@@ -12,7 +12,7 @@ public class CommonSplatmapColors {
     public static Color blue = Color.FromArgb(255, 0, 0, 255);
 
     //Secondary splat colors
-    public static Color yellow = Color.FromArgb(255, 255, 0, 255);
+    public static Color yellow = Color.FromArgb(255, 255, 255, 0);
     public static Color cyan = Color.FromArgb(255, 0, 255, 255);
     public static Color magenta = Color.FromArgb(255, 255, 0, 255);
 

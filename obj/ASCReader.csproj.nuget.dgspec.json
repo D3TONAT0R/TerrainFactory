@@ -1,27 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\gdv\\Documents\\ASCReader\\ASCReader.csproj": {}
+    "C:\\Users\\Yanic Gottardi\\Documents\\ASCReader\\ASCReader.csproj": {}
   },
   "projects": {
-    "C:\\Users\\gdv\\Documents\\ASCReader\\ASCReader.csproj": {
+    "C:\\Users\\Yanic Gottardi\\Documents\\ASCReader\\ASCReader.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\gdv\\Documents\\ASCReader\\ASCReader.csproj",
+        "projectUniqueName": "C:\\Users\\Yanic Gottardi\\Documents\\ASCReader\\ASCReader.csproj",
         "projectName": "ASCReader",
-        "projectPath": "C:\\Users\\gdv\\Documents\\ASCReader\\ASCReader.csproj",
-        "packagesPath": "C:\\Users\\gdv\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\gdv\\Documents\\ASCReader\\obj\\",
+        "projectPath": "C:\\Users\\Yanic Gottardi\\Documents\\ASCReader\\ASCReader.csproj",
+        "packagesPath": "C:\\Users\\Yanic Gottardi\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Yanic Gottardi\\Documents\\ASCReader\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\gdv\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\Yanic Gottardi\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "netcoreapp3.1"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -66,7 +64,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.200\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.102\\RuntimeIdentifierGraph.json"
         }
       }
     }

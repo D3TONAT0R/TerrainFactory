@@ -7,25 +7,24 @@ using ASCReader.Export.Exporters.MinecraftTerrainPostProcessors;
 
 public class SplatmapDescriptorReader {
 
-	public enum Type {
+	/*public enum Type {
 		SurfaceSplatmapDesc,
 		BiomeSplatmapDesc
-	}
+	}*/
 
 	public Dictionary<string,string> maps = new Dictionary<string, string>();
 	public Dictionary<SplatmapMapping, string> layers = new Dictionary<SplatmapMapping, string>();
 	public Dictionary<string, string> structures = new Dictionary<string, string>();
 	public Dictionary<byte, BiomeGenerator> biomes = new Dictionary<byte, BiomeGenerator>();
-	public Type type;
 
-	public SplatmapDescriptorReader(string importedFilePath, Type t) {
-		type = t;
-		string path = importedFilePath;
-		if(type == Type.SurfaceSplatmapDesc) {
-			path += ".splat";
-		} else {
-			path += ".biomes";
-		}
+	public string biomeMapperPath = null;
+
+	public string watermapPath = null;
+	public int waterLevel = 0;
+	public string waterBlock = "minecraft:water";
+
+	public SplatmapDescriptorReader(string path, bool mainFile) {
+		//type = t;
 		if(!File.Exists(path)) {
 			Program.WriteError("Splatmap file "+path+" does not exist!");
 		}
@@ -45,6 +44,14 @@ public class SplatmapDescriptorReader {
 				ReadGenToken(ln);
 			} else if(ln.StartsWith("biomeid ")) {
 				ReadBiomeIDToken(ln);
+			} else if(ln.StartsWith("biomemapper")) {
+				biomeMapperPath=ln.Split('=')[1];
+			} else if(ln.StartsWith("watermap")) {
+				watermapPath=ln.Split('=')[1];
+			} else if(ln.StartsWith("waterlevel")) {
+				waterLevel = int.Parse(ln.Split('=')[1]);
+			} else if(ln.StartsWith("waterblock")) {
+				waterBlock = ln.Split('=')[1];
 			} else {
 				Program.WriteWarning("Unknown token in splat description: "+ln.Split(' ')[0]);
 			}

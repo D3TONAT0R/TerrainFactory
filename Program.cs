@@ -11,13 +11,13 @@ namespace ASCReader {
 		private static bool autoInputEnabled = true;
 		private static int autoInputNum = 0;
 		private static string[] autoInputs = new string[]{
-			"C:\\Users\\gdv\\Dropbox\\World Machine\\World Machine Documents\\heightmap.png",
+			"C:\\Users\\Yanic Gottardi\\Dropbox\\World Machine\\World Machine Documents\\heightmap.png",
 			"format mca",
 			"mcasplatmapper",
 			"setrange 0 255",
 			"split 512",
 			"export",
-			"C:\\Users\\gdv\\Dropbox\\World Machine\\World Machine Documents\\"
+			"C:\\Users\\Yanic Gottardi\\Dropbox\\World Machine\\World Machine Documents\\ASCR export\\"
 		};
 		#endif
 
@@ -390,7 +390,7 @@ namespace ASCReader {
 			string s;
 			bool autoinput = false;
 			#if DEBUG
-			autoinput = autoInputEnabled && autoInputNum < autoInputs.Length;
+			autoinput = autoInputs != null && autoInputEnabled && autoInputNum < autoInputs.Length;
 			if(autoinput) {
 				s = autoInputs[autoInputNum];
 				autoInputNum++;

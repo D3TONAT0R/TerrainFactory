@@ -27,10 +27,8 @@ namespace ASCReader.Export.Exporters.MinecraftTerrainPostProcessors {
 		public bool Generate(MinecraftRegionExporter region, int x, int y, int z, Random r) {
 			byte h = (byte)r.Next(trunkHeightMin, trunkHeightMax);
 			if(IsObstructed(region, x, y + h, z)) {
-				Program.WriteWarning("Cant place structure, obstructed");
 				return false;
 			}
-			region.SetBlock(x, y - 1, z, "glowstone");
 			if(!string.IsNullOrWhiteSpace(trunkBlock) && trunkHeightMax > 0) {
 				for(int i = 0; i < h; i++) {
 					region.SetBlock(x, y + i, z, trunkBlock);

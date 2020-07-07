@@ -18,4 +18,8 @@ public class RandomTorchPostProcessor : IMinecraftTerrainPostProcessor
 	public void ProcessSurface(MinecraftRegionExporter region, int x, int y, int z) {
 		if(random.NextDouble() <= chance && region.IsAir(x,y+1,z)) region.SetBlock(x,y+1,z,"minecraft:torch");
 	}
+
+	public void OnFinish(MinecraftRegionExporter region) {
+
+	}
 }

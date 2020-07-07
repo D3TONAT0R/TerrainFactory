@@ -1,6 +1,7 @@
 using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System;
 
 namespace ASCReader.Import {
 	public static class HeightmapImporter {
@@ -25,6 +26,20 @@ namespace ASCReader.Import {
 			stream.Close();
 			asc.isValid = true;
 			return asc;
+		}
+
+		public static byte[,] ImportHeightmapRaw(string filepath) {
+			FileStream stream = File.Open(filepath, FileMode.Open);
+			var image = new Bitmap(stream);
+			byte[,] arr = new byte[image.Width, image.Height];
+			Program.WriteLine(image.Width+"x"+image.Height);
+			for(int x = 0; x < image.Width; x++) {
+				for(int y = 0; y < image.Height; y++) {
+					Color c = image.GetPixel(x,y);
+					arr[x,y] = (byte)Math.Round(c.GetBrightness()*255);
+				}
+			}
+			return arr;
 		}
 	}
 }

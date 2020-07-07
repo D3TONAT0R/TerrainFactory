@@ -22,6 +22,7 @@ namespace ASCReader.Export.Exporters.MinecraftTerrainPostProcessors {
 		}
 
 		public void RunGenerator(MinecraftRegionExporter region, int x, int y, int z) {
+			if(region.GetBlock(x,y,z) != "minecraft:grass_block") return;
 			foreach(var k in mainStructures.Keys) {
 				if(rand.NextDouble() < mainStructures[k] && BuildStructure(k, region, x, y + 1, z)) return;
 			}
@@ -34,10 +35,7 @@ namespace ASCReader.Export.Exporters.MinecraftTerrainPostProcessors {
 			if(!structureDatas.ContainsKey(s)) {
 				RegisterStructure(s);
 			}
-			//if(structureDatas.ContainsKey(s)) {
-				return structureDatas[s].Generate(region, x, y, z, rand);
-			//}
-			return false;
+			return structureDatas[s].Generate(region, x, y, z, rand);
 		}
 
 		private bool BuildSingleBlock(string s, MinecraftRegionExporter region, int x, int y, int z) {

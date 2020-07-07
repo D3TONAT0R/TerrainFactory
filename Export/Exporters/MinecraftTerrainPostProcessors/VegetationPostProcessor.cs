@@ -113,4 +113,8 @@ public class VegetationPostProcessor : IMinecraftTerrainPostProcessor
 	private bool CanGrowPlant(string block) {
 		return block == "minecraft:grass_block" || block == "minecraft:dirt";
 	}
+
+	public void OnFinish(MinecraftRegionExporter region) {
+		
+	}
 }

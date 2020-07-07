@@ -33,4 +33,8 @@ public class NaturalTerrainPostProcessor : IMinecraftTerrainPostProcessor
 			}
 		}
 	}
+
+	public void OnFinish(MinecraftRegionExporter region) {
+
+	}
 }

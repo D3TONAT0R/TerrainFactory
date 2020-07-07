@@ -16,8 +16,7 @@ namespace ASCReader.Export.Exporters {
 
 		public IMinecraftTerrainPostProcessor[] postProcessors;
 
-		public MinecraftRegionExporter(float[,] hmap, params IMinecraftTerrainPostProcessor[] postProcessors) {
-			this.postProcessors = postProcessors;
+		public MinecraftRegionExporter(float[,] hmap) {
 			chunks = new MinecraftChunkData[32, 32];
 			for(int x = 0; x < 32; x++) {
 				for(int z = 0; z < 32; z++) {
@@ -36,12 +35,11 @@ namespace ASCReader.Export.Exporters {
 			List<IMinecraftTerrainPostProcessor> pps = new List<IMinecraftTerrainPostProcessor>();
 			if(useSplatmaps) {
 				pps.Add(new SplatmappedSurfacePostProcessor(importPath, 255, CurrentExportJobInfo.exportNumX, CurrentExportJobInfo.exportNumZ));
-				pps.Add(new SplatmappedBiomePostProcessor(importPath, 0, CurrentExportJobInfo.exportNumX, CurrentExportJobInfo.exportNumZ));
 			}
 			if(useDefaultPostProcessors) {
 				if(!useSplatmaps) {
 					pps.Add(new NaturalTerrainPostProcessor(true));
-					new VegetationPostProcessor(0.1f, 0.01f);
+					pps.Add(new VegetationPostProcessor(0.1f, 0.01f));
 				}
 				pps.AddRange(new IMinecraftTerrainPostProcessor[] {
 					new OrePostProcessor(2),
@@ -89,6 +87,9 @@ namespace ASCReader.Export.Exporters {
 						post.ProcessSurface(this, x, heightmap[x, z], z);
 					}
 				}
+			}
+			foreach(var post in postProcessors) {
+				post.OnFinish(this);
 			}
 		}
 

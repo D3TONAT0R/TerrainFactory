@@ -11,11 +11,11 @@ namespace ASCReader.Export.Exporters {
 		public Dictionary<string, byte[,]> maps = new Dictionary<string, byte[,]>();
 		public Dictionary<byte, BiomeGenerator> biomes;
 
-		public SplatmappedBiomePostProcessor(string importedFilePath, int ditherLimit, int localRegionX, int localRegionZ) {
-			var desc = new SplatmapDescriptorReader(importedFilePath, SplatmapDescriptorReader.Type.BiomeSplatmapDesc);
+		public SplatmappedBiomePostProcessor(string filepath, int ditherLimit, int localRegionX, int localRegionZ) {
+			var desc = new SplatmapDescriptorReader(filepath, false);
 			biomes = desc.biomes;
 			foreach(string k in desc.maps.Keys) {
-				string path = Path.GetDirectoryName(importedFilePath);
+				string path = Path.GetDirectoryName(filepath);
 				List<SplatmapMapping> mappings = new List<SplatmapMapping>();
 				foreach(var sm in desc.layers.Keys) {
 					if(sm.mapName == k) mappings.Add(sm);
@@ -33,7 +33,13 @@ namespace ASCReader.Export.Exporters {
 
 		public void ProcessSurface(MinecraftRegionExporter region, int x, int y, int z) {
 			var id = maps["main"][x, z];
-			biomes[id].RunGenerator(region, x, y, z);
+			if(biomes.ContainsKey(id)) {
+				biomes[id].RunGenerator(region, x, y, z);
+			}
+		}
+
+		public void OnFinish(MinecraftRegionExporter region) {
+
 		}
 	}
 }
