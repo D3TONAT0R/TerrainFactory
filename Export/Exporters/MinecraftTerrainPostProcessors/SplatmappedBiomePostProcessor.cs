@@ -6,7 +6,7 @@ using System.IO;
 using System.Text;
 
 namespace ASCReader.Export.Exporters {
-	public class SplatmappedBiomePostProcessor : IMinecraftTerrainPostProcessor {
+	public class SplatmappedBiomePostProcessor : MinecraftTerrainPostProcessor {
 
 		public Dictionary<string, byte[,]> maps = new Dictionary<string, byte[,]>();
 		public Dictionary<byte, BiomeGenerator> biomes;
@@ -27,19 +27,12 @@ namespace ASCReader.Export.Exporters {
 				layers.Add((byte)sm.value, desc.layers[sm].Split(','));
 			}*/
 		}
-		
-		public void ProcessBlock(MinecraftRegionExporter region, int x, int y, int z) {
-		}
 
-		public void ProcessSurface(MinecraftRegionExporter region, int x, int y, int z) {
+		public override void ProcessSurface(MinecraftRegionExporter region, int x, int y, int z) {
 			var id = maps["main"][x, z];
 			if(biomes.ContainsKey(id)) {
 				biomes[id].RunGenerator(region, x, y, z);
 			}
-		}
-
-		public void OnFinish(MinecraftRegionExporter region) {
-
 		}
 	}
 }

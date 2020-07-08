@@ -1,7 +1,7 @@
 using System;
 using ASCReader.Export.Exporters;
 
-public class VegetationPostProcessor : IMinecraftTerrainPostProcessor
+public class VegetationPostProcessor : MinecraftTerrainPostProcessor
 {
 
 	readonly byte[,,] blueprintOakTreeTop = new byte[,,] {
@@ -51,10 +51,7 @@ public class VegetationPostProcessor : IMinecraftTerrainPostProcessor
 		treesChance = treesAmount/128f;
 	}
 
-	public void ProcessBlock(MinecraftRegionExporter region, int x, int y, int z) {
-	}
-
-	public void ProcessSurface(MinecraftRegionExporter region, int x, int y, int z) {
+	public override void ProcessSurface(MinecraftRegionExporter region, int x, int y, int z) {
 		//Place trees
 		if(random.NextDouble() <= treesChance) {
 			if(PlaceTree(region, x, y+1, z)) {
@@ -112,9 +109,5 @@ public class VegetationPostProcessor : IMinecraftTerrainPostProcessor
 
 	private bool CanGrowPlant(string block) {
 		return block == "minecraft:grass_block" || block == "minecraft:dirt";
-	}
-
-	public void OnFinish(MinecraftRegionExporter region) {
-		
 	}
 }

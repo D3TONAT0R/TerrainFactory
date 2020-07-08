@@ -23,6 +23,8 @@ namespace ASCReader {
 
 		public static bool debugLogging = false;
 		public static int exported3dFiles = 0;
+
+		static string progressString = null;
 		
 		static List<string> inputFileList;
 		static ASCData data;
@@ -387,6 +389,7 @@ namespace ASCReader {
 		}
 
 		public static string GetInput() {
+			Console.CursorVisible = true;
 			string s;
 			bool autoinput = false;
 			#if DEBUG
@@ -407,29 +410,34 @@ namespace ASCReader {
 			return s;
 		}
 
-		public static void WriteLine(string str) {
+		static void WriteConsoleLine(string str) {
+			Console.CursorVisible = false;
+			if(progressString != null) {
+				WriteProgress("", -1);
+				progressString = null;
+				Console.SetCursorPosition(0, Console.CursorTop);
+			}
 			Console.WriteLine(str);
+			Console.ResetColor();
+		}
+
+		public static void WriteLine(string str) {
+			WriteConsoleLine(str);
 		}
 
 		public static void WriteSuccess(string str) {
 			Console.ForegroundColor = ConsoleColor.Green;
-			Console.Write(str);
-			Console.ResetColor();
-			Console.WriteLine();
+			WriteConsoleLine(str);
 		}
 
 		public static void WriteLineSpecial(string str) {
 			Console.ForegroundColor = ConsoleColor.Cyan;
-			Console.Write(str);
-			Console.ResetColor();
-			Console.WriteLine();
+			WriteConsoleLine(str);
 		}
 
 		public static void WriteAutoTask(string str) {
 			Console.BackgroundColor = ConsoleColor.DarkBlue;
-			Console.Write(str);
-			Console.ResetColor();
-			Console.WriteLine();
+			WriteConsoleLine(str);
 		}
 
 		public static void WriteLine(string str, params Object[] args) {
@@ -438,19 +446,39 @@ namespace ASCReader {
 
 		public static void WriteWarning(string str) {
 			Console.ForegroundColor = ConsoleColor.DarkYellow;
-			Console.Write(str);
-			Console.ResetColor();
-			Console.WriteLine();
+			WriteConsoleLine(str);
 		}
 
 		public static void WriteError(string str) {
 			Console.BackgroundColor = ConsoleColor.DarkRed;
-			Console.Write(str);
-			Console.ResetColor();
-			Console.WriteLine();
+			WriteConsoleLine(str);
 			#if DEBUG
 			autoInputs = null; //Stop any upcoming automated inputs
 			#endif
+		}
+
+		public static void WriteProgress(string str, float progressbar) {
+			Console.CursorVisible = false;
+			int lastLength = 0;
+			if(progressString != null) {
+				lastLength = progressString.Length;
+				Console.SetCursorPosition(0, Console.CursorTop);
+			}
+			progressString = str;
+			if(progressbar >= 0) progressString += " "+GetProgressBar(progressbar)+" "+(int)Math.Round(progressbar*100)+"%";
+			if(lastLength > 0) progressString = progressString.PadRight(lastLength, ' ');
+			Console.ForegroundColor = ConsoleColor.DarkGray;
+			Console.Write(progressString);
+			Console.ResetColor();
+		}
+
+		static string GetProgressBar(float prog) {
+			string s = "";
+			for(int i = 0; i < 20; i++) {
+				s += (prog >= (i+1)/20f) ? "█" : "░";
+			}
+			s += "";
+			return s;
 		}
 
 		private static int GetTotalExportCellsPerFile() {

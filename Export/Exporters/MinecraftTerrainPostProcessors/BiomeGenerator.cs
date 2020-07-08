@@ -63,12 +63,12 @@ namespace ASCReader.Export.Exporters.MinecraftTerrainPostProcessors {
 							arr = new byte[dimX, dimY, dimZ];
 							continue;
 						}
-						if(ln.StartsWith("trunk")) structure.trunkBlock = ln.Split('=')[1];
-						if(ln.StartsWith("trunk_min")) structure.trunkHeightMin = byte.Parse(ln.Split('=')[1]);
-						if(ln.StartsWith("trunk_max")) structure.trunkHeightMax = byte.Parse(ln.Split('=')[1]);
-						if(ln.StartsWith("dim_x")) dimX = int.Parse(ln.Split('=')[1]);
-						if(ln.StartsWith("dim_y")) dimY = int.Parse(ln.Split('=')[1]);
-						if(ln.StartsWith("dim_z")) dimZ = int.Parse(ln.Split('=')[1]);
+						if(ln.StartsWith("trunk=")) structure.trunkBlock = ln.Split('=')[1];
+						if(ln.StartsWith("trunk_min=")) structure.trunkHeightMin = byte.Parse(ln.Split('=')[1]);
+						if(ln.StartsWith("trunk_max=")) structure.trunkHeightMax = byte.Parse(ln.Split('=')[1]);
+						if(ln.StartsWith("dim_x=")) dimX = int.Parse(ln.Split('=')[1]);
+						if(ln.StartsWith("dim_y=")) dimY = int.Parse(ln.Split('=')[1]);
+						if(ln.StartsWith("dim_z=")) dimZ = int.Parse(ln.Split('=')[1]);
 						if(ln.StartsWith("block ")) {
 							string[] split = ln.Split(' ')[1].Split('=');
 							string[] bsplit = split[1].Split(',');

@@ -14,13 +14,15 @@ namespace ASCReader.Export.Exporters {
 		public byte[,] heightmap;
 		public MinecraftChunkData[,] chunks;
 
-		public IMinecraftTerrainPostProcessor[] postProcessors;
+		public int[,,] finalBiomeData;
+
+		public MinecraftTerrainPostProcessor[] postProcessors;
 
 		public MinecraftRegionExporter(float[,] hmap) {
 			chunks = new MinecraftChunkData[32, 32];
 			for(int x = 0; x < 32; x++) {
 				for(int z = 0; z < 32; z++) {
-					chunks[x, z] = new MinecraftChunkData();
+					chunks[x, z] = new MinecraftChunkData(defaultBlock);
 				}
 			}
 			heightmap = new byte[512, 512];
@@ -32,7 +34,7 @@ namespace ASCReader.Export.Exporters {
 		}
 
 		public MinecraftRegionExporter(string importPath, float[,] hmap, bool useDefaultPostProcessors, bool useSplatmaps) : this(hmap) {
-			List<IMinecraftTerrainPostProcessor> pps = new List<IMinecraftTerrainPostProcessor>();
+			List<MinecraftTerrainPostProcessor> pps = new List<MinecraftTerrainPostProcessor>();
 			if(useSplatmaps) {
 				pps.Add(new SplatmappedSurfacePostProcessor(importPath, 255, CurrentExportJobInfo.exportNumX, CurrentExportJobInfo.exportNumZ));
 			}
@@ -41,7 +43,8 @@ namespace ASCReader.Export.Exporters {
 					pps.Add(new NaturalTerrainPostProcessor(true));
 					pps.Add(new VegetationPostProcessor(0.1f, 0.01f));
 				}
-				pps.AddRange(new IMinecraftTerrainPostProcessor[] {
+				pps.AddRange(new MinecraftTerrainPostProcessor[] {
+					new BedrockPostProcessor(),
 					new OrePostProcessor(2),
 					new RandomTorchPostProcessor(0.001f)
 				});
@@ -51,8 +54,8 @@ namespace ASCReader.Export.Exporters {
 
 		private void CreateWorld() {
 			MakeBaseTerrain();
-			MakeBiomes();
 			DecorateTerrain();
+			MakeBiomeArray();
 		}
 
 		private void MakeBaseTerrain() {
@@ -62,11 +65,8 @@ namespace ASCReader.Export.Exporters {
 						SetBlock(x, y, z, defaultBlock);
 					}
 				}
+				if((x+1) % 8 == 0) Program.WriteProgress("Generating base terrain", (x+1)/512f);
 			}
-		}
-
-		private void MakeBiomes() {
-			//To do, but how?
 		}
 
 		private void DecorateTerrain() {
@@ -79,6 +79,7 @@ namespace ASCReader.Export.Exporters {
 						}
 					}
 				}
+				if((x+1) % 8 == 0) Program.WriteProgress("Decorating terrain", (x+1)/512f);
 			}
 			//Iterate the postprocessors over every surface block
 			for(int x = 0; x < 512; x++) {
@@ -87,9 +88,16 @@ namespace ASCReader.Export.Exporters {
 						post.ProcessSurface(this, x, heightmap[x, z], z);
 					}
 				}
+				if((x+1) % 8 == 0) Program.WriteProgress("Decorating surface", (x+1)/512f);
 			}
 			foreach(var post in postProcessors) {
 				post.OnFinish(this);
+			}
+		}
+
+		private void MakeBiomeArray() {
+			foreach(var chunk in chunks) {
+				chunk.MakeBiomeArray();
 			}
 		}
 
@@ -133,18 +141,25 @@ namespace ASCReader.Export.Exporters {
 			}
 		}
 
+		public void SetDefaultBlock(int x, int y, int z) {
+			int chunkX = (int)Math.Floor(x / 16.0);
+			int chunkZ = (int)Math.Floor(z / 16.0);
+			chunks[chunkX, chunkZ].SetDefaultBlockAt(x % 16, y, z % 16);
+		}
+
 		public void SetBiome(int x, int z, byte biome) {
 			int chunkX = (int)Math.Floor(x / 16.0);
 			int chunkZ = (int)Math.Floor(z / 16.0);
 			if(chunkX < 0 || chunkX > 31 || chunkZ < 0 || chunkZ > 31) return;
 			if(chunks[chunkX, chunkZ] != null) {
 				for(int y = 0; y < 256; y++) {
-					chunks[chunkX, chunkZ].SetBiomeAt(x % 16, y, z % 16, biome);
+					chunks[chunkX, chunkZ].SetBiomeAt(x % 16, z % 16, biome);
 				}
 			}
 		}
 
 		public void WriteFile(FileStream stream, FileFormat filetype) {
+			DateTime time = System.DateTime.Now;
 			CreateWorld();
 			int[] locations = new int[1024];
 			byte[] sizes = new byte[1024];
@@ -165,6 +180,7 @@ namespace ASCReader.Export.Exporters {
 					while(stream.Length % 4096 != 0) stream.WriteByte(0); //Padding
 					sizes[i] = (byte)((int)(stream.Position / 4096) - locations[i]);
 				}
+				Program.WriteProgress(string.Format("Writing chunks to stream [{0}/{1}]", z*32, 1024), (z*32f)/1024f);
 			}
 			stream.Position = 0;
 			for(int i = 0; i < 1024; i++) {
@@ -174,6 +190,9 @@ namespace ASCReader.Export.Exporters {
 				stream.WriteByte(offsetBytes[3]);
 				stream.WriteByte(sizes[i]);
 			}
+			DateTime time2 = System.DateTime.Now;
+			TimeSpan len = time2.Subtract(time);
+			Program.WriteLine("Generating MCA took "+Math.Round(len.TotalSeconds*100f)/100f+"s");
 		}
 
 		private MinecraftNBTContent MakeCompoundForChunk(MinecraftChunkData chunk, int chunkX, int chunkZ) {
@@ -184,10 +203,7 @@ namespace ASCReader.Export.Exporters {
 			nbt.contents.Add("Status", "light");
 			ListContainer sections = new ListContainer(NBTTag.TAG_Compound);
 			nbt.contents.Add("Sections", sections);
-			chunk.WriteToNBT(sections, true);
-			int[] biomes = new int[1024];
-			Array.Fill(biomes, 1);
-			nbt.contents.Add("Biomes", biomes);
+			chunk.WriteToNBT(nbt.contents, true);
 			//Add the rest of the tags and leave them empty
 			nbt.contents.Add("Heightmaps", new CompoundContainer());
 			nbt.contents.Add("Structures", new CompoundContainer());
@@ -200,7 +216,6 @@ namespace ASCReader.Export.Exporters {
 			nbt.contents.Add("TileTicks", new ListContainer(NBTTag.TAG_End));
 			nbt.contents.Add("InhabitedTime", 0L);
 			nbt.contents.Add("LastUpdate", 0L);
-			//To do: biomes
 			return nbt;
 		}
 

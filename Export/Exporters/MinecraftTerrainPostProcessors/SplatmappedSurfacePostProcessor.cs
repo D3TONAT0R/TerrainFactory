@@ -6,7 +6,7 @@ using ASCReader;
 using ASCReader.Export.Exporters;
 using ASCReader.Import;
 
-public class SplatmappedSurfacePostProcessor : IMinecraftTerrainPostProcessor
+public class SplatmappedSurfacePostProcessor : MinecraftTerrainPostProcessor
 {
 	public Dictionary<string, byte[,]> maps = new Dictionary<string, byte[,]>();
 	public Dictionary<byte, string[]> layers = new Dictionary<byte, string[]>();
@@ -32,7 +32,7 @@ public class SplatmappedSurfacePostProcessor : IMinecraftTerrainPostProcessor
 		}
 		Program.WriteLine("Splatmapping enabled");
 		if(!string.IsNullOrWhiteSpace(desc.watermapPath)) {
-			waterSurfaceMap = HeightmapImporter.ImportHeightmapRaw(root+"\\"+desc.watermapPath);
+			waterSurfaceMap = HeightmapImporter.ImportHeightmapRaw(root+"\\"+desc.watermapPath, localRegionX*512, localRegionZ*512, 512, 512);
 			waterLevel = desc.waterLevel;
 			waterBlock = desc.waterBlock;
 			Program.WriteLine("Water mapping enabled");
@@ -43,10 +43,7 @@ public class SplatmappedSurfacePostProcessor : IMinecraftTerrainPostProcessor
 		}
 	}
 
-	public void ProcessBlock(MinecraftRegionExporter region, int x, int y, int z) {
-	}
-
-	public void ProcessSurface(MinecraftRegionExporter region, int x, int y, int z) {
+	public override void ProcessSurface(MinecraftRegionExporter region, int x, int y, int z) {
 		foreach(string map in maps.Keys) {
 			byte mappedValue = maps[map][x,z];
 			if(mappedValue > 0) {
@@ -69,9 +66,5 @@ public class SplatmappedSurfacePostProcessor : IMinecraftTerrainPostProcessor
 				region.SetBlock(x, y-i, z, blocks[i]);
 			}
 		}
-	}
-
-	public void OnFinish(MinecraftRegionExporter region) {
-		
 	}
 }

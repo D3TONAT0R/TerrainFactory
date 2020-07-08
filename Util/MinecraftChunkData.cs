@@ -19,12 +19,14 @@ public class MinecraftChunkData {
 
 	public ushort[][,,]blocks = new ushort[16][,,];
 	public List<BlockState>[] palettes = new List<BlockState>[16];
-	public byte[,,] biomes = new byte[16, 256, 16];
+	public byte[,] biomes = new byte[16, 16];
+	public int[,,] finalBiomeArray;
 
-	public MinecraftChunkData() {
+	public MinecraftChunkData(string defaultBlock) {
 		for(int i = 0; i < 16; i++) {
 			palettes[i] = new List<BlockState>();
 			palettes[i].Add(new BlockState("air"));
+			palettes[i].Add(new BlockState(defaultBlock));
 		}
 	}
 
@@ -33,6 +35,11 @@ public class MinecraftChunkData {
 			palettes[i] = new List<BlockState>();
 		}
 		ReadFromNBT(chunk.contents.GetAsList("Sections"), chunk.dataVersion < 2504);
+		for(int x = 0; x < 16; x++) {
+			for(int y = 0; y < 16; y++) {
+				biomes[x,y] = 1; //Defaults to plains biome
+			}
+		}
 	}
 
 	public ushort GetPaletteIndex(BlockState state, int palette) {
@@ -53,14 +60,20 @@ public class MinecraftChunkData {
 		blocks[section][x,y%16,z] = index;
 	}
 
+	public void SetDefaultBlockAt(int x, int y, int z) {
+		int section = (int)Math.Floor(y/16f);
+		if(blocks[section] == null) blocks[section] = new ushort[16,16,16];
+		blocks[section][x,y%16,z] = 1; //1 is always the default block in a region generated from scratch
+	}
+
 	public BlockState GetBlockAt(int x, int y, int z) {
 		int section = (int)Math.Floor(y/16f);
 		if(blocks[section] == null) return new BlockState("minecraft:air");
 		return palettes[section][blocks[section][x,y%16,z]];
 	}
 
-	public void SetBiomeAt(int x, int y, int z, byte biomeID) {
-		biomes[x, y, z] = biomeID;
+	public void SetBiomeAt(int x, int z, byte biomeID) {
+		biomes[x, z] = biomeID;
 	}
 
 	public void ReadFromNBT(ListContainer sectionsList, bool isVersion_prior_1_16) {
@@ -102,6 +115,37 @@ public class MinecraftChunkData {
 		}
 	}
 
+	public void MakeBiomeArray() {
+		finalBiomeArray = new int[4,64,4];
+		for(int x = 0; x < 4; x++) {
+			for(int z = 0; z < 4; z++) {
+				int biome = GetPredominantBiomeIn4x4Area(x,z);
+				for(int y = 0; y < 64; y++) finalBiomeArray[x,y,z] = biome;
+			}
+		}
+	}
+
+	private int GetPredominantBiomeIn4x4Area(int x, int z) {
+		Dictionary<byte,byte> occurences = new Dictionary<byte, byte>();
+		for(int x1 = 0; x1 < 4; x1++) {
+			for(int z1 = 0; z1 < 4; z1++) {
+				var b = biomes[x*4+x1,z*4+z1];
+				if(!occurences.ContainsKey(b)) {
+					occurences.Add(b, 0);
+				}
+			}
+		}
+		int predominantBiome = 0;
+		int predominantCells = 0;
+		foreach(var k in occurences.Keys) {
+			if(occurences[k] > predominantCells) {
+				predominantCells = occurences[k];
+				predominantBiome = k;
+			}
+		}
+		return predominantBiome;
+	}
+
 	private string ByteToBinary(byte b, bool bigendian) {
 		string s = Convert.ToString((int)b, 2);
 		s = s.PadLeft(8, '0');
@@ -125,7 +169,8 @@ public class MinecraftChunkData {
 		return new string(chrs);
 	}
 
-	public void WriteToNBT(ListContainer sectionsList, bool use_1_16_Format) {
+	public void WriteToNBT(CompoundContainer level, bool use_1_16_Format) {
+		ListContainer sectionsList = level.GetAsList("Sections");
 		for(byte secY = 0; secY < 16; secY++) {
 			if(IsSectionEmpty(secY)) continue;
 			var comp = GetSection(sectionsList, secY);
@@ -176,6 +221,16 @@ public class MinecraftChunkData {
 				sectionsList.Add("", comp);
 			}
 		}
+		//Make the biomes
+		List<int> biomes = new List<int>();
+		for(int y = 0; y < 64; y++) {
+			for(int x = 0; x < 4; x++) {
+				for(int z = 0; z < 4; z++) {
+					biomes.Add(finalBiomeArray[x,y,z]);
+				}
+			}
+		}
+		level.Add("Biomes", biomes.ToArray());
 	}
 
 	private bool IsSectionEmpty(int secY) {

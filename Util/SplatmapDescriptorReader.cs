@@ -21,7 +21,7 @@ public class SplatmapDescriptorReader {
 
 	public string watermapPath = null;
 	public int waterLevel = 0;
-	public string waterBlock = "minecraft:water";
+	public string waterBlock = "water";
 
 	public SplatmapDescriptorReader(string path, bool mainFile) {
 		//type = t;
@@ -30,7 +30,8 @@ public class SplatmapDescriptorReader {
 		}
 		string[] lines = File.ReadAllLines(path);
 		Dictionary<SplatmapMapping, string[]> dic = new Dictionary<SplatmapMapping, string[]>();
-		foreach(string ln in lines) {
+		for(int i = 0; i < lines.Length; i++) {
+			var ln = lines[i].Replace("\r", "");
 			if(string.IsNullOrWhiteSpace(ln) || ln.StartsWith("#")) continue;
 			if(ln.StartsWith("map ")) {
 				ReadMapToken(ln);

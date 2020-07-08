@@ -28,14 +28,13 @@ namespace ASCReader.Import {
 			return asc;
 		}
 
-		public static byte[,] ImportHeightmapRaw(string filepath) {
+		public static byte[,] ImportHeightmapRaw(string filepath, int offsetX, int offsetY, int width, int height) {
 			FileStream stream = File.Open(filepath, FileMode.Open);
 			var image = new Bitmap(stream);
-			byte[,] arr = new byte[image.Width, image.Height];
-			Program.WriteLine(image.Width+"x"+image.Height);
-			for(int x = 0; x < image.Width; x++) {
-				for(int y = 0; y < image.Height; y++) {
-					Color c = image.GetPixel(x,y);
+			byte[,] arr = new byte[width, height];
+			for(int x = 0; x < width; x++) {
+				for(int y = 0; y < height; y++) {
+					Color c = image.GetPixel(offsetX+x,offsetY+y);
 					arr[x,y] = (byte)Math.Round(c.GetBrightness()*255);
 				}
 			}

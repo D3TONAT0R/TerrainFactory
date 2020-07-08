@@ -1,7 +1,7 @@
 using System;
 using ASCReader.Export.Exporters;
 
-public class OrePostProcessor : IMinecraftTerrainPostProcessor
+public class OrePostProcessor : MinecraftTerrainPostProcessor
 {
 
 	public class Ore {
@@ -34,7 +34,7 @@ public class OrePostProcessor : IMinecraftTerrainPostProcessor
 	};
 	public float rarityMul = 1;
 
-	public void ProcessBlock(MinecraftRegionExporter region, int x, int y, int z) {
+	public override void ProcessBlock(MinecraftRegionExporter region, int x, int y, int z) {
 		foreach(Ore o in ores) {
 			if(random.NextDouble()*rarityMul < o.spawnsPerBlock) SpawnOre(region, o, x, y, z);
 		}
@@ -49,15 +49,11 @@ public class OrePostProcessor : IMinecraftTerrainPostProcessor
 		}
 	}
 
-	public void ProcessSurface(MinecraftRegionExporter region, int x, int y, int z)	{
-
-	}
-
 	private int RandomRange(int min, int max) {
 		return random.Next(min,max+1);
 	}
 
-	public void OnFinish(MinecraftRegionExporter region) {
+	public override void OnFinish(MinecraftRegionExporter region) {
 
 	}
 }
