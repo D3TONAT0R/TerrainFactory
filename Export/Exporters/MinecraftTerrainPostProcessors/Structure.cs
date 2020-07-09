@@ -52,20 +52,37 @@ namespace ASCReader.Export.Exporters.MinecraftTerrainPostProcessors {
 		}
 
 		private bool IsObstructed(MinecraftRegionExporter region, int lx, int ly, int lz) {
-			int x1 = lx-(int)Math.Floor(structureSizeX/2f);
-			int x2 = lx+(int)Math.Ceiling(structureSizeX / 2f);
+			int x1 = lx - (int)Math.Floor(structureSizeX / 2f);
+			int x2 = lx + (int)Math.Ceiling(structureSizeX / 2f);
 			int y1 = ly;
-			int y2 = ly+ structureSizeY;
+			int y2 = ly + structureSizeY;
 			int z1 = lz - (int)Math.Floor(structureSizeZ / 2f);
 			int z2 = lz + (int)Math.Ceiling(structureSizeZ / 2f);
-			for(int y = y1; y <= y2; y++) {
-				for(int z = z1; z <= z2; z++) {
-					for(int x = x1; x <= x2; x++) {
-						if(!region.IsAir(x, y, z) || !region.IsWithinBoundaries(x, y, z)) return false;
+			int sy = 0;
+			for(int y = y1; y < y2; y++) {
+				int sz = 0;
+				for(int z = z1; z < z2; z++) {
+					int sx = 0;
+					for(int x = x1; x < x2; x++) {
+						if(structure[sx,sy,sz] == 0) continue; //Do not check this block if the result is nothing anyway
+						if(!region.IsAir(x, y, z) || !region.IsWithinBoundaries(x, y, z)) return true;
+						sx++;
 					}
+					sz++;
 				}
+				sy++;
 			}
-			return true;
+			return false;
+		}
+
+		private string GetRandomColor(Random r) {
+			string[] colors = new string[] {
+				"white", "light_gray", "gray", "black",
+				"red", "pink", "orange", "yellow",
+				"lime", "green", "cyan", "light_blue",
+				"blue", "magenta", "purple", "brown"
+			};
+			return colors[r.Next(colors.Length)];
 		}
 	}
 }

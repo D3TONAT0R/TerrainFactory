@@ -32,6 +32,7 @@ namespace ASCReader.Export.Exporters {
 			var id = maps["main"][x, z];
 			if(biomes.ContainsKey(id)) {
 				biomes[id].RunGenerator(region, x, y, z);
+				region.SetBiome(x, z, biomes[id].biomeID);
 			}
 		}
 	}

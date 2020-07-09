@@ -62,7 +62,7 @@ namespace ASCReader.Export.Exporters {
 			for(int x = 0; x < 512; x++) {
 				for(int z = 0; z < 512; z++) {
 					for(int y = 0; y <= heightmap[x, z]; y++) {
-						SetBlock(x, y, z, defaultBlock);
+						SetDefaultBlock(x, y, z);
 					}
 				}
 				if((x+1) % 8 == 0) Program.WriteProgress("Generating base terrain", (x+1)/512f);
@@ -177,7 +177,12 @@ namespace ASCReader.Export.Exporters {
 					stream.Write(Reverse(BitConverter.GetBytes(compressed.Length)));
 					stream.WriteByte(2);
 					stream.Write(compressed);
-					while(stream.Length % 4096 != 0) stream.WriteByte(0); //Padding
+					var paddingMod = stream.Length % 4096;
+					if(paddingMod > 0) {
+						byte[] padding = new byte[4096-paddingMod];
+						stream.Write(padding);
+					}
+					//while(stream.Length % 4096 != 0) stream.WriteByte(0); //Padding
 					sizes[i] = (byte)((int)(stream.Position / 4096) - locations[i]);
 				}
 				Program.WriteProgress(string.Format("Writing chunks to stream [{0}/{1}]", z*32, 1024), (z*32f)/1024f);

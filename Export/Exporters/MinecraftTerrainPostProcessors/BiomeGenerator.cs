@@ -8,14 +8,14 @@ namespace ASCReader.Export.Exporters.MinecraftTerrainPostProcessors {
 
 		Random rand = new Random();
 
-		public int biomeID;
+		public byte biomeID;
 
 		public Dictionary<string, float> mainStructures;
 		public Dictionary<string, float> decorStructures;
 
 		Dictionary<string, Structure> structureDatas = new Dictionary<string, Structure>();
 
-		public BiomeGenerator(int biome) {
+		public BiomeGenerator(byte biome) {
 			biomeID = biome;
 			mainStructures = new Dictionary<string, float>();
 			decorStructures = new Dictionary<string, float>();

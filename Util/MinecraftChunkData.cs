@@ -14,6 +14,20 @@ public class MinecraftChunkData {
 			} else {
 				block = "minecraft:"+name;
 			}
+			AddDefaultBlockProperties();
+		}
+
+		void AddDefaultBlockProperties() {
+		switch(block) {
+			case "minecraft:oak_leaves":
+			case "minecraft:spruce_leaves":
+			case "minecraft:birch_leaves":
+			case "minecraft:jungle_leaves":
+			case "minecraft:acacia_leaves":
+			case "minecraft:dark_oak_leaves":
+				properties.Add("distance", 1);
+				break;
+			}
 		}
 	}
 
@@ -28,6 +42,11 @@ public class MinecraftChunkData {
 			palettes[i].Add(new BlockState("air"));
 			palettes[i].Add(new BlockState(defaultBlock));
 		}
+		for(int x = 0; x < 16; x++) {
+			for(int y = 0; y < 16; y++) {
+				biomes[x,y] = 1; //Defaults to plains biome
+			}
+		}
 	}
 
 	public MinecraftChunkData(MinecraftNBTContent chunk) {
@@ -35,11 +54,6 @@ public class MinecraftChunkData {
 			palettes[i] = new List<BlockState>();
 		}
 		ReadFromNBT(chunk.contents.GetAsList("Sections"), chunk.dataVersion < 2504);
-		for(int x = 0; x < 16; x++) {
-			for(int y = 0; y < 16; y++) {
-				biomes[x,y] = 1; //Defaults to plains biome
-			}
-		}
 	}
 
 	public ushort GetPaletteIndex(BlockState state, int palette) {
@@ -49,12 +63,16 @@ public class MinecraftChunkData {
 		return 9999;
 	}
 
+	public ushort AddBlockToPalette(int section, BlockState block) {
+		palettes[section].Add(block);
+		return (ushort)(palettes[section].Count-1);
+	}
+
 	public void SetBlockAt(int x, int y, int z, BlockState block) {
 		int section = (int)Math.Floor(y/16f);
 		ushort index = GetPaletteIndex(block, section);
 		if(index == 9999) {
-			palettes[section].Add(block);
-			index = (ushort)(palettes[section].Count-1);
+			index = AddBlockToPalette(section, block);
 		}
 		if(blocks[section] == null) blocks[section] = new ushort[16,16,16];
 		blocks[section][x,y%16,z] = index;
@@ -133,6 +151,7 @@ public class MinecraftChunkData {
 				if(!occurences.ContainsKey(b)) {
 					occurences.Add(b, 0);
 				}
+				occurences[b]++;
 			}
 		}
 		int predominantBiome = 0;
@@ -181,7 +200,13 @@ public class MinecraftChunkData {
 				foreach(var bs in palettes[secY]) {
 					CompoundContainer paletteBlock = new CompoundContainer();
 					paletteBlock.Add("Name", bs.block);
-					if(bs.properties != null) paletteBlock.Add("Properties", bs.properties);
+					if(bs.properties != null) {
+						CompoundContainer properties = new CompoundContainer();
+						foreach(var prop in bs.properties.cont.Keys) {
+							properties.Add(prop, bs.properties.Get(prop).ToString());
+						}
+						paletteBlock.Add("Properties", properties);
+					}
 					palette.Add("", paletteBlock);
 				}
 				comp.Add("Palette", palette);
