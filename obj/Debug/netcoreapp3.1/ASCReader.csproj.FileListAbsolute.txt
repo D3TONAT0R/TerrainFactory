@@ -50,3 +50,5 @@ C:\Users\Yanic Gottardi\Documents\ASCReader\bin\Debug\netcoreapp3.1\DotNetZip.dl
 C:\Users\Yanic Gottardi\Documents\ASCReader\bin\Debug\netcoreapp3.1\System.Security.Permissions.dll
 C:\Users\gdv\Documents\ASCReader\bin\Debug\netcoreapp3.1\DotNetZip.dll
 C:\Users\gdv\Documents\ASCReader\bin\Debug\netcoreapp3.1\System.Security.Permissions.dll
+C:\Users\Yanic Gottardi\Documents\ASCReader\bin\Debug\netcoreapp3.1\MCUtils.dll
+C:\Users\Yanic Gottardi\Documents\ASCReader\bin\Debug\netcoreapp3.1\MCUtils.pdb

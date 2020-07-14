@@ -8,7 +8,7 @@ namespace ASCReader {
 	class Program {
 
 		#if DEBUG
-		private static bool autoInputEnabled = true;
+		private static bool autoInputEnabled = false;
 		private static int autoInputNum = 0;
 		private static string[] autoInputs = new string[]{
 			"C:\\Users\\Yanic Gottardi\\Dropbox\\World Machine\\World Machine Documents\\heightmap.png",
@@ -222,12 +222,12 @@ namespace ASCReader {
 					return false;
 				} else if(input.StartsWith("showheader")) {
 					WriteLine(data.fileHeader);
-				} else if(input.StartsWith("preview")) {
-					WriteLine("Opening preview...");
-					Previewer.OpenDataPreview(data, exportOptions, false);
 				} else if(input.StartsWith("preview-hm")) {
 					WriteLine("Opening preview...");
 					Previewer.OpenDataPreview(data, exportOptions, true);
+				} else if(input.StartsWith("preview")) {
+					WriteLine("Opening preview...");
+					Previewer.OpenDataPreview(data, exportOptions, false);
 				} else if(input.StartsWith("subsample")) {
 					string[] split = input.Split(' ');
 					if(split.Length > 1) {

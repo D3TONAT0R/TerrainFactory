@@ -1370,6 +1370,19 @@
         "runtime": {
           "lib/netstandard1.3/System.Xml.XDocument.dll": {}
         }
+      },
+      "MCUtils/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v3.1",
+        "dependencies": {
+          "DotNetZip": "1.13.8"
+        },
+        "compile": {
+          "bin/placeholder/MCUtils.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/MCUtils.dll": {}
+        }
       }
     }
   },
@@ -4943,13 +4956,19 @@
         "system.xml.xdocument.4.3.0.nupkg.sha512",
         "system.xml.xdocument.nuspec"
       ]
+    },
+    "MCUtils/1.0.0": {
+      "type": "project",
+      "path": "../MCUtils/MCUtils.csproj",
+      "msbuildProject": "../MCUtils/MCUtils.csproj"
     }
   },
   "projectFileDependencyGroups": {
     ".NETCoreApp,Version=v3.1": [
       "Aspose.3D >= 20.6.1",
       "AssimpNet >= 5.0.0-beta1",
-      "DotNetZip >= 1.13.8"
+      "DotNetZip >= 1.13.8",
+      "MCUtils >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -4975,7 +4994,11 @@
       },
       "frameworks": {
         "netcoreapp3.1": {
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Users\\Yanic Gottardi\\Documents\\MCUtils\\MCUtils.csproj": {
+              "projectPath": "C:\\Users\\Yanic Gottardi\\Documents\\MCUtils\\MCUtils.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

@@ -3,8 +3,8 @@ using Ionic.Zlib;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using static MinecraftChunkData;
-using static MinecraftNBTContent;
+using MCUtils;
+using static MCUtils.NBTContent;
 
 namespace ASCReader.Export.Exporters {
 	public class MinecraftRegionExporter : IExporter {
@@ -12,17 +12,17 @@ namespace ASCReader.Export.Exporters {
 		public static readonly string defaultBlock = "minecraft:stone";
 
 		public byte[,] heightmap;
-		public MinecraftChunkData[,] chunks;
+		public ChunkData[,] chunks;
 
 		public int[,,] finalBiomeData;
 
 		public MinecraftTerrainPostProcessor[] postProcessors;
 
 		public MinecraftRegionExporter(float[,] hmap) {
-			chunks = new MinecraftChunkData[32, 32];
+			chunks = new ChunkData[32, 32];
 			for(int x = 0; x < 32; x++) {
 				for(int z = 0; z < 32; z++) {
-					chunks[x, z] = new MinecraftChunkData(defaultBlock);
+					chunks[x, z] = new ChunkData(defaultBlock);
 				}
 			}
 			heightmap = new byte[512, 512];
@@ -134,7 +134,7 @@ namespace ASCReader.Export.Exporters {
 			int chunkZ = (int)Math.Floor(z / 16.0);
 			if(chunkX < 0 || chunkX > 31 || chunkZ < 0 || chunkZ > 31) return false;
 			if(chunks[chunkX, chunkZ] != null) {
-				chunks[chunkX, chunkZ].SetBlockAt(x % 16, y, z % 16, new BlockState(block));
+				chunks[chunkX, chunkZ].SetBlockAt(x % 16, y, z % 16, new ChunkData.BlockState(block));
 				return true;
 			} else {
 				return false;
@@ -200,8 +200,8 @@ namespace ASCReader.Export.Exporters {
 			Program.WriteLine("Generating MCA took "+Math.Round(len.TotalSeconds*100f)/100f+"s");
 		}
 
-		private MinecraftNBTContent MakeCompoundForChunk(MinecraftChunkData chunk, int chunkX, int chunkZ) {
-			var nbt = new MinecraftNBTContent();
+		private NBTContent MakeCompoundForChunk(ChunkData chunk, int chunkX, int chunkZ) {
+			var nbt = new NBTContent();
 			nbt.dataVersion = 2504; //1.16 version ID
 			nbt.contents.Add("xPos", chunkX);
 			nbt.contents.Add("zPos", chunkZ);

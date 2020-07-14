@@ -10,7 +10,8 @@
         "dependencies": {
           "Aspose.3D": "20.6.1",
           "AssimpNet": "5.0.0-beta1",
-          "DotNetZip": "1.13.8"
+          "DotNetZip": "1.13.8",
+          "MCUtils": "1.0.0"
         },
         "runtime": {
           "ASCReader.dll": {}
@@ -812,6 +813,14 @@
           "System.Threading": "4.3.0",
           "System.Xml.ReaderWriter": "4.3.0"
         }
+      },
+      "MCUtils/1.0.0": {
+        "dependencies": {
+          "DotNetZip": "1.13.8"
+        },
+        "runtime": {
+          "MCUtils.dll": {}
+        }
       }
     }
   },
@@ -1401,6 +1410,11 @@
       "sha512": "sha512-5zJ0XDxAIg8iy+t4aMnQAu0MqVbqyvfoUVl1yDV61xdo3Vth45oA2FoY4pPkxYAH5f8ixpmTqXeEIya95x0aCQ==",
       "path": "system.xml.xdocument/4.3.0",
       "hashPath": "system.xml.xdocument.4.3.0.nupkg.sha512"
+    },
+    "MCUtils/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
     }
   }
 }
