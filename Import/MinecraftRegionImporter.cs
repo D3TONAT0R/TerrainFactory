@@ -10,8 +10,7 @@ namespace ASCReader.Import {
 	public static class MinecraftRegionImporter {
 
 		public static ASCData ImportHeightmap(string filepath) {
-			Region mca = RegionImporter.OpenRegionFile(filepath);
-			var hms = mca.GetHeightmap();
+			ushort[,] hms = RegionImporter.GetHeightmap(filepath);
 			float[,] hm = new float[512,512];
 			for(int x = 0; x < 512; x++) {
 				for(int z = 0; z < 512; z++) {
