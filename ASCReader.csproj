@@ -3,22 +3,13 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <PackageId></PackageId>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Aspose.3D" Version="20.6.1" />
     <PackageReference Include="AssimpNet" Version="5.0.0-beta1" />
     <PackageReference Include="DotNetZip" Version="1.13.8" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="ASCReaderMC">
-      <HintPath>..\ASCReaderMC\bin\Debug\netcoreapp3.1\ASCReaderMC.dll</HintPath>
-    </Reference>
-    <Reference Include="MCUtils">
-      <HintPath>..\MCUtils\bin\Debug\netcoreapp2.2\MCUtils.dll</HintPath>
-    </Reference>
+    <ProjectReference Include = "..\MCUtils\MCUtils.csproj" />
   </ItemGroup>
 
 </Project>

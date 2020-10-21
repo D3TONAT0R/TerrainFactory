@@ -1370,6 +1370,19 @@
         "runtime": {
           "lib/netstandard1.3/System.Xml.XDocument.dll": {}
         }
+      },
+      "MCUtils/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v3.1",
+        "dependencies": {
+          "DotNetZip": "1.13.8"
+        },
+        "compile": {
+          "bin/placeholder/MCUtils.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/MCUtils.dll": {}
+        }
       }
     }
   },
@@ -4943,13 +4956,19 @@
         "system.xml.xdocument.4.3.0.nupkg.sha512",
         "system.xml.xdocument.nuspec"
       ]
+    },
+    "MCUtils/1.0.0": {
+      "type": "project",
+      "path": "../MCUtils/MCUtils.csproj",
+      "msbuildProject": "../MCUtils/MCUtils.csproj"
     }
   },
   "projectFileDependencyGroups": {
     ".NETCoreApp,Version=v3.1": [
       "Aspose.3D >= 20.6.1",
       "AssimpNet >= 5.0.0-beta1",
-      "DotNetZip >= 1.13.8"
+      "DotNetZip >= 1.13.8",
+      "MCUtils >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -4958,26 +4977,28 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Yanic Gottardi\\Documents\\GitHub\\ASCReader\\ASCReader.csproj",
+      "projectUniqueName": "C:\\Users\\Yanic Gottardi\\Documents\\ASCReader\\ASCReader.csproj",
       "projectName": "ASCReader",
-      "projectPath": "C:\\Users\\Yanic Gottardi\\Documents\\GitHub\\ASCReader\\ASCReader.csproj",
+      "projectPath": "C:\\Users\\Yanic Gottardi\\Documents\\ASCReader\\ASCReader.csproj",
       "packagesPath": "C:\\Users\\Yanic Gottardi\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Yanic Gottardi\\Documents\\GitHub\\ASCReader\\obj\\",
+      "outputPath": "C:\\Users\\Yanic Gottardi\\Documents\\ASCReader\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Yanic Gottardi\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "C:\\Users\\Yanic Gottardi\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "netcoreapp3.1"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "netcoreapp3.1": {
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Users\\Yanic Gottardi\\Documents\\MCUtils\\MCUtils.csproj": {
+              "projectPath": "C:\\Users\\Yanic Gottardi\\Documents\\MCUtils\\MCUtils.csproj"
+            }
+          }
         }
       },
       "warningProperties": {
@@ -5017,7 +5038,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.401\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.102\\RuntimeIdentifierGraph.json"
       }
     }
   }

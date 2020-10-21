@@ -1,36 +1,40 @@
-﻿using ASCReader.Export;
-using ASCReader.Import;
-using ASCReader.Util;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using ASCReader.Export;
+using ASCReader.Import;
 
 namespace ASCReader {
-	public class Program {
+	class Program {
 
-#if DEBUG
+		#if DEBUG
 		private static bool autoInputEnabled = false;
 		private static int autoInputNum = 0;
 		private static string[] autoInputs = new string[]{
-
+			"C:\\Users\\Yanic Gottardi\\Dropbox\\World Machine\\World Machine Documents\\heightmap.png",
+			"format mca",
+			"mcasplatmapper",
+			"setrange 0 255",
+			"split 512",
+			"export",
+			"C:\\Users\\Yanic Gottardi\\Dropbox\\World Machine\\World Machine Documents\\ASCR export\\"
 		};
-#endif
+		#endif
 
 		public static bool debugLogging = false;
 		public static int exported3dFiles = 0;
 
 		static string progressString = null;
-
+		
 		static List<string> inputFileList;
 		static ASCData data;
 		static ExportOptions exportOptions;
 		static ASCSummary targetValues;
-
-		static void Main(string[] args) {
-			ExportUtility.LoadExportHandlers();
-#if DEBUG
+		static void Main(string[] args)
+		{
+			#if DEBUG
 			if(args.Length > 0 && args[0] == "auto") autoInputEnabled = true;
-#endif
+			#endif
 			WriteLine("---------------------------------");
 			WriteLine("ASCII-GRID FILE CONVERTER");
 			WriteLine("---------------------------------");
@@ -48,9 +52,9 @@ namespace ASCReader {
 					if(batchMode) {
 						string path = GetBatchExportPath();
 						int i = 0;
-						int total = inputFileList.Count + 1;
+						int total = inputFileList.Count+1;
 						while(data != null) {
-							if(WriteFilesForData(path + "\\" + data.filename)) {
+							if(WriteFilesForData(path+"\\"+data.filename)) {
 								i++;
 								WriteSuccess(string.Format("EXPORT {0}/{1} SUCCESSFUL", i, total));
 								data = nextFile();
@@ -80,27 +84,23 @@ namespace ASCReader {
 			int result = 0;
 			input = input.Replace("\"", "");
 			if(input.ToLower().StartsWith("batch")) {
-				if(input.Length > 6) {
-					input = input.Substring(6);
-					if(IsDirectory(input)) {
-						WriteLine("Starting batch in directory " + input + " ...");
-						foreach(string f in Directory.GetFiles(input, "*.asc")) {
-							inputFileList.Add(Path.GetFullPath(f));
-						}
-						foreach(string f in Directory.GetFiles(input, "*.mca")) {
-							inputFileList.Add(Path.GetFullPath(f));
-						}
-						WriteLine(inputFileList.Count + " files have been added to the batch queue");
+				input = input.Substring(6);
+				if(IsDirectory(input)) {
+					WriteLine("Starting batch in directory "+input+" ...");
+					foreach(string f in Directory.GetFiles(input, "*.asc")) {
+						inputFileList.Add(Path.GetFullPath(f));
 					}
-					result = 1;
-				} else {
-					inputFileList.Add("");
+					foreach(string f in Directory.GetFiles(input, "*.mca")) {
+						inputFileList.Add(Path.GetFullPath(f));
+					}
+					WriteLine(inputFileList.Count + " files have been added to the batch queue");
 				}
+				result = 1;
 			} else if(input.ToLower().StartsWith("quit")) {
 				return -1;
 			} else {
 				inputFileList.Add(input);
-				WriteLine("Reading file " + input + " ...");
+				WriteLine("Reading file "+input+" ...");
 			}
 			data = nextFile();
 			return result;
@@ -112,7 +112,7 @@ namespace ASCReader {
 				string ext = Path.GetExtension(f).ToLower();
 				ASCData d;
 				if(ext == ".asc") d = new ASCData(inputFileList[0]);
-				else if(ext == ".png" || ext == ".jpeg" || ext == ".jpg" || ext == ".bmp" || ext == ".tif") {
+				else if(ext == ".png" || ext == ".jpeg"  || ext == ".jpg" || ext == ".bmp" || ext == ".tif" ) {
 					d = HeightmapImporter.ImportHeightmap(f);
 					WriteLineSpecial("Heightmap imported. Override cellsize and low/high values for the desired result.");
 					WriteLineSpecial("Default cell size: 1.0     Default data range 0.0-1.0");
@@ -120,7 +120,7 @@ namespace ASCReader {
 					d = MinecraftRegionImporter.ImportHeightmap(f);
 					WriteLineSpecial("Minecraft region heightmap imported.");
 				} else {
-					WriteError("Don't know how to read file with extension: " + ext);
+					WriteError("Don't know how to read file with extension: "+ext);
 					d = null;
 				}
 				CurrentExportJobInfo.importedFilePath = f;
@@ -172,38 +172,37 @@ namespace ASCReader {
 
 		static bool GetValidExportOptions(bool batch) {
 			if(!GetExportOptions(batch)) return false;
-			foreach(var ff in exportOptions.outputFormats) {
-				while(!ExportUtility.ValidateExportOptions(exportOptions, data, ff)) {
-					Console.WriteLine("Cannot export with the current settings / format!");
-					if(!GetExportOptions(batch)) return false;
-				} }
+			while(!ValidateExportOptions()) {
+				Console.WriteLine("Cannot export with the current settings / format!");
+				if(!GetExportOptions(batch)) return false;
+			}
 			return true;
-		}
-
-		static void WriteListEntry(string cmd, string desc, int indentLevel, bool required) {
-			string s = required ? "*" : "";
-			s = s.PadRight((indentLevel + 1) * 4);
-			s += cmd;
-			s = s.PadRight(24);
-			s += desc;
-			WriteLine(s);
 		}
 
 		static bool GetExportOptions(bool batch) {
 			if(batch) WriteLine("Note: The following export options will be applied to all files in the batch");
 			WriteLine("* = Required setting");
 			WriteLine("File Information:");
-			WriteListEntry("showheader", "Shows the header of the loaded file", 0, false);
-			WriteListEntry("preview", "Previews the grid data in an image", 0, false);
-			WriteListEntry("preview-hm", "Previews the grid data in a heightmap", 0, false);
-			WriteLine("Export options:");
-			WriteListEntry("format N..", "Export to the specified format(s)", 0, true);
-			foreach(var f in ExportUtility.supportedFormats) {
-				WriteListEntry(f.inputKey, f.description, 1, false);
-			}
-			foreach(var c in ExportUtility.GetConsoleCommands()) {
-				WriteListEntry(c.command, c.description, 0, false);
-			}
+			WriteLine("    showheader              Shows the header of the loaded file");
+			WriteLine("    preview                 Previews the grid data in an image");
+			WriteLine("    preview-hm              Previews the grid data in a heightmap");
+			WriteLine("Export options:");      
+			WriteLine("*   format N..              Export to the specified format(s)");
+			WriteLine("        asc                 ASCII-Grid (same as input)");
+			WriteLine("        xyz                 ASCII-XYZ points");
+			WriteLine("        3ds                 3d Mesh");
+			WriteLine("        fbx                 3d Mesh");
+			WriteLine("        png-hm              Heightmap");
+			WriteLine("        png-nm              Normalmap");
+			WriteLine("        png-hs              Hillshade");
+			WriteLine("        mca                 Minecraft Region format (1.16)");
+			WriteLine("    subsample N             Only export every N-th cell");
+			WriteLine("    split N                 Split files every NxN cells (minimum 32)");
+			WriteLine("    selection x1 y1 x2 y2   Export only the selected data range (use 'preview' to see the data grid)");
+			WriteLine("    overridecellsize N      Override size per cell");
+			WriteLine("    setrange N N            Change the height data range (min - max)");
+			WriteLine("    mcaoffset X Z           Apply offset to region terrain, in regions (512) (MCA format only)");
+			WriteLine("    mcasplatmapper          Use splatmap files to define the world's surface (MCA format only, file <name>.splat required)");
 			if(batch) {
 				WriteLineSpecial("Batch export options:");
 				WriteLineSpecial("    join                Joins all files into one large file");
@@ -212,107 +211,202 @@ namespace ASCReader {
 			WriteLine("Type 'export' when ready to export");
 			WriteLine("Type 'abort' to abort the export");
 			string input;
-			exportOptions = new ExportOptions();
+			exportOptions = new ExportOptions(); 
 			while(true) {
 				input = GetInput();
-				while(input.Contains("  ")) input = input.Replace("  ", " "); //Remove all double spaces
-				var split = input.Split(' ');
-				string cmd = split[0].ToLower();
-				string[] args = new string[split.Length - 1];
-				for(int i = 0; i < split.Length - 1; i++) {
-					args[i] = split[i + 1];
-				}
-				var r = HandleCommand(cmd, args, batch);
-				if(r != null) {
-					return (bool)r;
+				input = input.ToLower();
+				if(input == "export") {
+					return true;
+				} else if(input == "abort") {
+					WriteWarning("Export aborted");
+					return false;
+				} else if(input.StartsWith("showheader")) {
+					WriteLine(data.fileHeader);
+				} else if(input.StartsWith("preview-hm")) {
+					WriteLine("Opening preview...");
+					Previewer.OpenDataPreview(data, exportOptions, true);
+				} else if(input.StartsWith("preview")) {
+					WriteLine("Opening preview...");
+					Previewer.OpenDataPreview(data, exportOptions, false);
+				} else if(input.StartsWith("subsample")) {
+					string[] split = input.Split(' ');
+					if(split.Length > 1) {
+						int i;
+						if(int.TryParse(split[1], out i)) {
+							exportOptions.subsampling = i;
+							WriteLine("Subsampling set to: "+i);
+						} else {
+							WriteWarning("Can't parse to int: "+split[1]);
+						}
+					} else {
+						WriteWarning("An integer is required!");
+					}
+				} else if(input.StartsWith("split")) {
+					string[] split = input.Split(' ');
+					if(split.Length > 1) {
+						int i;
+						if(int.TryParse(split[1], out i)) {
+							exportOptions.fileSplitDims = i;
+							WriteLine("File splitting set to: "+i+"x"+i);
+						} else {
+							WriteWarning("Can't parse to int: "+split[1]);
+						}
+					} else {
+						WriteWarning("An integer is required!");
+					}
+				} else if(input.StartsWith("overridecellsize")) {
+					string[] split = input.Split(' ');
+					if(split.Length > 1) {
+						float f;
+						if(float.TryParse(split[1], out f)) {
+							WriteLine("Cellsize changed from {0} to {1}", data.cellsize, f);
+							data.cellsize = f;
+						} else {
+							WriteWarning("Can't parse to int: " + split[1]);
+						}
+					} else {
+						WriteWarning("A number is required!");
+					}
+				} else if(input.StartsWith("format")) {
+					string[] split = input.Split(' ');
+					if(split.Length > 1) {
+						split[0] = null;
+						exportOptions.SetOutputFormats(split, false);
+						string str = "";
+						foreach(FileFormat ff in exportOptions.outputFormats) {
+							str += " "+ff;
+						}
+						if(str == "") str = " <NONE>";
+						WriteLine("Exporting to the following format(s):"+str);
+					} else {
+						WriteWarning("A list of formats is required!");
+					}
+				} else if(input.StartsWith("selection")) {
+					string[] split = input.Split(' ');
+					if(split.Length > 4) {
+						int[] nums = new int[4];
+						bool b = true;
+						for(int i = 0; i < 4; i++) {
+							b &= int.TryParse(split[i+1], out nums[i]);
+						}
+						if(b) {
+							if(exportOptions.SetExportRange(data,nums[0],nums[1],nums[2],nums[3])) {
+								WriteLine("Selection set ("+exportOptions.ExportRangeCellCount+" cells total)");
+							} else {
+								WriteWarning("The specified input is invalid!");
+							}
+						} else {
+							WriteWarning("Failed to parse to int");
+						}
+					} else {
+						if(split.Length == 1) {
+							WriteLine("Selection reset");
+						} else {
+							WriteWarning("Four integers are required!");
+						}
+					}
+				} else if(input.StartsWith("setrange")) {
+					string[] split = input.Split(' ');
+					if(split.Length > 2) {
+						bool b = true;
+						float min;
+						float max;
+						b &= float.TryParse(split[1], out min) & float.TryParse(split[2], out max);
+						if(b) {
+							data.SetRange(min, max);
+							Program.WriteLine("Height rescaled successfully");
+						} else {
+							WriteWarning("Failed to parse to float");
+						}
+					} else {
+						WriteWarning("Two numbers are required!");
+					}
+				} else if(input.StartsWith("mcaoffset")) {
+					string[] split = input.Split(' ');
+					if(split.Length > 2) {
+						bool b = true;
+						int x, z;
+						b &= int.TryParse(split[1], out x) & int.TryParse(split[2], out z);
+						if(b) {
+							exportOptions.mcaOffsetX = x;
+							exportOptions.mcaOffsetZ = z;
+							WriteLine("MCA terrain offset set to "+x+","+z+" ("+(x*512)+" blocks , "+z*512+" blocks)");
+						} else {
+							WriteWarning("Failed to parse to int");
+						}
+					} else {
+						WriteWarning("Two integers are required!");
+					}
+				} else if(input.StartsWith("mcasplatmapper")) {
+					exportOptions.useSplatmaps = !exportOptions.useSplatmaps;
+					Program.WriteLine("MCA splatmapping "+ (exportOptions.useSplatmaps? "enabled" : "disabled"));
+				} else if(batch) {
+					if(input.StartsWith("equalizeheightmaps")) {
+						targetValues = new ASCSummary();
+						WriteLine("Fetching summary from files...");
+						int i = 0;
+						foreach(string path in inputFileList) {
+							i++;
+							var s = ASCData.GetSummary(path);
+							WriteLine(i+"/"+inputFileList.Count);
+							if(s.lowestValue < targetValues.lowestValue) targetValues.lowestValue = s.lowestValue;
+							if(s.highestValue > targetValues.highestValue) targetValues.highestValue = s.highestValue;
+							targetValues.averageValue += s.averageValue;
+						}
+						WriteLine("Success:");
+						WriteLine("    lowest:   "+targetValues.lowestValue);
+						WriteLine("    highest:  "+targetValues.highestValue);
+						WriteLine("    average:  "+targetValues.averageValue);
+						targetValues.averageValue /= i;
+					}
+				} else {
+					WriteWarning("Unknown option :"+input);
 				}
 			}
 		}
 
-		static bool? HandleCommand(string cmd, string[] args, bool batch) {
-			if(cmd == "export") {
-				return true;
-			} else if(cmd == "abort") {
-				WriteWarning("Export aborted");
+		static bool ValidateExportOptions() {
+			bool valid = true;
+			int cellsPerFile = GetTotalExportCellsPerFile();
+			if(exportOptions.outputFormats.Count == 0) {
+				WriteWarning("No export format is defined! choose at least one format for export!");
 				return false;
-			} else if(cmd == "showheader") {
-				WriteLine(data.fileHeader);
-				return null;
-			} else if(cmd == "preview-hm") {
-				WriteLine("Opening preview...");
-				Previewer.OpenDataPreview(data, exportOptions, true);
-				return null;
-			} else if(cmd == "preview") {
-				WriteLine("Opening preview...");
-				Previewer.OpenDataPreview(data, exportOptions, false);
-				return null;
-			} else if(cmd == "format") {
-				if(args.Length > 0) {
-					exportOptions.SetOutputFormats(args, false);
-					string str = "";
-					foreach(FileFormat ff in exportOptions.outputFormats) {
-						str += " " + ff.Identifier;
-					}
-					if(str == "") str = " <NONE>";
-					WriteLine("Exporting to the following format(s):" + str);
-				} else {
-					WriteWarning("A list of formats is required!");
-				}
-				return null;
 			}
-			foreach(var c in ExportUtility.GetConsoleCommands()) {
-				if(c.command == cmd) {
-					c.commandHandler.HandleCommand(c.command, args, exportOptions, data);
-					return null;
+			if(exportOptions.outputFormats.Contains(FileFormat.MDL_3ds)) {
+				/*if(cellsPerFile >= 65535) {
+					Console.WriteLine("ERROR: Cannot export more than 65535 cells in a single 3ds file! Current amount: "+cellsPerFile);
+					Console.WriteLine("       Reduce splitting interval or increase subsampling to allow for exporting 3ds Files");
+					valid = false;
+				}*/
+			}
+			if(exportOptions.outputFormats.Contains(FileFormat.MINECRAFT_REGION)) {
+				if(exportOptions.fileSplitDims != 512 && (data.nrows != 512 || data.ncols != 512)) {
+					WriteError("File splitting dimensions must be 512 when exporting to minecraft regions!");
+					valid = false;
 				}
 			}
-			if(batch) {
-				if(cmd == "join") {
-					WriteWarning("to do"); //TODO
-				} else if(cmd == "equalizeheightmaps") {
-					targetValues = new ASCSummary();
-					WriteLine("Fetching summary from files...");
-					int i = 0;
-					foreach(string path in inputFileList) {
-						i++;
-						var s = ASCData.GetSummary(path);
-						WriteLine(i + "/" + inputFileList.Count);
-						if(s.lowestValue < targetValues.lowestValue) targetValues.lowestValue = s.lowestValue;
-						if(s.highestValue > targetValues.highestValue) targetValues.highestValue = s.highestValue;
-						targetValues.averageValue += s.averageValue;
-					}
-					WriteLine("Success:");
-					WriteLine("    lowest:   " + targetValues.lowestValue);
-					WriteLine("    highest:  " + targetValues.highestValue);
-					WriteLine("    average:  " + targetValues.averageValue);
-					targetValues.averageValue /= i;
-					return null;
-				}
-			} else {
-				WriteWarning("Unknown option :" + cmd);
-			}
-			return null;
+			return valid;
 		}
 
 		public static string GetInput() {
 			Console.CursorVisible = true;
 			string s;
 			bool autoinput = false;
-#if DEBUG
+			#if DEBUG
 			autoinput = autoInputs != null && autoInputEnabled && autoInputNum < autoInputs.Length;
 			if(autoinput) {
 				s = autoInputs[autoInputNum];
 				autoInputNum++;
 				WriteAutoTask("> " + s);
 			} else {
-#endif
-				Console.ForegroundColor = ConsoleColor.Gray;
+			#endif
+				Console.ForegroundColor = ConsoleColor.Yellow;
 				Console.Write("> ");
 				s = Console.ReadLine();
 				Console.ResetColor();
-#if DEBUG
+			#if DEBUG
 			}
-#endif
+			#endif
 			return s;
 		}
 
@@ -356,11 +450,11 @@ namespace ASCReader {
 		}
 
 		public static void WriteError(string str) {
-			Console.ForegroundColor = ConsoleColor.DarkRed;
+			Console.BackgroundColor = ConsoleColor.DarkRed;
 			WriteConsoleLine(str);
-#if DEBUG
+			#if DEBUG
 			autoInputs = null; //Stop any upcoming automated inputs
-#endif
+			#endif
 		}
 
 		public static void WriteProgress(string str, float progressbar) {
@@ -371,7 +465,7 @@ namespace ASCReader {
 				Console.SetCursorPosition(0, Console.CursorTop);
 			}
 			progressString = str;
-			if(progressbar >= 0) progressString += " " + GetProgressBar(progressbar) + " " + (int)Math.Round(progressbar * 100) + "%";
+			if(progressbar >= 0) progressString += " "+GetProgressBar(progressbar)+" "+(int)Math.Round(progressbar*100)+"%";
 			if(lastLength > 0) progressString = progressString.PadRight(lastLength, ' ');
 			Console.ForegroundColor = ConsoleColor.DarkGray;
 			Console.Write(progressString);
@@ -381,15 +475,15 @@ namespace ASCReader {
 		static string GetProgressBar(float prog) {
 			string s = "";
 			for(int i = 0; i < 20; i++) {
-				s += (prog >= (i + 1) / 20f) ? "█" : "░";
+				s += (prog >= (i+1)/20f) ? "█" : "░";
 			}
 			s += "";
 			return s;
 		}
 
-		public static int GetTotalExportCellsPerFile() {
-			int cells = exportOptions.fileSplitDims >= 32 ? (int)Math.Pow(exportOptions.fileSplitDims, 2) : data.ncols * data.nrows;
-			if(exportOptions.subsampling > 1) cells /= exportOptions.subsampling * exportOptions.subsampling;
+		private static int GetTotalExportCellsPerFile() {
+			int cells = exportOptions.fileSplitDims >= 32 ? (int)Math.Pow(exportOptions.fileSplitDims, 2) : data.ncols*data.nrows;
+			if(exportOptions.subsampling > 1) cells /= exportOptions.subsampling*exportOptions.subsampling;
 			return cells;
 		}
 	}

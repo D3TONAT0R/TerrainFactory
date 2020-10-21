@@ -11,7 +11,7 @@
           "Aspose.3D": "20.6.1",
           "AssimpNet": "5.0.0-beta1",
           "DotNetZip": "1.13.8",
-          "MCUtils": "1.0.0.0"
+          "MCUtils": "1.0.0"
         },
         "runtime": {
           "ASCReader.dll": {}
@@ -814,12 +814,12 @@
           "System.Xml.ReaderWriter": "4.3.0"
         }
       },
-      "MCUtils/1.0.0.0": {
+      "MCUtils/1.0.0": {
+        "dependencies": {
+          "DotNetZip": "1.13.8"
+        },
         "runtime": {
-          "MCUtils.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
-          }
+          "MCUtils.dll": {}
         }
       }
     }
@@ -1411,8 +1411,8 @@
       "path": "system.xml.xdocument/4.3.0",
       "hashPath": "system.xml.xdocument.4.3.0.nupkg.sha512"
     },
-    "MCUtils/1.0.0.0": {
-      "type": "reference",
+    "MCUtils/1.0.0": {
+      "type": "project",
       "serviceable": false,
       "sha512": ""
     }

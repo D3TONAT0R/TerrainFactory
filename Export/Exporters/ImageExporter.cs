@@ -33,7 +33,7 @@ namespace ASCReader.Export.Exporters {
 			for(int x = 0; x < image.Width; x++) {
 				for(int y = 0; y < image.Height; y++) {
 					float v = (grid[x, y] - lowValue) / (highValue - lowValue);
-					image.SetPixel(x, image.Height - y - 1, CreateColorGrayscale(v));
+					image.SetPixel(x, image.Height-y-1, CreateColorGrayscale(v));
 				}
 			}
 		}
@@ -53,12 +53,12 @@ namespace ASCReader.Export.Exporters {
 				normals = new Vector3[grid.GetLength(0), grid.GetLength(1)];
 				for(int x = 0; x < image.Width; x++) {
 					for(int y = 0; y < image.Height; y++) {
-						float ll = GetValueAt(x, y);
-						float lr = GetValueAt(x + 1, y);
-						float ul = GetValueAt(x, y + 1);
-						float ur = GetValueAt(x + 1, y + 1);
-						float nrmX = (GetSlope(lr, ll) + GetSlope(ur, ul)) / 2f;
-						float nrmY = (GetSlope(ul, ll) + GetSlope(ur, lr)) / 2f;
+						float ll = GetValueAt(x,y);
+						float lr = GetValueAt(x+1,y);
+						float ul = GetValueAt(x,y+1);
+						float ur = GetValueAt(x+1,y+1);
+						float nrmX = (GetSlope(lr,ll) + GetSlope(ur,ul)) / 2f;
+						float nrmY = (GetSlope(ul,ll) + GetSlope(ur,lr)) / 2f;
 						float power = Math.Abs(nrmX) + Math.Abs(nrmY);
 						if(power > 1) {
 							nrmX /= power;
@@ -69,7 +69,7 @@ namespace ASCReader.Export.Exporters {
 					}
 				}
 			} else {
-				normals = new Vector3[grid.GetLength(0) - 1, grid.GetLength(1) - 1];
+				normals = new Vector3[grid.GetLength(0)-1, grid.GetLength(1)-1];
 				for(int x = 0; x < image.Width; x++) {
 					for(int y = 0; y < image.Height; y++) {
 						float m = GetValueAt(x, y);
@@ -93,7 +93,7 @@ namespace ASCReader.Export.Exporters {
 
 		private void MakeNormalmap(bool sharp) {
 			if(sharp) {
-				image = new Bitmap(grid.GetLength(0) - 1, grid.GetLength(1) - 1);
+				image = new Bitmap(grid.GetLength(0)-1, grid.GetLength(1)-1);
 			} else {
 				image = new Bitmap(grid.GetLength(0), grid.GetLength(1));
 			}
@@ -104,13 +104,13 @@ namespace ASCReader.Export.Exporters {
 					float r = 0.5f + nrm.X / 2f;
 					float g = 0.5f + nrm.Y / 2f;
 					float b = 0.5f + nrm.Z / 2f;
-					image.SetPixel(x, image.Height - y - 1, CreateColor(r, g, b, 1));
+					image.SetPixel(x, image.Height-y-1, CreateColor(r, g, b, 1));
 				}
 			}
 		}
 
 		private void MakeHillshademap() {
-			image = new Bitmap(grid.GetLength(0) - 1, grid.GetLength(1) - 1);
+			image = new Bitmap(grid.GetLength(0)-1, grid.GetLength(1)-1);
 			CalculateNormals(true);
 			for(int x = 0; x < image.Width; x++) {
 				for(int y = 0; y < image.Height; y++) {
@@ -131,7 +131,7 @@ namespace ASCReader.Export.Exporters {
 
 		private float GetSlope(float from, float to) {
 			float hdiff = to - from;
-			return (float)(Rad2Deg(Math.Atan(hdiff / gridSpacing)) / 90f);
+			return (float)(Rad2Deg(Math.Atan(hdiff / gridSpacing )) / 90f);
 		}
 
 		private Vector3 Normalize(Vector3 src) {
@@ -143,7 +143,7 @@ namespace ASCReader.Export.Exporters {
 			try {
 				return Color.FromArgb(ToColorByte(a), ToColorByte(r), ToColorByte(g), ToColorByte(b));
 			} catch {
-				return Color.FromArgb(0, 0, 0, 0);
+				return Color.FromArgb(0,0,0,0);
 			}
 		}
 
@@ -152,7 +152,7 @@ namespace ASCReader.Export.Exporters {
 		}
 
 		private Color CreateColorGrayscale(float b) {
-			return CreateColor(b, b, b, 1);
+			return CreateColor(b,b,b,1);
 		}
 
 		public void WriteFile(FileStream stream, FileFormat filetype) {

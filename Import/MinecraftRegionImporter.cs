@@ -1,16 +1,20 @@
-//using System.Drawing;
-using MCUtils;
 using System.IO;
+//using System.Drawing;
+using System.Drawing.Imaging;
+using System;
+using Ionic.Zlib;
+using System.Collections;
+using MCUtils;
 
 namespace ASCReader.Import {
 	public static class MinecraftRegionImporter {
 
 		public static ASCData ImportHeightmap(string filepath) {
 			ushort[,] hms = RegionImporter.GetHeightmap(filepath);
-			float[,] hm = new float[512, 512];
+			float[,] hm = new float[512,512];
 			for(int x = 0; x < 512; x++) {
 				for(int z = 0; z < 512; z++) {
-					hm[x, z] = (float)hms[x, z];
+					hm[x,z] = (float)hms[x,z];
 				}
 			}
 			ASCData asc = new ASCData(512, 512, filepath);

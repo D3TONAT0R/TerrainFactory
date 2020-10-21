@@ -1,5 +1,9 @@
-﻿using ASCReader.Util;
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
+using System.Numerics;
 using System.Text;
 
 namespace ASCReader.Export.Exporters {
@@ -7,34 +11,37 @@ namespace ASCReader.Export.Exporters {
 
 		private ASCData data;
 		private int subsampling;
-		private Bounds bounds;
+		private int xMin, xMax, yMin, yMax;
 
-		public PointDataExporter(ASCData source, int subsampling, Bounds bounds) {
+		public PointDataExporter(ASCData source, int subsampling, int xMin, int yMin, int xMax, int yMax) {
 			data = source;
 			this.subsampling = subsampling;
-			this.bounds = bounds;
+			this.xMin = xMin;
+			this.yMin = yMin;
+			this.xMax = xMax;
+			this.yMax = yMax;
 		}
 
 		public void WriteFile(FileStream stream, FileFormat filetype) {
-			if(filetype.IsFormat("ASC")) {
+			if(filetype == FileFormat.ASC) {
 				WriteFileASC(stream);
-			} else if(filetype.IsFormat("PTS_XYZ")) {
+			} else if(filetype == FileFormat.PTS_XYZ) {
 				WriteFileXYZ(stream);
 			}
 		}
 
 		private void WriteFileASC(FileStream stream) {
-			WriteString(stream, "ncols        " + (bounds.NumCols / subsampling) + "\n");
-			WriteString(stream, "nrows        " + (bounds.NumRows / subsampling) + "\n");
-			WriteString(stream, "xllcorner    " + (data.xllcorner + bounds.xMin * data.cellsize) + "\n");
-			WriteString(stream, "yllcorner    " + (data.xllcorner + bounds.yMin * data.cellsize) + "\n");
+			WriteString(stream, "ncols        " + ((xMax-xMin) / subsampling) + "\n");
+			WriteString(stream, "nrows        " + ((yMax-yMin) / subsampling) + "\n");
+			WriteString(stream, "xllcorner    " + (data.xllcorner + xMin * data.cellsize) + "\n");
+			WriteString(stream, "yllcorner    " + (data.xllcorner + yMin * data.cellsize) + "\n");
 			WriteString(stream, "cellsize     " + (data.cellsize * subsampling) + "\n");
 			WriteString(stream, "NODATA_value " + data.nodata_value + "\n");
-			int y = bounds.yMax;
-			while(y >= bounds.yMin) {
-				int x = bounds.xMin;
+			int y = yMax-1;
+			while(y >= yMin) {
+				int x = xMin;
 				StringBuilder str = new StringBuilder();
-				while(x < bounds.xMax) {
+				while(x < xMax) {
 					if(str.Length > 0) str.Append(" ");
 					str.Append(data.data[x, y]);
 					x += subsampling;
@@ -47,8 +54,8 @@ namespace ASCReader.Export.Exporters {
 		}
 
 		private void WriteFileXYZ(FileStream stream) {
-			for(int y = bounds.yMin; y <= bounds.yMax; y++) {
-				for(int x = bounds.xMin; x <= bounds.xMax; x++) {
+			for(int y = yMin; y < yMax; y++) {
+				for(int x = xMin; x < xMax; x++) {
 					if(x % subsampling == 0 && y % subsampling == 0) {
 						float f = data.data[x, y];
 						if(f != data.nodata_value) {

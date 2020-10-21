@@ -1,7 +1,10 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
 
 namespace ASCReader.Export {
 	public interface IExporter {
-		void WriteFile(FileStream stream, FileFormat filetype);
+		public void WriteFile(FileStream stream, FileFormat filetype);
 	}
 }
