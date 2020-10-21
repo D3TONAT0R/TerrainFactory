@@ -1,7 +1,6 @@
 using System;
 using System.Drawing;
 using System.IO;
-using ASCReader;
 
 public static class SplatmapImporter {
 
@@ -9,17 +8,17 @@ public static class SplatmapImporter {
 
 	public static byte[,] GetFixedSplatmap(string path, SplatmapMapping[] mappings, int ditherLimit, int localRegionX, int localRegionZ) {
 		var splat = GetBitmap(path);
-		byte[,] map = new byte[512,512];
+		byte[,] map = new byte[512, 512];
 		for(int x = 0; x < 512; x++) {
 			for(int y = 0; y < 512; y++) {
-				Color c = splat.GetPixel(localRegionX*512+x, localRegionZ*512+y);
+				Color c = splat.GetPixel(localRegionX * 512 + x, localRegionZ * 512 + y);
 				SplatmapMapping mapping;
 				if(ditherLimit > 1) {
 					mapping = GetDitheredMapping(c, mappings, ditherLimit);
 				} else {
 					mapping = GetClosestMapping(c, mappings);
 				}
-				map[x,y] = (byte)mapping.value;
+				map[x, y] = (byte)mapping.value;
 			}
 		}
 		return map;
@@ -33,9 +32,9 @@ public static class SplatmapImporter {
 	static SplatmapMapping GetClosestMapping(Color c, SplatmapMapping[] mappings) {
 		int[] deviations = new int[mappings.Length];
 		for(int i = 0; i < mappings.Length; i++) {
-			deviations[i] += Math.Abs(c.R-mappings[i].color.R);
-			deviations[i] += Math.Abs(c.G-mappings[i].color.G);
-			deviations[i] += Math.Abs(c.B-mappings[i].color.B);
+			deviations[i] += Math.Abs(c.R - mappings[i].color.R);
+			deviations[i] += Math.Abs(c.G - mappings[i].color.G);
+			deviations[i] += Math.Abs(c.B - mappings[i].color.B);
 		}
 		int index = -1;
 		int closest = 999;
@@ -52,18 +51,18 @@ public static class SplatmapImporter {
 		float[] probs = new float[mappings.Length];
 		for(int i = 0; i < mappings.Length; i++) {
 			int deviation = 0;
-			deviation += Math.Abs(c.R-mappings[i].color.R);
-			deviation += Math.Abs(c.G-mappings[i].color.G);
-			deviation += Math.Abs(c.B-mappings[i].color.B);
+			deviation += Math.Abs(c.R - mappings[i].color.R);
+			deviation += Math.Abs(c.G - mappings[i].color.G);
+			deviation += Math.Abs(c.B - mappings[i].color.B);
 			if(deviation >= ditherLimit) {
 				probs[i] = 0;
 			} else {
-				probs[i] = 1-(deviation/(float)ditherLimit);
+				probs[i] = 1 - (deviation / (float)ditherLimit);
 			}
 		}
 		float max = 0;
 		foreach(float p in probs) max += p;
-		double d = random.NextDouble()*max;
+		double d = random.NextDouble() * max;
 		double v = 0;
 		for(int i = 0; i < probs.Length; i++) {
 			v += probs[i];

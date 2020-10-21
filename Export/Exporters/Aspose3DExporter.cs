@@ -1,10 +1,9 @@
+using Aspose.ThreeD;
+using Aspose.ThreeD.Entities;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
-using ASCReader.Export;
-using Aspose.ThreeD;
-using Aspose.ThreeD.Entities;
 
 namespace ASCReader.Export.Exporters {
 	public class Aspose3DExporter : IExporter {
@@ -45,9 +44,9 @@ namespace ASCReader.Export.Exporters {
 		}
 
 		public void WriteFile(FileStream stream, FileFormat filetype) {
-			if(filetype == FileFormat.MDL_3ds) {
+			if(filetype.IsFormat("MDL_3DS")) {
 				scene.Save(stream, Aspose.ThreeD.FileFormat.Discreet3DS);
-			} else {
+			} else if(filetype.IsFormat("MDL_FBX")) {
 				scene.Save(stream, Aspose.ThreeD.FileFormat.FBX7300ASCII);
 			}
 		}

@@ -1,14 +1,29 @@
-namespace ASCReader {
-	public enum FileFormat {
+using ASCReader.Export;
 
-		UNKNOWN,
-		ASC,
-		PTS_XYZ,
-		MDL_3ds,
-		MDL_FBX,
-		IMG_PNG_Height,
-		IMG_PNG_Normal,
-		IMG_PNG_Hillshade,
-		MINECRAFT_REGION
-	} 
+namespace ASCReader {
+
+	public class FileFormat {
+		public string Identifier {
+			get { return identifier; }
+			set { identifier = value.ToUpper(); }
+		}
+
+		private string identifier;
+		public string inputKey;
+		public string description;
+		public string extension;
+		public ASCReaderExportHandler handler;
+
+		public FileFormat(string id, string input, string ext, string desc, ASCReaderExportHandler handler) {
+			Identifier = id;
+			inputKey = input.ToLower();
+			description = desc;
+			extension = ext;
+			this.handler = handler;
+		}
+
+		public bool IsFormat(string id) {
+			return id.ToUpper() == identifier;
+		}
+	}
 }

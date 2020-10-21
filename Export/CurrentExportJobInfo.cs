@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ASCReader.Export {
+﻿namespace ASCReader.Export {
 	public static class CurrentExportJobInfo {
 
 		public static string importedFilePath;

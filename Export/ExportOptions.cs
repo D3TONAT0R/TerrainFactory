@@ -1,3 +1,4 @@
+using ASCReader.Util;
 using System;
 using System.Collections.Generic;
 
@@ -11,9 +12,9 @@ namespace ASCReader.Export {
 		}
 		private int subsampling_value = 1;
 		public int fileSplitDims = -1;
-		public (int xMin, int yMin, int xMax, int yMax) exportRange = (0,0,0,0);
+		public Bounds exportRange = new Bounds(0, 0, 0, 0);
 		public bool useExportRange {
-			get{
+			get {
 				return exportRange.xMax > 0 && exportRange.yMax > 0;
 			}
 		}
@@ -25,36 +26,44 @@ namespace ASCReader.Export {
 
 		public void SetOutputFormats(string[] inputs, bool append) {
 			if(!append) outputFormats.Clear();
-			foreach(string s in inputs) {
-				if(string.IsNullOrEmpty(s)) continue;
-				var ff = s.GetFileFormat();
-				if(ff != FileFormat.UNKNOWN) {
+			foreach(string input in inputs) {
+				if(string.IsNullOrWhiteSpace(input)) continue;
+				var ff = ExportUtility.GetFormatFromInput(input);
+				if(ff != null) {
 					outputFormats.Add(ff);
 				} else {
-					Program.WriteWarning("Unknown format: " + s);
+					Program.WriteWarning("Unknown or unsupported format: " + input);
 				}
 			}
 		}
 
 		public bool SetExportRange(ASCData checkData, int x1, int y1, int x2, int y2) {
-			if(x1 < 0 || x1 > checkData.ncols) return false;
-			if(y1 < 0 || y1 > checkData.nrows) return false;
-			if(x2 < 0 || x2 > checkData.ncols) return false;
-			if(y2 < 0 || y2 > checkData.nrows) return false;
+			if(x1 < 0 || x1 >= checkData.ncols) return false;
+			if(y1 < 0 || y1 >= checkData.nrows) return false;
+			if(x2 < 0 || x2 >= checkData.ncols) return false;
+			if(y2 < 0 || y2 >= checkData.nrows) return false;
 			if(x1 > x2) return false;
 			if(y1 > y2) return false;
-			exportRange = (x1,y1,x2,y2);
+			exportRange = new Bounds(x1, y1, x2, y2);
 			return true;
+		}
+
+
+		public bool ContainsFormat(string id) {
+			foreach(var f in outputFormats) {
+				if(f.Identifier == id.ToUpper()) return true;
+			}
+			return false;
 		}
 
 		public int ExportRangeCellCount {
 			get {
 				if(useExportRange) {
-					return (exportRange.xMax-exportRange.xMin+1)*(exportRange.yMax-exportRange.yMin+1);
+					return (exportRange.xMax - exportRange.xMin + 1) * (exportRange.yMax - exportRange.yMin + 1);
 				} else {
 					return 0;
 				}
 			}
 		}
-	} 
+	}
 }
