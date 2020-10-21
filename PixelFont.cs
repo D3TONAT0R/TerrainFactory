@@ -1,5 +1,5 @@
-using System.Drawing;
 using ASCReader;
+using System.Drawing;
 
 public static class PixelFont {
 
@@ -15,96 +15,108 @@ public static class PixelFont {
 		bool[,] map = GetCharPixels(c);
 		for(int i = 0; i < map.GetLength(0); i++) {
 			for(int j = 0; j < map.GetLength(1); j++) {
-				if(map[i,j]) {
-					Previewer.SetPixel(img, x+i, y+j, color, opacity);
+				if(map[i, j]) {
+					Previewer.SetPixel(img, x + i, y + j, color, opacity);
 				}
 			}
 		}
-		x += map.GetLength(0)+1;
+		x += map.GetLength(0) + 1;
 	}
 
 
 	private static bool[,] GetCharPixels(char c) {
 		int[,] map;
 		switch(c) {
-			case '0': map = new int[,] {
+			case '0':
+				map = new int[,] {
 				{ 1,1,1 },
 				{ 1,0,1 },
 				{ 1,0,1 },
 				{ 1,0,1 },
 				{ 1,1,1 }};
 				break;
-			case '1': map = new int[,] {
+			case '1':
+				map = new int[,] {
 				{ 1,1,0 },
 				{ 0,1,0 },
 				{ 0,1,0 },
 				{ 0,1,0 },
 				{ 1,1,1 }};
 				break;
-			case '2': map = new int[,] {
+			case '2':
+				map = new int[,] {
 				{ 1,1,1 },
 				{ 0,0,1 },
 				{ 1,1,1 },
 				{ 1,0,0 },
 				{ 1,1,1 }};
 				break;
-			case '3': map = new int[,] {
+			case '3':
+				map = new int[,] {
 				{ 1,1,1 },
 				{ 0,0,1 },
 				{ 1,1,1 },
 				{ 0,0,1 },
 				{ 1,1,1 }};
 				break;
-			case '4': map = new int[,] {
+			case '4':
+				map = new int[,] {
 				{ 1,0,1 },
 				{ 1,0,1 },
 				{ 1,1,1 },
 				{ 0,0,1 },
 				{ 0,0,1 }};
 				break;
-			case '5': map = new int[,] {
+			case '5':
+				map = new int[,] {
 				{ 1,1,1 },
 				{ 1,0,0 },
 				{ 1,1,1 },
 				{ 0,0,1 },
 				{ 1,1,1 }};
 				break;
-			case '6': map = new int[,] {
+			case '6':
+				map = new int[,] {
 				{ 1,1,1 },
 				{ 1,0,0 },
 				{ 1,1,1 },
 				{ 1,0,1 },
 				{ 1,1,1 }};
 				break;
-			case '7': map = new int[,] {
+			case '7':
+				map = new int[,] {
 				{ 1,1,1 },
 				{ 0,0,1 },
 				{ 0,0,1 },
 				{ 0,0,1 },
 				{ 0,0,1 }};
 				break;
-			case '8': map = new int[,] {
+			case '8':
+				map = new int[,] {
 				{ 1,1,1 },
 				{ 1,0,1 },
 				{ 1,1,1 },
 				{ 1,0,1 },
 				{ 1,1,1 }};
 				break;
-			case '9': map = new int[,] {
+			case '9':
+				map = new int[,] {
 				{ 1,1,1 },
 				{ 1,0,1 },
 				{ 1,1,1 },
 				{ 0,0,1 },
 				{ 1,1,1 }};
 				break;
-			case ' ': map = new int[,] {
+			case ' ':
+				map = new int[,] {
 				{ 0,0,0 },
 				{ 0,0,0 },
 				{ 0,0,0 },
 				{ 0,0,0 },
 				{ 0,0,0 }};
 				break;
-			default: map = new int[,] {
+			default:
+				map = new int[,] {
 				{ 1,0,1 },
 				{ 0,1,0 },
 				{ 1,0,1 },
@@ -116,10 +128,10 @@ public static class PixelFont {
 	}
 
 	private static bool[,] ConvertToBools(int[,] pixels) {
-		bool[,] ret = new bool[pixels.GetLength(0),pixels.GetLength(1)];
+		bool[,] ret = new bool[pixels.GetLength(0), pixels.GetLength(1)];
 		for(int x = 0; x < ret.GetLength(0); x++) {
 			for(int y = 0; y < ret.GetLength(1); y++) {
-				ret[x,y] = pixels[x,y] > 0;
+				ret[x, y] = pixels[x, y] > 0;
 			}
 		}
 		return ret;

@@ -1,8 +1,8 @@
+using Assimp;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
-using Assimp;
 
 namespace ASCReader.Export.Exporters {
 	public class Assimp3DExporter : IExporter {
@@ -35,11 +35,11 @@ namespace ASCReader.Export.Exporters {
 			}
 		}
 
-		public void WriteFile(FileStream stream, FileFormat filetype) {
+		public void WriteFile(FileStream stream, FileFormat ff) {
 			AssimpContext context = new AssimpContext();
-			var blob = context.ExportToBlob(scene, filetype.GetFiletypeString());
+			var blob = context.ExportToBlob(scene, ff.extension);
 			stream.Write(blob.Data);
 			context.Dispose();
 		}
-	} 
+	}
 }

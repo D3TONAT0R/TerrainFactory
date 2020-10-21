@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Numerics;
-using System.Text;
 using ASCReader.Export;
-using ASCReader.Export.Exporters;
-using Microsoft.Win32.SafeHandles;
+using ASCReader.Util;
+using System;
+using System.IO;
+using System.Text;
 
 namespace ASCReader {
 
@@ -31,7 +28,7 @@ namespace ASCReader {
 		public float[,] data;
 		public float lowestValue = float.PositiveInfinity;
 		public float highestValue = float.NegativeInfinity;
-		
+
 		//Used for scaling operations. In data created from an image, these values represent the black and white values of the source image (default 0 and 1 respectively)
 		//In data created from ASC data itself, these are equal to lowestValue and highestValue unless overridden for heightmap export.
 		public float lowPoint;
@@ -81,14 +78,14 @@ namespace ASCReader {
 				asc.ReadGridData(stream);
 				ASCSummary summary = new ASCSummary();
 				double sum = 0;
-				for(int i = 0; i < asc.ncols*asc.nrows; i++) {
+				for(int i = 0; i < asc.ncols * asc.nrows; i++) {
 					float value;
 					if(!asc.NextGridValue(stream, out value)) break;
 					sum += value;
 				}
 				summary.lowestValue = asc.lowestValue;
 				summary.highestValue = asc.highestValue;
-				summary.averageValue = (float)(sum/(asc.ncols*asc.nrows));
+				summary.averageValue = (float)(sum / (asc.ncols * asc.nrows));
 				stream.Close();
 				return summary;
 			} catch(Exception e) {
@@ -110,11 +107,11 @@ namespace ASCReader {
 		}
 
 		public void ReadGridData(FileStream stream) {
-			int length = ncols*nrows;
+			int length = ncols * nrows;
 			for(int i = 0; i < length; i++) {
 				float value;
 				if(!NextGridValue(stream, out value)) break;
-				if(Math.Abs(value-nodata_value) > 0.1f) {
+				if(Math.Abs(value - nodata_value) > 0.1f) {
 					if(value < lowestValue) lowestValue = value;
 					if(value > highestValue) highestValue = value;
 				}
@@ -146,10 +143,10 @@ namespace ASCReader {
 			float dataRange = high - low;
 			for(int x = 0; x < ncols; x++) {
 				for(int y = 0; y < nrows; y++) {
-					double h = (data[x,y] - lowPoint) / (highPoint-lowPoint);
+					double h = (data[x, y] - lowPoint) / (highPoint - lowPoint);
 					h *= dataRange;
 					h += low;
-					data[x,y] = (float)h;
+					data[x, y] = (float)h;
 				}
 			}
 			RecalculateValues(false);
@@ -159,7 +156,7 @@ namespace ASCReader {
 
 		public void RecalculateValues(bool updateLowHighPoints) {
 			foreach(float f in data) {
-				if(Math.Abs(f-nodata_value) > 0.1f) {
+				if(Math.Abs(f - nodata_value) > 0.1f) {
 					if(f < lowestValue) lowestValue = f;
 					if(f > highestValue) highestValue = f;
 				}
@@ -173,8 +170,8 @@ namespace ASCReader {
 		public bool WriteAllFiles(string path, ExportOptions options) {
 			int rangeMinX = 0;
 			int rangeMinY = 0;
-			int rangeMaxX = ncols;
-			int rangeMaxY = nrows;
+			int rangeMaxX = ncols - 1;
+			int rangeMaxY = nrows - 1;
 			if(options.useExportRange) {
 				rangeMinX = options.exportRange.xMin;
 				rangeMinY = options.exportRange.yMin;
@@ -186,11 +183,7 @@ namespace ASCReader {
 			CurrentExportJobInfo.mcaGlobalPosZ = options.mcaOffsetZ;
 			if(Directory.Exists(dir)) {
 				if(options.fileSplitDims < 32) {
-					string subname = null;
-					if(options.outputFormats.Contains(FileFormat.MINECRAFT_REGION)) {
-						subname = "r."+options.mcaOffsetX+"."+options.mcaOffsetZ;
-					}
-					ExportUtility.CreateFilesForSection(this, filename, path, subname, options, rangeMinX, rangeMinY, rangeMaxX, rangeMaxY);
+					ExportUtility.CreateFilesForSection(this, filename, path, options, new Bounds(rangeMinX, rangeMinY, rangeMaxX, rangeMaxY));
 				} else {
 					int dims = options.fileSplitDims;
 					int yMin = rangeMinY;
@@ -201,16 +194,10 @@ namespace ASCReader {
 						int yMax = Math.Min(yMin + dims, nrows);
 						while(xMin + dims <= rangeMaxX) {
 							int xMax = Math.Min(xMin + dims, ncols);
-							string subname;
 							CurrentExportJobInfo.exportNumX = fileX;
 							CurrentExportJobInfo.exportNumZ = fileY;
-							if(options.outputFormats.Contains(FileFormat.MINECRAFT_REGION)) {
-								subname = "r."+(fileX+options.mcaOffsetX)+"."+(fileY+options.mcaOffsetZ);
-							} else {
-								subname = fileX+","+fileY;
-							}
-							bool success = ExportUtility.CreateFilesForSection(this, filename, path, subname, options, xMin, yMin, xMax, yMax);
-							if(!success) throw new IOException("Failed to write file " + subname);
+							bool success = ExportUtility.CreateFilesForSection(this, filename, path, options, new Bounds(xMin, yMin, xMax, yMax));
+							if(!success) throw new IOException("Failed to write file!");
 							xMin += dims;
 							xMin = Math.Min(xMin, ncols);
 							fileX++;
@@ -235,18 +222,14 @@ namespace ASCReader {
 			}
 		}
 
-		public float[,] GetDataRange(int x1, int y1, int x2, int y2) {
-			float[,] newdata = new float[x2-x1+1,y2-y1+1];
-			for(int x = 0; x < x2-x1; x++) {
-				for(int y = 0; y < y2-y1; y++) {
-					newdata[x,y] = data[x1+x,y1+y];
+		public float[,] GetDataRange(Bounds bounds) {
+			float[,] newdata = new float[bounds.NumCols, bounds.NumRows];
+			for(int x = 0; x < bounds.NumCols; x++) {
+				for(int y = 0; y < bounds.NumRows; y++) {
+					newdata[x, y] = data[bounds.xMin + x, bounds.yMin + y];
 				}
 			}
 			return newdata;
-		}
-
-		public float[,] GetDataRange((int x1, int y1, int x2, int y2) tuple) {
-			return GetDataRange(tuple.x1, tuple.y1, tuple.x2, tuple.y2);
 		}
 
 		private string ReadDataRaw(FileStream stream, bool valueOnly) {
@@ -302,7 +285,7 @@ namespace ASCReader {
 			try {
 				return int.Parse(ExtractString(input, keyname));
 			} catch(Exception e) {
-				Program.WriteError("Failed to parse to int: "+ExtractString(input, keyname));
+				Program.WriteError("Failed to parse to int: " + ExtractString(input, keyname));
 				throw e;
 			}
 		}
@@ -311,9 +294,9 @@ namespace ASCReader {
 			try {
 				return float.Parse(ExtractString(input, keyname));
 			} catch(Exception e) {
-				Program.WriteError("Failed to parse to float: "+ExtractString(input, keyname));
+				Program.WriteError("Failed to parse to float: " + ExtractString(input, keyname));
 				throw e;
 			}
 		}
-	} 
+	}
 }

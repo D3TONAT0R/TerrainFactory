@@ -4,5 +4,5 @@ namespace ASCReader {
 		Heightmap,
 		Normalmap,
 		Hillshade
-	} 
+	}
 }
