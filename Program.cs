@@ -151,7 +151,7 @@ namespace ASCReader {
 
 		static bool OutputFiles() {
 			WriteLine("Enter path & name to write the file(s):");
-			string path = ReplacePathVars(GetInput());
+			string path = ReplacePathVars(GetInput().Replace("\"", ""));
 			return WriteFilesForData(path);
 		}
 
