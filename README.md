@@ -1,4 +1,4 @@
-# ASCReader
+# HMCon (HeightMap Converter)
 A small utility program for convertig ESRI ASCII-GRID files to various formats
 
 This program is still in it's alpha and may not work with all files.
