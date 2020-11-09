@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "ASCReader": {
+      "commandName": "Project"
+    },
+    "ASCReader (no plugins)": {
+      "commandName": "Project",
+      "commandLineArgs": "noplugins"
+    }
+  }
+}
