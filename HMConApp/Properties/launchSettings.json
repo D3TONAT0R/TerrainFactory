@@ -1,9 +1,9 @@
 {
   "profiles": {
-    "ASCReader": {
+    "HMCon": {
       "commandName": "Project"
     },
-    "ASCReader (no plugins)": {
+    "HMCon (no plugins)": {
       "commandName": "Project",
       "commandLineArgs": "noplugins"
     }

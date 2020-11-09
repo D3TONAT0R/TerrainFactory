@@ -6,8 +6,4 @@
     <PackageId></PackageId>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Import\Extra\" />
-  </ItemGroup>
-
 </Project>

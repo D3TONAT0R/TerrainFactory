@@ -10,11 +10,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ASCReader\HMCon.csproj" />
+    <ProjectReference Include="..\HMConApp\HMCon.csproj" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy &quot;$(ProjectDir)$(OutDir)$(ProjectName)$(TargetExt)&quot; &quot;$(SolutionDir)$(OutDir)$(ProjectName)$(TargetExt)&quot;" />
+    <Exec Command="copy &quot;$(ProjectDir)$(OutDir)$(ProjectName)$(TargetExt)&quot; &quot;$(SolutionDir)HMConApp\$(OutDir)$(ProjectName)$(TargetExt)&quot;" />
   </Target>
 
 </Project>

@@ -33,13 +33,17 @@ namespace ASCReader {
 
 			bool loadPlugins = true;
 			foreach(var a in args) if(a == "noplugins") loadPlugins = false;
-			if(loadPlugins) PluginLoader.LoadPlugins();
+			if(loadPlugins) {
+				PluginLoader.LoadPlugins();
+			} else {
+				WriteLine("INFO: Plugins are disabled via launch arguments.");
+			}
 
 #if DEBUG
 			if(args.Length > 0 && args[0] == "auto") autoInputEnabled = true;
 #endif
 			WriteLine("---------------------------------");
-			WriteLine("ASCII-GRID FILE CONVERTER");
+			WriteLine("HEIGHTMAP CONVERTER V1.0");
 			WriteLine("---------------------------------");
 			while(data == null || !data.isValid) {
 				int result = GetInputFiles();
