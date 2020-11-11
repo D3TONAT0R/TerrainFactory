@@ -12,20 +12,22 @@ using System.Text;
 namespace ASCReaderImagePlugin {
 	public class ImageExporter : ASCReaderExportHandler {
 		public override void AddFormatsToList(List<FileFormat> list) {
-			list.Add(new FileFormat("IMG_PNG-HEIGHT", "png-hm", "png", "Heightmap", this));
-			list.Add(new FileFormat("IMG_PNG-NORMAL", "png-nm", "png", "Normalmap", this));
-			list.Add(new FileFormat("IMG_PNG-HILLSHADE", "png-hs", "png", "Hillshade", this));
+			list.Add(new FileFormat("IMG_PNG-HM", "png-hm", "png", "Heightmap", this));
+			list.Add(new FileFormat("IMG_PNG-NM", "png-nm", "png", "Normalmap", this));
+			list.Add(new FileFormat("IMG_PNG-HS", "png-hs", "png", "Hillshade", this));
 		}
 
 		public override bool Export(string importPath, FileFormat ff, ASCData data, string filename, string fileSubName, ExportOptions exportOptions, Bounds bounds) {
+			string path = Path.ChangeExtension(filename, null);
+			filename = path + fileSubName + ".png";
 			return WriteFileImage(data, filename, exportOptions.subsampling, bounds, ff);
 		}
 
 		public override string GetSuffixWithExtension(FileFormat ff) {
 			string str = "";
-			if(ff.IsFormat("IMG_PNG-HEIGHT")) str = "_height";
-			else if(ff.IsFormat("IMG_PNG-NORMAL")) str = "_normal";
-			else if(ff.IsFormat("IMG_PNG-HILLSHADE")) str = "_hillshade";
+			if(ff.IsFormat("IMG_PNG-HM")) str = "_height";
+			else if(ff.IsFormat("IMG_PNG-NM")) str = "_normal";
+			else if(ff.IsFormat("IMG_PNG-HS")) str = "_hillshade";
 			string ext = ff.extension;
 			if(!string.IsNullOrEmpty(ext)) {
 				return str + "." + ext;
@@ -47,7 +49,7 @@ namespace ASCReaderImagePlugin {
 				}
 			}
 			try {
-				IExporter exporter = new ImageGenerator(grid, source.cellsize, ff.GetImageType(), source.lowestValue, source.highestValue);
+				IExporter exporter = new ImageGenerator(grid, source.cellsize, ff.GetImageType(), source.lowPoint, source.highPoint);
 				ExportUtility.WriteFile(exporter, filename, ff);
 				return true;
 			} catch(Exception e) {

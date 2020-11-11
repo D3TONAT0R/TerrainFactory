@@ -34,7 +34,7 @@ namespace ASCReader.Export.Exporters {
 			while(y >= bounds.yMin) {
 				int x = bounds.xMin;
 				StringBuilder str = new StringBuilder();
-				while(x < bounds.xMax) {
+				while(x <= bounds.xMax) {
 					if(str.Length > 0) str.Append(" ");
 					str.Append(data.data[x, y]);
 					x += subsampling;
@@ -52,7 +52,8 @@ namespace ASCReader.Export.Exporters {
 					if(x % subsampling == 0 && y % subsampling == 0) {
 						float f = data.data[x, y];
 						if(f != data.nodata_value) {
-							stream.Write(Encoding.ASCII.GetBytes(x * data.cellsize + " " + y * data.cellsize + " " + f + "\n"));
+							var bytes = Encoding.ASCII.GetBytes(x * data.cellsize + " " + y * data.cellsize + " " + f + "\n");
+							stream.Write(bytes, 0, bytes.Length);
 						}
 					}
 				}
@@ -61,7 +62,8 @@ namespace ASCReader.Export.Exporters {
 		}
 
 		private void WriteString(FileStream stream, string str) {
-			stream.Write(Encoding.ASCII.GetBytes(str));
+			var bytes = Encoding.ASCII.GetBytes(str);
+			stream.Write(bytes, 0, bytes.Length);
 		}
 	}
 }

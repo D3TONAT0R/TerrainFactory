@@ -10,9 +10,9 @@ namespace ASCReaderImagePlugin {
 		}
 
 		public static ImageType GetImageType(this FileFormat ff) {
-			if(ff.IsFormat("IMG_PNG-HEIGHT")) return ImageType.Heightmap;
-			else if(ff.IsFormat("IMG_PNG-NORMAL")) return ImageType.Normalmap;
-			else if(ff.IsFormat("IMG_PNG-HILLSHADE")) return ImageType.Hillshade;
+			if(ff.IsFormat("IMG_PNG-HM")) return ImageType.Heightmap;
+			else if(ff.IsFormat("IMG_PNG-NM")) return ImageType.Normalmap;
+			else if(ff.IsFormat("IMG_PNG-HS")) return ImageType.Hillshade;
 			else return ImageType.Heightmap;
 		}
 	}

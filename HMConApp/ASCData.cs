@@ -222,6 +222,42 @@ namespace ASCReader {
 			}
 		}
 
+		public float GetDataInterpolated(float x, float y) {
+			int x1 = (int)x;
+			int y1 = (int)y;
+			int x2 = x1 + 1;
+			int y2 = y1 + 1;
+			x1 = Clamp(x1, 0, ncols - 1);
+			x2 = Clamp(x2, 0, ncols - 1);
+			y1 = Clamp(y1, 0, nrows - 1);
+			y2 = Clamp(y2, 0, nrows - 1);
+			float wx = x - x1;
+			float wy = y - y1;
+			float vx1 = Lerp(GetData(x1, y1), GetData(x2, y1), wx);
+			float vx2 = Lerp(GetData(x1, y2), GetData(x2, y2), wx);
+			return Lerp(vx1, vx2, wy);
+		}
+
+		int Clamp(int v, int min, int max) {
+			return Math.Max(Math.Min(v, max), min);
+		}
+
+		float Lerp(float a, float b, float t) {
+			return a + (b - a) * t;
+		}
+
+		public float[,] GetResizedData(int dimX, int dimY) {
+			float[,] newData = new float[dimX, dimY];
+			for(int x = 0; x < dimX; x++) {
+				for(int y = 0; y < dimY; y++) {
+					float nx = x / (float)dimX;
+					float ny = y / (float)dimY;
+					newData[x, y] = GetDataInterpolated(x * ncols, y * nrows);
+				}
+			}
+			return newData;
+		}
+
 		public float[,] GetDataRange(Bounds bounds) {
 			float[,] newdata = new float[bounds.NumCols, bounds.NumRows];
 			for(int x = 0; x < bounds.NumCols; x++) {
@@ -259,10 +295,10 @@ namespace ASCReader {
 		}
 
 		private string GetCleanedString(string line) {
-			while(line.StartsWith(' ')) line = line.Substring(1);
+			while(line.StartsWith(" ")) line = line.Substring(1);
 			line = line.Replace("  ", " ");
 			line = line.Replace("\r", "");
-			while(line.EndsWith(' ')) line = line.Substring(0, line.Length - 2);
+			while(line.EndsWith(" ")) line = line.Substring(0, line.Length - 2);
 			return line;
 		}
 

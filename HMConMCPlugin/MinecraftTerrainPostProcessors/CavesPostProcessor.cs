@@ -86,7 +86,7 @@ namespace ASCReaderMC.MinecraftTerrainPostProcessors {
 		private float Smoothstep(float v, float a, float b) {
 			if(v <= a) return a;
 			if(v >= b) return b;
-			return 0.5f - MathF.Cos(a - v) * MathF.PI / (b - a) / 2f;
+			return (float)(0.5f - Math.Cos(a - v) * Math.PI / (b - a) / 2f);
 		}
 
 		private Vector3 ApplyYWeights(float y, Vector3 dir) {

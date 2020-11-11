@@ -26,18 +26,23 @@ namespace ASCReader {
 		public static ExportOptions exportOptions;
 		static ASCSummary targetValues;
 
-		static void Main(string[] args) {
+		public static void Initialize(string pluginPath) {
 			ImportManager.RegisterHandler(new StandardImporter());
 			ExportUtility.RegisterHandler(new StandardExporter());
 			CommandHandler.commandHandlers.Add(new StandardCommands());
-
-			bool loadPlugins = true;
-			foreach(var a in args) if(a == "noplugins") loadPlugins = false;
-			if(loadPlugins) {
-				PluginLoader.LoadPlugins();
+			if(!string.IsNullOrEmpty(pluginPath)) {
+				PluginLoader.LoadPlugins(pluginPath);
 			} else {
 				WriteLine("INFO: Plugins are disabled via launch arguments.");
 			}
+		}
+
+
+		static void Main(string[] args) {
+
+			bool loadPlugins = true;
+			foreach(var a in args) if(a == "noplugins") loadPlugins = false;
+			Initialize(loadPlugins ? AppContext.BaseDirectory : null);
 
 #if DEBUG
 			if(args.Length > 0 && args[0] == "auto") autoInputEnabled = true;
@@ -332,14 +337,19 @@ namespace ASCReader {
 		}
 
 		static void WriteConsoleLine(string str) {
-			Console.CursorVisible = false;
-			if(progressString != null) {
-				WriteProgress("", -1);
-				progressString = null;
-				Console.SetCursorPosition(0, Console.CursorTop);
+			try {
+				Console.CursorVisible = false;
+				if(progressString != null) {
+					WriteProgress("", -1);
+					progressString = null;
+					Console.SetCursorPosition(0, Console.CursorTop);
+				}
+				Console.WriteLine(str);
+				Console.ResetColor();
 			}
-			Console.WriteLine(str);
-			Console.ResetColor();
+			catch {
+
+			}
 		}
 
 		public static void WriteLine(string str) {

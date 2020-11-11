@@ -26,7 +26,7 @@ namespace ASCReaderImagePlugin {
 			imageType = type;
 			lowValue = blackValue;
 			highValue = whiteValue;
-			if(type == ImageType.Heightmap) MakeHeightmap256();
+			if(type == ImageType.Heightmap) MakeHeightmap();
 			else if(type == ImageType.Normalmap) MakeNormalmap(true);
 			else if(type == ImageType.Hillshade) MakeHillshademap();
 		}
@@ -40,7 +40,7 @@ namespace ASCReaderImagePlugin {
 			for(int x = 0; x < image.Width; x++) {
 				for(int y = 0; y < image.Height; y++) {
 					float v = (grid[x, y] - lowValue) / (highValue - lowValue);
-					image.SetPixel(x, image.Height - y - 1, CreateColorGrayscale(v));
+					image.SetPixel(x, y, CreateColorGrayscale(v));
 				}
 			}
 		}
@@ -131,9 +131,17 @@ namespace ASCReaderImagePlugin {
 		}
 
 		private float GetValueAt(int x, int y) {
-			x = Math.Clamp(x, 0, image.Width - 1);
-			y = Math.Clamp(y, 0, image.Height - 1);
+			x = Clamp(x, 0, image.Width - 1);
+			y = Clamp(y, 0, image.Height - 1);
 			return grid[x, y];
+		}
+
+		int Clamp(int v, int min, int max) {
+			return Math.Max(min, Math.Min(max, v));
+		}
+
+		float Clamp(float v, float min, float max) {
+			return Math.Max(min, Math.Min(max, v));
 		}
 
 		private float GetSlope(float from, float to) {
@@ -155,7 +163,7 @@ namespace ASCReaderImagePlugin {
 		}
 
 		private int ToColorByte(float f) {
-			return (int)(Math.Clamp(f, 0d, 1d) * 255d);
+			return (int)(Clamp(f, 0f, 1f) * 255f);
 		}
 
 		private Color CreateColorGrayscale(float b) {

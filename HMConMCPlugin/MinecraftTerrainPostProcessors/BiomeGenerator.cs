@@ -81,7 +81,7 @@ namespace ASCReaderMC.PostProcessors {
 							z = 0;
 							y++;
 						} else {
-							string[] lnsplit = ln.Split(",");
+							string[] lnsplit = ln.Split(',');
 							for(int i = 0; i < dimX; i++) {
 								arr[i, y, z] = byte.Parse(lnsplit[i]);
 							}

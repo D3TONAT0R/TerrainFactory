@@ -77,9 +77,16 @@ namespace ASCReader.Export {
 		}
 
 		public static bool ExportFile(string importPath, FileFormat ff, ASCData data, string filename, string subName, ExportOptions exportOptions, Bounds bounds) {
-			if(ff != null && ff.handler != null) return ((ASCReaderExportHandler)ff.handler).Export(importPath, ff, data, filename, subName, exportOptions, bounds);
-			Program.WriteError("No exporter is defined for format '" + ff.Identifier + "'!");
-			return false;
+			if(ff != null && ff.handler != null) {
+				return ((ASCReaderExportHandler)ff.handler).Export(importPath, ff, data, filename, subName, exportOptions, bounds);
+			} else {
+				if(ff != null) {
+					Program.WriteError("No exporter is defined for format '" + ff.Identifier + "'!");
+				} else {
+					Program.WriteError("FileFormat is null!");
+				}
+				return false;
+			}
 		}
 
 		public static void WriteFile(IExporter ie, string path, FileFormat ff) {

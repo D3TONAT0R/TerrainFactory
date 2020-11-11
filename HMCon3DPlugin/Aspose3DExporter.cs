@@ -2,6 +2,7 @@ using ASCReader;
 using ASCReader.Export;
 using Aspose.ThreeD;
 using Aspose.ThreeD.Entities;
+//using Aspose.ThreeD.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -24,7 +25,7 @@ namespace ASCReader3DPlugin {
 						m.CreatePolygon(tuple.tris[j], tuple.tris[j + 1], tuple.tris[j + 2]);
 					}
 					var elem = m.CreateElementUV(TextureMapping.Diffuse, MappingMode.PolygonVertex, ReferenceMode.Direct);
-					List<Aspose.ThreeD.Utilities.Vector4> uv = new List<Aspose.ThreeD.Utilities.Vector4>();
+					var uv = new List<Aspose.ThreeD.Utilities.Vector4>();
 					for(int k = 0; k < meshInfo[i].uvs.Count; k++) {
 						uv.Add(new Aspose.ThreeD.Utilities.Vector4(meshInfo[i].uvs[k].X, meshInfo[i].uvs[k].Y, 0, 1));
 					}

@@ -40,7 +40,7 @@ namespace ASCReader3DPlugin {
 		public void WriteFile(FileStream stream, FileFormat ff) {
 			AssimpContext context = new AssimpContext();
 			var blob = context.ExportToBlob(scene, ff.extension);
-			stream.Write(blob.Data);
+			stream.Write(blob.Data, 0, blob.Data.Length);
 			context.Dispose();
 		}
 	}

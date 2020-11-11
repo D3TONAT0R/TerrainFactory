@@ -8,11 +8,11 @@ namespace ASCReader {
 	public class StandardCommands : ASCReaderCommandHandler {
 
 		public override void AddCommands(List<ConsoleCommand> list) {
-			list.Add(new ConsoleCommand("subsample", "N", "Only export every N-th cell", null));
-			list.Add(new ConsoleCommand("split", "N", "Split files every NxN cells (minimum 32)", null));
-			list.Add(new ConsoleCommand("selection", "x1 y1 x2 y2", "Export only the selected data range(use 'preview' to see the data grid)", null));
-			list.Add(new ConsoleCommand("overridecellsize", "N", "Override size per cell", null));
-			list.Add(new ConsoleCommand("setrange", "N N", "Change the height data range (min - max)", null));
+			list.Add(new ConsoleCommand("subsample", "N", "Only export every N-th cell", this));
+			list.Add(new ConsoleCommand("split", "N", "Split files every NxN cells (minimum 32)", this));
+			list.Add(new ConsoleCommand("selection", "x1 y1 x2 y2", "Export only the selected data range(use 'preview' to see the data grid)", this));
+			list.Add(new ConsoleCommand("overridecellsize", "N", "Override size per cell", this));
+			list.Add(new ConsoleCommand("setrange", "N N", "Change the height data range (min - max)", this));
 		}
 
 
