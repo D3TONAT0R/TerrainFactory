@@ -1,6 +1,6 @@
-using ASCReader.Export;
+using HMCon.Export;
 
-namespace ASCReader {
+namespace HMCon {
 
 	public class FileFormat {
 		public string Identifier {

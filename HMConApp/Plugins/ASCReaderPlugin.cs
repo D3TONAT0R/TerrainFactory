@@ -1,11 +1,11 @@
-﻿using ASCReader.Export;
-using ASCReader.Import;
-using ASCReader.Util;
+﻿using HMCon.Export;
+using HMCon.Import;
+using HMCon.Util;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ASCReader {
+namespace HMCon {
 	public abstract class ASCReaderPlugin {
 
 		public abstract ASCReaderExportHandler GetExportHandler();

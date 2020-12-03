@@ -1,8 +1,8 @@
-using ASCReader.Util;
+using HMCon.Util;
 using System;
 using System.Collections.Generic;
 
-namespace ASCReader.Export {
+namespace HMCon.Export {
 	public class ExportOptions {
 
 		public List<FileFormat> outputFormats = new List<FileFormat>();

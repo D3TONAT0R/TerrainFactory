@@ -1,4 +1,4 @@
-﻿namespace ASCReader.Util {
+﻿namespace HMCon.Util {
 	public struct Bounds {
 
 		public int xMin;

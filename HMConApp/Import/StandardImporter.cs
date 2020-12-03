@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ASCReader.Import {
+namespace HMCon.Import {
 	class StandardImporter : ASCReaderImportHandler {
 		public override void AddFormatsToList(List<FileFormat> list) {
 			list.Add(new FileFormat("ASC", "ASC", "asc", "ESRI ASCII grid", this));

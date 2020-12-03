@@ -1,6 +1,6 @@
-﻿using ASCReader.Export;
+﻿using HMCon.Export;
 
-namespace ASCReader.Util {
+namespace HMCon.Util {
 	public class ConsoleCommand {
 
 		public string command;

@@ -1,10 +1,10 @@
-using ASCReader.Export;
-using ASCReader.Util;
+using HMCon.Export;
+using HMCon.Util;
 using System;
 using System.IO;
 using System.Text;
 
-namespace ASCReader {
+namespace HMCon {
 
 	public class ASCSummary {
 		public float lowestValue = float.PositiveInfinity;
@@ -20,7 +20,17 @@ namespace ASCReader {
 		public int nrows;
 		public float xllcorner;
 		public float yllcorner;
-		public float cellsize;
+		public float cellsize_x;
+		public float cellsize_y;
+		public float cellsize {
+			get {
+				return cellsize_x;
+			}
+			set {
+				cellsize_x = value;
+				cellsize_y = value;
+			}
+		}
 		public float nodata_value;
 
 		public string fileHeader = "";
@@ -66,6 +76,21 @@ namespace ASCReader {
 				Program.WriteLine("");
 				isValid = false;
 			}
+		}
+
+		public ASCData(ASCData original) {
+			filename = original.filename;
+			ncols = original.ncols;
+			nrows = original.nrows;
+			xllcorner = original.xllcorner;
+			yllcorner = original.yllcorner;
+			cellsize = original.cellsize;
+			nodata_value = original.nodata_value;
+			fileHeader = original.fileHeader;
+			data = (float[,])original.data.Clone();
+			RecalculateValues(false);
+			lowPoint = original.lowPoint;
+			highPoint = original.highPoint;
 		}
 
 		public static ASCSummary GetSummary(string filepath) {
@@ -246,13 +271,33 @@ namespace ASCReader {
 			return a + (b - a) * t;
 		}
 
+		public ASCData Resize(int newDimX, bool scaleHeight) {
+			ASCData newData = new ASCData(this);
+			int dimX = newDimX;
+			float ratio = ncols / (float)nrows;
+			int dimY = (int)(dimX / ratio);
+			newData.data = GetResizedData(dimX, dimY);
+			newData.ncols = dimX;
+			newData.nrows = dimY;
+			float resizeRatio = newData.ncols / (float)ncols;
+			if(scaleHeight) {
+				for(int x = 0; x < newData.ncols; x++) {
+					for(int y = 0; y < newData.nrows; y++) {
+						newData.data[x, y] *= resizeRatio;
+					}
+				}
+			}
+			newData.cellsize = resizeRatio;
+			return newData;
+		}
+
 		public float[,] GetResizedData(int dimX, int dimY) {
 			float[,] newData = new float[dimX, dimY];
 			for(int x = 0; x < dimX; x++) {
 				for(int y = 0; y < dimY; y++) {
 					float nx = x / (float)dimX;
 					float ny = y / (float)dimY;
-					newData[x, y] = GetDataInterpolated(x * ncols, y * nrows);
+					newData[x, y] = GetDataInterpolated(nx * ncols, ny * nrows);
 				}
 			}
 			return newData;

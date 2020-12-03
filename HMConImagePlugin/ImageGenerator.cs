@@ -1,5 +1,5 @@
-﻿using ASCReader;
-using ASCReader.Export;
+﻿using HMCon;
+using HMCon.Export;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -122,8 +122,9 @@ namespace ASCReaderImagePlugin {
 			for(int x = 0; x < image.Width; x++) {
 				for(int y = 0; y < image.Height; y++) {
 					Vector3 nrm = normals[x, y];
-					float light = 0.5f + nrm.X / 2f;
-					light += 0.5f + nrm.Y / 2f;
+					float strength = 1.5f;
+					float light = 0.5f + nrm.X / 2f * 0.8f * strength;
+					light += 0.5f + nrm.Y / 2f * 1.2f * strength;
 					light /= 1.4f;
 					image.SetPixel(x, image.Height - y - 1, CreateColorGrayscale(light));
 				}

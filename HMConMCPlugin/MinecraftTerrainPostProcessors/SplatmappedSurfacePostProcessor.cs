@@ -1,5 +1,5 @@
-using ASCReader;
-using ASCReader.Import;
+using HMCon;
+using HMCon.Import;
 using ASCReaderImagePlugin;
 using MCUtils;
 using System.Collections.Generic;

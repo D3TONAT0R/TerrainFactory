@@ -1,8 +1,8 @@
-﻿using ASCReader.Util;
+﻿using HMCon.Util;
 using System.IO;
 using System.Text;
 
-namespace ASCReader.Export.Exporters {
+namespace HMCon.Export.Exporters {
 	public class PointDataExporter : IExporter {
 
 		private ASCData data;

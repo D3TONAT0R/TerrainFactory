@@ -1,6 +1,6 @@
-﻿using ASCReader;
-using ASCReader.Export;
-using ASCReader.Import;
+﻿using HMCon;
+using HMCon.Export;
+using HMCon.Import;
 using System;
 
 namespace ASCReaderImagePlugin {

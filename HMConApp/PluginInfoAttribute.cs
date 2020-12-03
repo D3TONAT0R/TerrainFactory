@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ASCReader {
+namespace HMCon {
 	public class PluginInfoAttribute : Attribute {
 
 		public string Name {

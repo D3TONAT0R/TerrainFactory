@@ -1,4 +1,4 @@
-﻿namespace ASCReader.Export {
+﻿namespace HMCon.Export {
 	public static class CurrentExportJobInfo {
 
 		public static string importedFilePath;

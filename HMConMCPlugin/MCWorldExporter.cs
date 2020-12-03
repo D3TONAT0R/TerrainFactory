@@ -1,6 +1,6 @@
 
-using ASCReader;
-using ASCReader.Export;
+using HMCon;
+using HMCon.Export;
 using ASCReaderMC.MinecraftTerrainPostProcessors;
 using ASCReaderMC.PostProcessors;
 using Ionic.Zlib;

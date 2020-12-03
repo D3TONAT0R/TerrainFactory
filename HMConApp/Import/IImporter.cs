@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ASCReader.Import {
+namespace HMCon.Import {
 	public interface IImporter {
 		
 	}

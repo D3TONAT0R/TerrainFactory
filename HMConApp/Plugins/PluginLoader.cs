@@ -1,12 +1,12 @@
-﻿using ASCReader.Export;
-using ASCReader.Import;
+﻿using HMCon.Export;
+using HMCon.Import;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
 
-namespace ASCReader {
+namespace HMCon {
 	static class PluginLoader {
 
 		public static void LoadPlugins(string pluginPath) {
@@ -41,6 +41,7 @@ namespace ASCReader {
 							} else {
 								Program.WriteWarning($"Plugin with class '{t.FullName}' does not specify a Plugin name!");
 							}
+							Program.numPluginsLoaded++;
 						}
 					}
 				}

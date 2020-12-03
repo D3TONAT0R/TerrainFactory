@@ -1,5 +1,5 @@
-using ASCReader;
-using ASCReader.Export;
+using HMCon;
+using HMCon.Export;
 using Aspose.ThreeD;
 using Aspose.ThreeD.Entities;
 //using Aspose.ThreeD.Utilities;
@@ -46,7 +46,7 @@ namespace ASCReader3DPlugin {
 			}
 		}
 
-		public void WriteFile(FileStream stream, ASCReader.FileFormat filetype) {
+		public void WriteFile(FileStream stream, HMCon.FileFormat filetype) {
 			if(filetype.IsFormat("MDL_3DS")) {
 				scene.Save(stream, Aspose.ThreeD.FileFormat.Discreet3DS);
 			} else if(filetype.IsFormat("MDL_FBX")) {

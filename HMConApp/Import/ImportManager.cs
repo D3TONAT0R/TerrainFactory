@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ASCReader.Import {
+namespace HMCon.Import {
 	public static class ImportManager {
 
 		public static List<ASCReaderImportHandler> importHandlers = new List<ASCReaderImportHandler>();
@@ -20,7 +20,7 @@ namespace ASCReader.Import {
 					return ((ASCReaderImportHandler)ff.handler).Import(path, ff);
 				}
 			}
-			return null;
+			throw new NotSupportedException($"Unable to import file of type '{ext}'.");
 		}
 	}
 }

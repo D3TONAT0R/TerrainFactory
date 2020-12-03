@@ -1,7 +1,7 @@
-﻿using ASCReader.Util;
+﻿using HMCon.Util;
 using System.Collections.Generic;
 
-namespace ASCReader.Import {
+namespace HMCon.Import {
 	public abstract class ASCReaderImportHandler {
 
 		public abstract void AddFormatsToList(List<FileFormat> list);

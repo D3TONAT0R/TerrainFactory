@@ -1,11 +1,11 @@
-﻿using ASCReader.Export;
-using ASCReader.Import;
-using ASCReader.Util;
+﻿using HMCon.Export;
+using HMCon.Import;
+using HMCon.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace ASCReader {
+namespace HMCon {
 	public class Program {
 
 #if DEBUG
@@ -16,6 +16,7 @@ namespace ASCReader {
 		};
 #endif
 
+		public static int numPluginsLoaded = 0;
 		public static bool debugLogging = false;
 		public static int exported3dFiles = 0;
 

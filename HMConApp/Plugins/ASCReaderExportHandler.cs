@@ -1,8 +1,8 @@
-﻿using ASCReader.Util;
+﻿using HMCon.Util;
 using System.Collections.Generic;
 using System.IO;
 
-namespace ASCReader.Export {
+namespace HMCon.Export {
 	public abstract class ASCReaderExportHandler {
 
 		public abstract bool ValidateExportOptions(ExportOptions options, FileFormat format, ASCData data);

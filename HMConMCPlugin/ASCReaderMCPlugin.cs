@@ -1,7 +1,7 @@
-﻿using ASCReader;
-using ASCReader.Export;
-using ASCReader.Import;
-using ASCReader.Util;
+﻿using HMCon;
+using HMCon.Export;
+using HMCon.Import;
+using HMCon.Util;
 using System;
 using System.Collections.Generic;
 

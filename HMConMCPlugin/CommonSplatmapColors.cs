@@ -1,4 +1,4 @@
-using ASCReader;
+using HMCon;
 using System.Drawing;
 
 public class CommonSplatmapColors {

@@ -1,10 +1,10 @@
-﻿using ASCReader.Export;
-using ASCReader.Util;
+﻿using HMCon.Export;
+using HMCon.Util;
 using System;
 using System.Collections.Generic;
-using static ASCReader.Program;
+using static HMCon.Program;
 
-namespace ASCReader {
+namespace HMCon {
 	public class StandardCommands : ASCReaderCommandHandler {
 
 		public override void AddCommands(List<ConsoleCommand> list) {

@@ -1,4 +1,4 @@
-namespace ASCReader {
+namespace HMCon {
 	public static class FileFormatUtil {
 
 		public static bool IsPointFormat(this FileFormat format) {

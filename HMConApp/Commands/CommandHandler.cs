@@ -1,9 +1,9 @@
-﻿using ASCReader.Util;
+﻿using HMCon.Util;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ASCReader {
+namespace HMCon {
 	static class CommandHandler {
 
 		public static List<ASCReaderCommandHandler> commandHandlers = new List<ASCReaderCommandHandler>();

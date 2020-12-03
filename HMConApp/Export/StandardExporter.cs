@@ -1,11 +1,11 @@
-﻿using ASCReader.Export.Exporters;
-using ASCReader.Util;
+﻿using HMCon.Export.Exporters;
+using HMCon.Util;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using static ASCReader.Program;
+using static HMCon.Program;
 
-namespace ASCReader.Export {
+namespace HMCon.Export {
 
 	class StandardExporter : ASCReaderExportHandler {
 
