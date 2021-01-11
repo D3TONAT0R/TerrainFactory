@@ -12,12 +12,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HMConImagePlugin\HMConImagePlugin.csproj" />
-    <ProjectReference Include="..\HMConApp\HMCon.csproj" />
     <ProjectReference Include="..\..\MCUtils\MCUtils.csproj" />
+    <ProjectReference Include="..\HMCon\HMCon.csproj" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy &quot;$(ProjectDir)$(OutDir)$(ProjectName)$(TargetExt)&quot; &quot;$(SolutionDir)HMConApp\$(OutDir)$(ProjectName)$(TargetExt)&quot;" />
+    <Exec Command="copy &quot;$(ProjectDir)$(OutDir)$(ProjectName)$(TargetExt)&quot; &quot;$(SolutionDir)HMConApp\bin\$(ConfigurationName)\netcoreapp3.1\$(ProjectName)$(TargetExt)&quot;" />
   </Target>
 
 </Project>

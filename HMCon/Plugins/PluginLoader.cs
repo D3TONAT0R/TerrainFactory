@@ -10,9 +10,11 @@ namespace HMCon {
 	static class PluginLoader {
 
 		public static void LoadPlugins(string pluginPath) {
+			Program.WriteLineSpecial(pluginPath);
 			foreach(var path in Directory.GetFiles(pluginPath, "*.dll")) {
 				try {
 					var assembly = Assembly.LoadFrom(path);
+					Program.WriteLineSpecial("Loading assembly: " + assembly.FullName);
 					foreach(var t in assembly.GetTypes()) {
 						if(t.IsSubclassOf(typeof(ASCReaderPlugin)) && !t.IsAbstract) {
 							var plugin = (ASCReaderPlugin)Activator.CreateInstance(t);

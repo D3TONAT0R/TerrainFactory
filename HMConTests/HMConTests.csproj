@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\HMConApp\HMCon.csproj" />
+    <ProjectReference Include="..\HMCon\HMCon.csproj" />
   </ItemGroup>
 
 </Project>
