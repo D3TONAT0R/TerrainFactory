@@ -213,15 +213,15 @@ namespace HMCon {
 					int dims = options.fileSplitDims;
 					int yMin = rangeMinY;
 					int fileY = 0;
-					while(yMin + dims <= rangeMaxY) {
+					while(yMin + dims <= rangeMaxY+1) {
 						int xMin = rangeMinX;
 						int fileX = 0;
 						int yMax = Math.Min(yMin + dims, nrows);
-						while(xMin + dims <= rangeMaxX) {
+						while(xMin + dims <= rangeMaxX+1) {
 							int xMax = Math.Min(xMin + dims, ncols);
 							CurrentExportJobInfo.exportNumX = fileX;
 							CurrentExportJobInfo.exportNumZ = fileY;
-							bool success = ExportUtility.CreateFilesForSection(this, filename, path, options, new Bounds(xMin, yMin, xMax, yMax));
+							bool success = ExportUtility.CreateFilesForSection(this, filename, path, options, new Bounds(xMin, yMin, xMax-1, yMax-1));
 							if(!success) throw new IOException("Failed to write file!");
 							xMin += dims;
 							xMin = Math.Min(xMin, ncols);

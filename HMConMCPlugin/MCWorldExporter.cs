@@ -51,17 +51,19 @@ namespace ASCReaderMC {
 		}
 
 		private void CreateWorld() {
-			world = new World(512, 512);
+			world = new World(CurrentExportJobInfo.mcaGlobalPosX, CurrentExportJobInfo.mcaGlobalPosZ, CurrentExportJobInfo.mcaGlobalPosX, CurrentExportJobInfo.mcaGlobalPosZ);
 			MakeBaseTerrain();
 			DecorateTerrain();
 			MakeBiomeArray();
 		}
 
 		private void MakeBaseTerrain() {
+			int ox = CurrentExportJobInfo.mcaGlobalPosX * 512;
+			int oz = CurrentExportJobInfo.mcaGlobalPosZ * 512;
 			for(int x = 0; x < 512; x++) {
 				for(int z = 0; z < 512; z++) {
 					for(int y = 0; y <= heightmap[x, z]; y++) {
-						world.SetDefaultBlock(x, y, z);
+						world.SetDefaultBlock(ox+x, y, oz+z);
 					}
 				}
 				if((x + 1) % 8 == 0) Program.WriteProgress("Generating base terrain", (x + 1) / 512f);
@@ -98,7 +100,7 @@ namespace ASCReaderMC {
 
 		public void WriteFile(FileStream stream, FileFormat filetype) {
 			CreateWorld();
-			world.WriteRegionFiles(stream, 0, 0);
+			world.WriteRegionFiles(stream, CurrentExportJobInfo.mcaGlobalPosX, CurrentExportJobInfo.mcaGlobalPosZ);
 		}
 	}
 }

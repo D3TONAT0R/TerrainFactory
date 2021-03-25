@@ -18,7 +18,7 @@ namespace HMCon.Export {
 
 		public static bool CreateFilesForSection(ASCData source, string sourceFilePath, string path, ExportOptions options, Bounds bounds) {
 			int numX = CurrentExportJobInfo.exportNumX;
-			int numY = CurrentExportJobInfo.exportNumX;
+			int numY = CurrentExportJobInfo.exportNumZ;
 			foreach(FileFormat ff in options.outputFormats) {
 				string subname;
 				if(options.ContainsFormat("MCA")) {
