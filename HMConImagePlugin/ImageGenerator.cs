@@ -40,7 +40,7 @@ namespace ASCReaderImagePlugin {
 			for(int x = 0; x < image.Width; x++) {
 				for(int y = 0; y < image.Height; y++) {
 					float v = (grid[x, y] - lowValue) / (highValue - lowValue);
-					image.SetPixel(x, y, CreateColorGrayscale(v));
+					image.SetPixel(x, image.Height - y - 1, CreateColorGrayscale(v));
 				}
 			}
 		}

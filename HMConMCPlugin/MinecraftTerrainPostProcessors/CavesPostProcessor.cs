@@ -63,8 +63,8 @@ namespace ASCReaderMC.MinecraftTerrainPostProcessors {
 				for(int y = y1; y <= y2; y++) {
 					for(int z = z1; z <= z2; z++) {
 						if(Vector3.Distance(new Vector3(x, y, z), pos) < radius) {
-							var b = world.GetBlock(x, y, z);
-							if(b != null && b != "minecraft:bedrock" && b != "minecraft:air") world.SetBlock(x, y, z, "air");
+							var b = world.GetBlockState(x, y, z);
+							if(b != null && !b.CompareMultiple("minecraft:bedrock", "minecraft:air")) world.SetBlock(x, y, z, "minecraft:air");
 						}
 					}
 				}

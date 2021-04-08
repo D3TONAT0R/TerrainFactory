@@ -20,11 +20,11 @@ namespace HMCon.Export {
 			int numX = CurrentExportJobInfo.exportNumX;
 			int numY = CurrentExportJobInfo.exportNumZ;
 			foreach(FileFormat ff in options.outputFormats) {
-				string subname;
+				string subname = null;
 				if(options.ContainsFormat("MCA")) {
 					subname = "r." + (numX + options.mcaOffsetX) + "." + (numY + options.mcaOffsetZ);
 				} else {
-					subname = numX + "," + numY;
+					//subname = numX + "," + numY;
 				}
 				if(!string.IsNullOrEmpty(subname)) {
 					string ext = Path.GetExtension(path);
