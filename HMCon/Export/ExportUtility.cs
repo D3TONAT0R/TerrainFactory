@@ -16,28 +16,22 @@ namespace HMCon.Export {
 			e.AddFormatsToList(supportedFormats);
 		}
 
-		public static bool CreateFilesForSection(ASCData source, string sourceFilePath, string path, ExportOptions options, Bounds bounds) {
+		public static bool CreateFilesForSection(ASCData source, string directory, string name) {
 			int numX = CurrentExportJobInfo.exportNumX;
 			int numY = CurrentExportJobInfo.exportNumZ;
-			foreach(FileFormat ff in options.outputFormats) {
-				string subname = null;
-				if(options.ContainsFormat("MCA")) {
-					subname = "r." + (numX + options.mcaOffsetX) + "." + (numY + options.mcaOffsetZ);
-				} else {
-					//subname = numX + "," + numY;
+			foreach(FileFormat ff in CurrentExportJobInfo.exportSettings.outputFormats) {
+				FileNameProvider path = new FileNameProvider(directory, name, ff);
+				path.gridNum = (numX, numY);
+
+				//TODO: move to MC plugin
+				if(CurrentExportJobInfo.exportSettings.ContainsFormat("MCA")) {
+					path.gridNum = (numX + CurrentExportJobInfo.exportSettings.mcaOffsetX, numY + CurrentExportJobInfo.exportSettings.mcaOffsetZ);
+					path.gridNumFormat = "r.{0}.{1}";
 				}
-				if(!string.IsNullOrEmpty(subname)) {
-					string ext = Path.GetExtension(path);
-					string p = path.Substring(0, path.Length - ext.Length);
-					if(!path.EndsWith("\\")) {
-						path = p + "_" + subname;
-					} else {
-						path = p + subname;
-					}
-				}
-				string fullpath = path + GetSuffixWithExtension(ff);
+				EditFilename(path, ff);
+				string fullpath = path.GetFullPath();
 				Program.WriteLine("Creating file " + fullpath + " ...");
-				if(ExportFile(sourceFilePath, ff, source, fullpath, subname, options, bounds)) {
+				if(ExportFile(source, ff, fullpath)) {
 					Program.WriteSuccess(ff.Identifier + " file created successfully!");
 				} else {
 					Program.WriteError("Failed to write " + ff.Identifier + " file!");
@@ -46,7 +40,7 @@ namespace HMCon.Export {
 			return true;
 		}
 
-		public static bool ValidateExportOptions(ExportOptions exportOptions, ASCData data, FileFormat ff) {
+		public static bool ValidateExportOptions(ExportSettings exportOptions, ASCData data, FileFormat ff) {
 			bool valid = true;
 			foreach(var ex in exportHandlers) {
 				valid &= ex.ValidateExportOptions(exportOptions, ff, data);
@@ -72,13 +66,13 @@ namespace HMCon.Export {
 			return null;
 		}
 
-		public static string GetSuffixWithExtension(FileFormat ff) {
-			return ((ASCReaderExportHandler)ff.handler).GetSuffixWithExtension(ff);
+		public static void EditFilename(FileNameProvider path, FileFormat ff) {
+			((ASCReaderExportHandler)ff.handler).EditFileName(path, ff);
 		}
 
-		public static bool ExportFile(string importPath, FileFormat ff, ASCData data, string filename, string subName, ExportOptions exportOptions, Bounds bounds) {
+		public static bool ExportFile(ASCData data, FileFormat ff, string fullPath) {
 			if(ff != null && ff.handler != null) {
-				return ((ASCReaderExportHandler)ff.handler).Export(importPath, ff, data, filename, subName, exportOptions, bounds);
+				return ((ASCReaderExportHandler)ff.handler).Export(data, ff, fullPath);
 			} else {
 				if(ff != null) {
 					Program.WriteError("No exporter is defined for format '" + ff.Identifier + "'!");
@@ -90,9 +84,9 @@ namespace HMCon.Export {
 		}
 
 		public static void WriteFile(IExporter ie, string path, FileFormat ff) {
-			FileStream stream = new FileStream(path, FileMode.Create);
-			ie.WriteFile(stream, ff);
-			stream.Close();
+			using(FileStream stream = new FileStream(path, FileMode.Create)) {
+				ie.WriteFile(stream, ff);
+			}
 		}
 	}
 }

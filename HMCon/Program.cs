@@ -24,7 +24,7 @@ namespace HMCon {
 
 		static List<string> inputFileList;
 		static ASCData data;
-		public static ExportOptions exportOptions;
+		public static ExportSettings exportOptions;
 		static ASCSummary targetValues;
 
 		public static void Initialize(string pluginPath) {
@@ -137,22 +137,6 @@ namespace HMCon {
 					WriteError("Don't know how to read file with extension: " + ext);
 					return null;
 				}
-				/*
-				else if(ext == ".png" || ext == ".jpeg" || ext == ".jpg" || ext == ".bmp" || ext == ".tif") {
-					d = HeightmapImporter.ImportHeightmap(f);
-					WriteLineSpecial("Heightmap imported. Override cellsize and low/high values for the desired result.");
-					WriteLineSpecial("Default cell size: 1.0     Default data range 0.0 (black) - 1.0 (white)");
-				} else if(ext == ".mca") {
-					d = MinecraftRegionImporter.ImportHeightmap(f);
-					WriteLineSpecial("Minecraft region heightmap imported.");
-				} else {
-					
-					d = null;
-				}
-				CurrentExportJobInfo.importedFilePath = f;
-				inputFileList.RemoveAt(0);
-				return d;
-				*/
 			} else {
 				return null;
 			}
@@ -241,7 +225,7 @@ namespace HMCon {
 			WriteLine("Type 'abort' to abort the export");
 			WriteLine("--------------------");
 			string input;
-			exportOptions = new ExportOptions();
+			exportOptions = new ExportSettings();
 			while(true) {
 				input = GetInput();
 				while(input.Contains("  ")) input = input.Replace("  ", " "); //Remove all double spaces
@@ -337,19 +321,23 @@ namespace HMCon {
 			return s;
 		}
 
-		static void WriteConsoleLine(string str) {
-			try {
-				Console.CursorVisible = false;
-				if(progressString != null) {
-					WriteProgress("", -1);
-					progressString = null;
-					Console.SetCursorPosition(0, Console.CursorTop);
-				}
-				Console.WriteLine(str);
-				Console.ResetColor();
-			}
-			catch {
+		[System.Runtime.InteropServices.DllImport("kernel32.dll")]
+		static extern IntPtr GetConsoleWindow();
 
+		static void WriteConsoleLine(string str) {
+			if(GetConsoleWindow() != IntPtr.Zero) {
+				try {
+					Console.CursorVisible = false;
+					if(progressString != null) {
+						WriteProgress("", -1);
+						progressString = null;
+						Console.SetCursorPosition(0, Console.CursorTop);
+					}
+					Console.WriteLine(str);
+					Console.ResetColor();
+				} catch {
+
+				}
 			}
 		}
 
@@ -390,18 +378,20 @@ namespace HMCon {
 		}
 
 		public static void WriteProgress(string str, float progressbar) {
-			Console.CursorVisible = false;
-			int lastLength = 0;
-			if(progressString != null) {
-				lastLength = progressString.Length;
-				Console.SetCursorPosition(0, Console.CursorTop);
+			if(GetConsoleWindow() != IntPtr.Zero) {
+				Console.CursorVisible = false;
+				int lastLength = 0;
+				if(progressString != null) {
+					lastLength = progressString.Length;
+					Console.SetCursorPosition(0, Console.CursorTop);
+				}
+				progressString = str;
+				if(progressbar >= 0) progressString += " " + GetProgressBar(progressbar) + " " + (int)Math.Round(progressbar * 100) + "%";
+				if(lastLength > 0) progressString = progressString.PadRight(lastLength, ' ');
+				Console.ForegroundColor = ConsoleColor.DarkGray;
+				Console.Write(progressString);
+				Console.ResetColor();
 			}
-			progressString = str;
-			if(progressbar >= 0) progressString += " " + GetProgressBar(progressbar) + " " + (int)Math.Round(progressbar * 100) + "%";
-			if(lastLength > 0) progressString = progressString.PadRight(lastLength, ' ');
-			Console.ForegroundColor = ConsoleColor.DarkGray;
-			Console.Write(progressString);
-			Console.ResetColor();
 		}
 
 		static string GetProgressBar(float prog) {

@@ -30,7 +30,7 @@ namespace ASCReaderImagePlugin {
 			asc.nodata_value = -9999;
 			for(int x = 0; x < image.Width; x++) {
 				for(int y = 0; y < image.Height; y++) {
-					Color c = image.GetPixel(x, y);
+					Color c = image.GetPixel(x, image.Height-y-1);
 					asc.data[x, y] = c.GetBrightness();
 				}
 			}

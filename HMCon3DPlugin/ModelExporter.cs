@@ -13,14 +13,14 @@ namespace ASCReader3DPlugin {
 			list.Add(new FileFormat("3DM_FBX", "fbx", "fbx", "FBX 3d model", this));
 		}
 
-		public override bool Export(string importPath, FileFormat ff, ASCData data, string filename, string fileSubName, ExportOptions exportOptions, Bounds bounds) {
+		public override bool Export(ASCData data, FileFormat ff, string fullPath) {
 			if(ff.Identifier.StartsWith("3DM")) {
-				return WriteFile3D(data, filename, exportOptions.subsampling, bounds, ff);
+				return WriteFile3D(data, fullPath, CurrentExportJobInfo.exportSettings.subsampling, CurrentExportJobInfo.bounds ?? data.GetBounds(), ff);
 			}
 			return false;
 		}
 
-		public override bool ValidateExportOptions(ExportOptions options, FileFormat format, ASCData data) {
+		public override bool ValidateExportOptions(ExportSettings options, FileFormat format, ASCData data) {
 			int cellsPerFile = Program.GetTotalExportCellsPerFile();
 			if(options.ContainsFormat("MDL_3DS")) {
 				if(cellsPerFile >= 65535) {

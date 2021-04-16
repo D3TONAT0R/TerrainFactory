@@ -16,7 +16,7 @@ namespace HMCon {
 		}
 
 
-		public override void HandleCommand(string cmd, string[] args, ExportOptions exportOptions, ASCData data) {
+		public override void HandleCommand(string cmd, string[] args, ExportSettings exportOptions, ASCData data) {
 			if(cmd == "subsample") {
 				if(args.Length > 0) {
 					if(int.TryParse(args[0], out int i)) {

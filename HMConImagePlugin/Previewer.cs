@@ -18,7 +18,7 @@ namespace ASCReaderImagePlugin {
 			(1000,Color.Yellow),
 		};
 
-		public static void OpenDataPreview(ASCData data, ExportOptions options, bool heightmap) {
+		public static void OpenDataPreview(ASCData data, ExportSettings options, bool heightmap) {
 			float[,] d;
 			if(options.useExportRange) {
 				d = data.GetDataRange(options.exportRange);
@@ -39,7 +39,7 @@ namespace ASCReaderImagePlugin {
 			p.Start();
 		}
 
-		private static void MakeGrid(Bitmap img, ExportOptions options) {
+		private static void MakeGrid(Bitmap img, ExportSettings options) {
 			int dim = MinDim(img);
 			if(dim < 50) return;
 			Queue<(int size, Color col)> grids = new Queue<(int size, Color col)>();
@@ -60,7 +60,7 @@ namespace ASCReaderImagePlugin {
 			return i >= min && i < max;
 		}
 
-		private static void DrawGrid(Bitmap img, int size, Color color, float opacity, bool drawCoords, ExportOptions range) {
+		private static void DrawGrid(Bitmap img, int size, Color color, float opacity, bool drawCoords, ExportSettings range) {
 			int shiftX = range.exportRange.xMin;
 			int shiftY = range.exportRange.yMin;
 			//vertical lines

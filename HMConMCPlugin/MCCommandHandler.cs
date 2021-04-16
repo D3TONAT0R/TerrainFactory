@@ -13,7 +13,7 @@ namespace ASCReaderMC {
 			list.Add(new ConsoleCommand("mcasplatmapper", "", "[MCA] Use splatmap files to define the world's surface (file <name>.splat required)", this));
 		}
 
-		public override void HandleCommand(string cmd, string[] args, ExportOptions options, ASCData data) {
+		public override void HandleCommand(string cmd, string[] args, ExportSettings options, ASCData data) {
 			if(cmd == "mcaoffset") {
 				if(args.Length > 1) {
 					bool b = true;

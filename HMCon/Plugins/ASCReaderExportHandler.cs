@@ -5,21 +5,16 @@ using System.IO;
 namespace HMCon.Export {
 	public abstract class ASCReaderExportHandler {
 
-		public abstract bool ValidateExportOptions(ExportOptions options, FileFormat format, ASCData data);
+		public abstract bool ValidateExportOptions(ExportSettings options, FileFormat format, ASCData data);
 
-		public virtual void HandleFileName(ExportOptions options, FileFormat format, ref string filename) {
+		public virtual void HandleFileName(ExportSettings options, FileFormat format, ref string filename) {
 
 		}
 
-		public abstract bool Export(string importPath, FileFormat ff, ASCData data, string filename, string fileSubName, ExportOptions exportOptions, Bounds bounds);
+		public abstract bool Export(ASCData data, FileFormat ff, string fullPath);
 
-		public virtual string GetSuffixWithExtension(FileFormat fileFormat) {
-			string ext = fileFormat.extension;
-			if(!string.IsNullOrEmpty(ext)) {
-				return "." + ext;
-			} else {
-				return "";
-			}
+		public virtual void EditFileName(FileNameProvider path, FileFormat fileFormat) {
+			
 		}
 
 		public abstract void AddFormatsToList(List<FileFormat> list);

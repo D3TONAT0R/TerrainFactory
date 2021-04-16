@@ -12,7 +12,7 @@ namespace ASCReaderImagePlugin {
 			list.Add(new ConsoleCommand("preview-hm", "", "Previews the grid data in a heightmap", this));
 		}
 
-		public override void HandleCommand(string cmd, string[] args, ExportOptions options, ASCData data) {
+		public override void HandleCommand(string cmd, string[] args, ExportSettings options, ASCData data) {
 			if(cmd == "preview-hm") {
 				WriteLine("Opening preview...");
 				Previewer.OpenDataPreview(data, exportOptions, true);

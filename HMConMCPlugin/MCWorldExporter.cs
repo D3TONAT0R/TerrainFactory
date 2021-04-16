@@ -24,17 +24,18 @@ namespace ASCReaderMC {
 
 		public MCWorldExporter(float[,] hmap) {
 			heightmap = new byte[512, 512];
+			int zLength = hmap.GetLength(1);
 			for(int x = 0; x < Math.Min(512, hmap.GetLength(0)); x++) {
 				for(int z = 0; z < Math.Min(512, hmap.GetLength(1)); z++) {
-					heightmap[x, z] = (byte)Math.Round(hmap[x, z]);
+					heightmap[x, z] = (byte)Math.Round(hmap[x, zLength - 1 - z]);
 				}
 			}
 		}
 
-		public MCWorldExporter(string importPath, float[,] hmap, bool useDefaultPostProcessors, bool useSplatmaps) : this(hmap) {
+		public MCWorldExporter(float[,] hmap, bool useDefaultPostProcessors, bool useSplatmaps) : this(hmap) {
 			List<MinecraftTerrainPostProcessor> pps = new List<MinecraftTerrainPostProcessor>();
 			if(useSplatmaps) {
-				pps.Add(new SplatmappedSurfacePostProcessor(importPath, 255, CurrentExportJobInfo.exportNumX, CurrentExportJobInfo.exportNumZ));
+				pps.Add(new SplatmappedSurfacePostProcessor(CurrentExportJobInfo.importedFilePath, 255, CurrentExportJobInfo.exportNumX, CurrentExportJobInfo.exportNumZ));
 			}
 			if(useDefaultPostProcessors) {
 				if(!useSplatmaps) {
@@ -63,7 +64,7 @@ namespace ASCReaderMC {
 			for(int x = 0; x < 512; x++) {
 				for(int z = 0; z < 512; z++) {
 					for(int y = 0; y <= heightmap[x, z]; y++) {
-						world.SetDefaultBlock(ox+x, y, oz+z);
+						world.SetDefaultBlock(ox + x, y, oz + z);
 					}
 				}
 				if((x + 1) % 8 == 0) Program.WriteProgress("Generating base terrain", (x + 1) / 512f);

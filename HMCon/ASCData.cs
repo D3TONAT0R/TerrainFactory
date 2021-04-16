@@ -192,7 +192,11 @@ namespace HMCon {
 			}
 		}
 
-		public bool WriteAllFiles(string path, ExportOptions options) {
+		public Bounds GetBounds() {
+			return new Bounds(0, 0, ncols - 1, nrows - 1);
+		}
+
+		public bool WriteAllFiles(string path, ExportSettings options) {
 			int rangeMinX = 0;
 			int rangeMinY = 0;
 			int rangeMaxX = ncols - 1;
@@ -208,7 +212,9 @@ namespace HMCon {
 			CurrentExportJobInfo.mcaGlobalPosZ = options.mcaOffsetZ;
 			if(Directory.Exists(dir)) {
 				if(options.fileSplitDims < 32) {
-					ExportUtility.CreateFilesForSection(this, filename, path, options, new Bounds(rangeMinX, rangeMinY, rangeMaxX, rangeMaxY));
+					CurrentExportJobInfo.bounds = new Bounds(rangeMinX, rangeMinY, rangeMaxX, rangeMaxY);
+					CurrentExportJobInfo.exportSettings = options;
+					ExportUtility.CreateFilesForSection(this, dir, filename);
 				} else {
 					int dims = options.fileSplitDims;
 					int yMin = rangeMinY;
@@ -221,7 +227,9 @@ namespace HMCon {
 							int xMax = Math.Min(xMin + dims, ncols);
 							CurrentExportJobInfo.exportNumX = fileX;
 							CurrentExportJobInfo.exportNumZ = fileY;
-							bool success = ExportUtility.CreateFilesForSection(this, filename, path, options, new Bounds(xMin, yMin, xMax-1, yMax-1));
+							CurrentExportJobInfo.bounds = new Bounds(xMin, yMin, xMax - 1, yMax - 1);
+							CurrentExportJobInfo.exportSettings = options;
+							bool success = ExportUtility.CreateFilesForSection(this, filename, path);
 							if(!success) throw new IOException("Failed to write file!");
 							xMin += dims;
 							xMin = Math.Min(xMin, ncols);

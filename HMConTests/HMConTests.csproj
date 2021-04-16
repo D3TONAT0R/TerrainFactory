@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\HMConImagePlugin\HMConImagePlugin.csproj" />
     <ProjectReference Include="..\HMCon\HMCon.csproj" />
   </ItemGroup>
 

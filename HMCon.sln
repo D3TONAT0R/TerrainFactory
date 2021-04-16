@@ -14,8 +14,11 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HMCon3DPlugin", "HMCon3DPlugin\HMCon3DPlugin.csproj", "{D0EB9482-24F4-4C96-9FC9-420202CA0FFA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HMConTests", "HMConTests\HMConTests.csproj", "{5A7CEF41-E3CB-4103-97A3-2046400A0898}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3C1D45B7-B92C-4C8E-946A-5BA0BA810B95} = {3C1D45B7-B92C-4C8E-946A-5BA0BA810B95}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HMConApp", "HMConApp\HMConApp.csproj", "{59B96000-04C6-4222-86F3-FB081D049F25}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HMConApp", "HMConApp\HMConApp.csproj", "{59B96000-04C6-4222-86F3-FB081D049F25}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

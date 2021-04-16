@@ -1,5 +1,5 @@
 ﻿namespace HMCon.Util {
-	public struct Bounds {
+	public class Bounds {
 
 		public int xMin;
 		public int yMin;

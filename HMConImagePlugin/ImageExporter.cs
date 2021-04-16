@@ -17,26 +17,23 @@ namespace ASCReaderImagePlugin {
 			list.Add(new FileFormat("IMG_PNG-HS", "png-hs", "png", "Hillshade", this));
 		}
 
-		public override bool Export(string importPath, FileFormat ff, ASCData data, string filename, string fileSubName, ExportOptions exportOptions, Bounds bounds) {
-			string path = Path.ChangeExtension(filename, null);
-			filename = path + fileSubName + ".png";
-			return WriteFileImage(data, filename, exportOptions.subsampling, bounds, ff);
-		}
-
-		public override string GetSuffixWithExtension(FileFormat ff) {
-			string str = "";
-			if(ff.IsFormat("IMG_PNG-HM")) str = "_height";
-			else if(ff.IsFormat("IMG_PNG-NM")) str = "_normal";
-			else if(ff.IsFormat("IMG_PNG-HS")) str = "_hillshade";
-			string ext = ff.extension;
-			if(!string.IsNullOrEmpty(ext)) {
-				return str + "." + ext;
-			} else {
-				return str;
+		public override bool Export(ASCData data, FileFormat ff, string fullPath) {
+			if(CurrentExportJobInfo.exportSettings == null) {
+				throw new NullReferenceException("exportSettings was null");
 			}
+			if(data == null) {
+				throw new NullReferenceException("data was null");
+			}
+			return WriteFileImage(data, fullPath, CurrentExportJobInfo.exportSettings.subsampling, CurrentExportJobInfo.bounds ?? data.GetBounds(), ff);
 		}
 
-		public override bool ValidateExportOptions(ExportOptions options, FileFormat format, ASCData data) {
+		public override void EditFileName(FileNameProvider path, FileFormat fileFormat) {
+			if(fileFormat.IsFormat("IMG_PNG-HM")) path.suffix = "_height";
+			else if(fileFormat.IsFormat("IMG_PNG-NM")) path.suffix = "_normal";
+			else if(fileFormat.IsFormat("IMG_PNG-HS")) path.suffix = "_hillshade";
+		}
+
+		public override bool ValidateExportOptions(ExportSettings options, FileFormat format, ASCData data) {
 			return true;
 		}
 
@@ -48,15 +45,9 @@ namespace ASCReaderImagePlugin {
 					grid[x, y] = source.data[bounds.xMin + x * subsampling, bounds.yMin + y * subsampling];
 				}
 			}
-			try {
-				IExporter exporter = new ImageGenerator(grid, source.cellsize, ff.GetImageType(), source.lowPoint, source.highPoint);
-				ExportUtility.WriteFile(exporter, filename, ff);
-				return true;
-			} catch(Exception e) {
-				Program.WriteError("Failed to create Image file!");
-				Program.WriteLine(e.ToString());
-				return false;
-			}
+			IExporter exporter = new ImageGenerator(grid, source.cellsize, ff.GetImageType(), source.lowPoint, source.highPoint);
+			ExportUtility.WriteFile(exporter, filename, ff);
+			return true;
 		}
 	}
 }
