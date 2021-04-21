@@ -12,7 +12,12 @@ namespace HMCon {
 		private static bool autoInputEnabled = false;
 		private static int autoInputNum = 0;
 		private static string[] autoInputs = new string[]{
-
+			"C:\\Users\\Yanic Gottardi\\Dropbox\\Iceland Replacement Project\\output\\heightmap.png",
+			"setrange 0 255",
+			"mcasplatmapper",
+			"format mcw",
+			"export",
+			"C:\\Users\\Yanic Gottardi\\Dropbox\\Iceland Replacement Project\\output\\world_export_test_{datetimeshort}"
 		};
 #endif
 
@@ -178,6 +183,7 @@ namespace HMCon {
 
 		static string ReplacePathVars(string path) {
 			path = path.Replace("{datetime}", System.DateTime.Now.ToString("yy-MM-dd_HH-mm-ss"));
+			path = path.Replace("{datetimeshort}", System.DateTime.Now.ToString("yyMMddHHmmss"));
 			return path;
 		}
 

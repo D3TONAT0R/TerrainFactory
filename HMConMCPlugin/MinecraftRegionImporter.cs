@@ -5,23 +5,23 @@ using MCUtils;
 using System.Collections.Generic;
 using System.IO;
 
-namespace ASCReaderMC {
-	public class MinecraftRegionImporter : ASCReaderImportHandler {
+namespace HMConMC {
+	public class MinecraftRegionImporter : HMConImportHandler {
 
 		public override void AddFormatsToList(List<FileFormat> list) {
-			list.Add(new FileFormat("MCA", "MCA", "mca", "Minecraft region format", this));
+			list.Add(new FileFormat("MCR", "MCR", "mca", "Minecraft region format", this));
 		}
 
 		public override ASCData Import(string importPath, FileFormat ff) {
-			return ImportHeightmap(importPath);
+			return ImportHeightmap(importPath, HeightmapType.TerrainBlocksNoLiquid);
 		}
 
-		ASCData ImportHeightmap(string filepath) {
-			ushort[,] hms = RegionImporter.GetHeightmap(filepath, true);
+		public static ASCData ImportHeightmap(string filepath, HeightmapType type) {
+			ushort[,] hms = RegionImporter.GetHeightmap(filepath, type);
 			float[,] hm = new float[512, 512];
 			for(int x = 0; x < 512; x++) {
 				for(int z = 0; z < 512; z++) {
-					hm[x, z] = (float)hms[x, 511-z];
+					hm[x, z] = hms[x, 511 - z];
 				}
 			}
 			ASCData asc = new ASCData(512, 512, filepath);

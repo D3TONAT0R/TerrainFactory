@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ASCReaderMC {
-	public class MCCommandHandler : ASCReaderCommandHandler {
+namespace HMConMC {
+	public class MCCommandHandler : HMConCommandHandler {
 
 		public override void AddCommands(List<ConsoleCommand> list) {
 			list.Add(new ConsoleCommand("mcaoffset", "X Z", "[MCA] Apply offset to region terrain, in regions (512)", this));

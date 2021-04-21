@@ -1,5 +1,5 @@
 ﻿using HMCon;
-using ASCReaderMC.PostProcessors;
+using HMConMC.PostProcessors;
 using MCUtils;
 using System;
 using System.Collections.Generic;
@@ -7,12 +7,19 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace ASCReaderMC.MinecraftTerrainPostProcessors {
+namespace HMConMC.MinecraftTerrainPostProcessors {
 	public class CavesPostProcessor : MinecraftTerrainPostProcessor {
 
-		public float caveChancePerChunk = 0.2f;
+		public override Priority OrderPriority => Priority.AfterFirst;
+
+		public float caveChancePerChunk = 0.05f;
+		public int lavaHeight = 8;
 
 		Random random;
+
+		public override PostProcessType PostProcessorType => PostProcessType.Block;
+		public override int BlockProcessYMin => 5;
+		public override int BlockProcessYMax => 80;
 
 		public CavesPostProcessor() {
 			random = new Random();
@@ -28,15 +35,14 @@ namespace ASCReaderMC.MinecraftTerrainPostProcessors {
 		public override void ProcessBlock(World world, int x, int y, int z) {
 			if(y < 5) return;
 			if(random.NextDouble() <= caveChancePerChunk / 16384.0) {
-				Program.WriteLine($"Beginning new cave at {x},{y},{z}");
 				GenerateCave(world, new Vector3(x, y, z));
 			}
 		}
 
 		private void GenerateCave(World world, Vector3 pos) {
 			float delta = RandomRange(0.25f, 1f);
-			int life = (int)(RandomRange(100, 300) * delta);
-			float size = RandomRange(4, 8) * delta;
+			int life = (int)(RandomRange(50, 300) * delta);
+			float size = RandomRange(2, 6) * delta;
 			float variation = RandomRange(0.2f, 1f);
 			Vector3 direction = GetRandomVector3();
 			direction = Vector3.Normalize(direction);
@@ -44,10 +50,10 @@ namespace ASCReaderMC.MinecraftTerrainPostProcessors {
 				life--;
 				Carve(world, pos, size);
 				Vector3 newDirection = ApplyYWeights(pos.Y, GetRandomVector3());
-				direction += newDirection * variation / 20f;
+				direction += newDirection * variation * 0.4f;
 				direction = Vector3.Normalize(direction);
-				size = Lerp(size, RandomRange(4, 8) * delta, 0.05f);
-				variation = Lerp(variation, RandomRange(0.2f, 1f), 0.025f);
+				size = Lerp(size, RandomRange(2, 6) * delta, 0.15f);
+				variation = Lerp(variation, RandomRange(0.2f, 1f), 0.1f);
 				pos += direction;
 			}
 		}
@@ -64,7 +70,13 @@ namespace ASCReaderMC.MinecraftTerrainPostProcessors {
 					for(int z = z1; z <= z2; z++) {
 						if(Vector3.Distance(new Vector3(x, y, z), pos) < radius) {
 							var b = world.GetBlockState(x, y, z);
-							if(b != null && !b.CompareMultiple("minecraft:bedrock", "minecraft:air")) world.SetBlock(x, y, z, "minecraft:air");
+							if(b != null && !b.CompareMultiple("minecraft:bedrock")) {
+								if(y <= lavaHeight) {
+									world.SetBlock(x, y, z, "minecraft:lava");
+								} else {
+									world.SetBlock(x, y, z, "minecraft:air");
+								}
+							}
 						}
 					}
 				}

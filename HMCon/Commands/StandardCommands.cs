@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using static HMCon.Program;
 
 namespace HMCon {
-	public class StandardCommands : ASCReaderCommandHandler {
+	public class StandardCommands : HMConCommandHandler {
 
 		public override void AddCommands(List<ConsoleCommand> list) {
 			list.Add(new ConsoleCommand("subsample", "N", "Only export every N-th cell", this));

@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace ASCReaderMC.PostProcessors {
+namespace HMConMC.PostProcessors {
 	public class BiomeGenerator {
 
 		Random rand = new Random();

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 
-namespace ASCReader3DPlugin {
+namespace HMCon3D {
 	public class Assimp3DExporter : IExporter {
 
 		private Scene scene;
@@ -37,7 +37,11 @@ namespace ASCReader3DPlugin {
 			}
 		}
 
-		public void WriteFile(FileStream stream, FileFormat ff) {
+		public bool NeedsFileStream(FileFormat format) {
+			return true;
+		}
+
+		public void WriteFile(FileStream stream, string path, FileFormat ff) {
 			AssimpContext context = new AssimpContext();
 			var blob = context.ExportToBlob(scene, ff.extension);
 			stream.Write(blob.Data, 0, blob.Data.Length);

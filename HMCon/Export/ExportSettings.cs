@@ -49,9 +49,11 @@ namespace HMCon.Export {
 		}
 
 
-		public bool ContainsFormat(string id) {
+		public bool ContainsFormat(params string[] ids) {
 			foreach(var f in outputFormats) {
-				if(f.Identifier == id.ToUpper()) return true;
+				foreach(var id in ids) {
+					if(f.Identifier == id.ToUpper()) return true;
+				}
 			}
 			return false;
 		}

@@ -6,19 +6,19 @@ public static class SplatmapImporter {
 
 	public static Random random = new Random();
 
-	public static byte[,] GetFixedSplatmap(string path, SplatmapMapping[] mappings, int ditherLimit, int localRegionX, int localRegionZ) {
+	public static byte[,] GetFixedSplatmap(string path, SplatmapMapping[] mappings, int ditherLimit, int offsetX, int offsetZ, int sizeX, int sizeZ) {
 		var splat = GetBitmap(path);
-		byte[,] map = new byte[512, 512];
-		for(int x = 0; x < 512; x++) {
-			for(int y = 0; y < 512; y++) {
-				Color c = splat.GetPixel(localRegionX * 512 + x, localRegionZ * 512 + y);
+		byte[,] map = new byte[sizeX, sizeZ];
+		for(int x = 0; x < sizeX; x++) {
+			for(int y = 0; y < sizeZ; y++) {
+				Color c = splat.GetPixel(offsetX + x, offsetZ + y);
 				SplatmapMapping mapping;
 				if(ditherLimit > 1) {
 					mapping = GetDitheredMapping(c, mappings, ditherLimit);
 				} else {
 					mapping = GetClosestMapping(c, mappings);
 				}
-				map[x, y] = (byte)mapping.value;
+				map[x, sizeZ - y - 1] = (byte)mapping.value;
 			}
 		}
 		return map;

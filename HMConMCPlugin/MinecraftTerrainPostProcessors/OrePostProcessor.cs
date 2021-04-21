@@ -1,7 +1,7 @@
 using MCUtils;
 using System;
 
-namespace ASCReaderMC.PostProcessors {
+namespace HMConMC.PostProcessors {
 	public class OrePostProcessor : MinecraftTerrainPostProcessor {
 
 		public class Ore {
@@ -33,6 +33,13 @@ namespace ASCReaderMC.PostProcessors {
 		new Ore("gold_ore", 8, 1f/6000, 2, 32)
 		};
 		public float rarityMul = 1;
+
+		public override Priority OrderPriority => Priority.Default;
+
+		public override PostProcessType PostProcessorType => PostProcessType.Block;
+
+		public override int BlockProcessYMin => 1;
+		public override int BlockProcessYMax => 128;
 
 		public override void ProcessBlock(MCUtils.World world, int x, int y, int z) {
 			foreach(Ore o in ores) {

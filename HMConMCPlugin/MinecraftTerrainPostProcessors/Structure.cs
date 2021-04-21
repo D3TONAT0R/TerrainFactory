@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ASCReaderMC.PostProcessors {
+namespace HMConMC.PostProcessors {
 	public class Structure {
 
 		public byte[,,] structure;

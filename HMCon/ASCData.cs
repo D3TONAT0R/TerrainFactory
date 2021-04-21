@@ -31,7 +31,7 @@ namespace HMCon {
 				cellsize_y = value;
 			}
 		}
-		public float nodata_value;
+		public float nodata_value = float.MinValue;
 
 		public string fileHeader = "";
 
@@ -48,6 +48,14 @@ namespace HMCon {
 
 		public ASCData() {
 
+		}
+
+		public ASCData(float[,] data, float cellSize) {
+			this.data = data;
+			ncols = data.GetLength(0);
+			nrows = data.GetLength(1);
+			cellsize_x = cellSize;
+			cellsize_y = cellsize;
 		}
 
 		public ASCData(int ncols, int nrows, string sourceFile) {
@@ -214,7 +222,7 @@ namespace HMCon {
 				if(options.fileSplitDims < 32) {
 					CurrentExportJobInfo.bounds = new Bounds(rangeMinX, rangeMinY, rangeMaxX, rangeMaxY);
 					CurrentExportJobInfo.exportSettings = options;
-					ExportUtility.CreateFilesForSection(this, dir, filename);
+					ExportUtility.CreateFilesForSection(this, dir, path);
 				} else {
 					int dims = options.fileSplitDims;
 					int yMin = rangeMinY;

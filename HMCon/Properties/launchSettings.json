@@ -1,11 +1,1 @@
-{
-  "profiles": {
-    "HMCon": {
-      "commandName": "Project"
-    },
-    "HMCon (no plugins)": {
-      "commandName": "Project",
-      "commandLineArgs": "noplugins"
-    }
-  }
-}
+{}

@@ -1,4 +1,4 @@
-using ASCReaderImagePlugin;
+using HMConImage;
 using HMCon;
 using HMCon.Export;
 using HMCon.Import;
@@ -103,7 +103,7 @@ namespace HMConTests {
 			var sourceSamples = GetHeightSamples(data, sampleLocations);
 			CurrentExportJobInfo.mcaGlobalPosX = 16;
 			CurrentExportJobInfo.mcaGlobalPosZ = 26;
-			AssertExport(data, "MCA", Path.Combine(outputPath, sampleMCAFile));
+			AssertExport(data, "MCR", Path.Combine(outputPath, sampleMCAFile));
 			AssertExport(data, "IMG_PNG-HS", Path.Combine(outputPath, sampleMCAFile));
 			AssertExport(data, "IMG_PNG-HM", Path.Combine(outputPath, sampleMCAFile));
 		}
@@ -196,8 +196,8 @@ namespace HMConTests {
 		float[] GetHeightSamples(ASCData data, (int x, int y)[] locations) {
 			float[] samples = new float[locations.Length];
 			for(int i = 0; i < locations.Length; i++) {
-				var l = locations[i];
-				samples[i] = data.GetData(l.x, l.y);
+				var (x, y) = locations[i];
+				samples[i] = data.GetData(x, y);
 			}
 			return samples;
 		}

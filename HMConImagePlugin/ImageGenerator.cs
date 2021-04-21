@@ -8,7 +8,7 @@ using System.IO;
 using System.Numerics;
 using System.Text;
 
-namespace ASCReaderImagePlugin {
+namespace HMConImage {
 	class ImageGenerator : IExporter {
 		public Bitmap image;
 
@@ -27,11 +27,15 @@ namespace ASCReaderImagePlugin {
 			lowValue = blackValue;
 			highValue = whiteValue;
 			if(type == ImageType.Heightmap) MakeHeightmap();
-			else if(type == ImageType.Normalmap) MakeNormalmap(true);
+			else if(type == ImageType.Normalmap) MakeNormalmap(false);
 			else if(type == ImageType.Hillshade) MakeHillshademap();
 		}
 
-		public void WriteFile(FileStream stream, FileFormat filetype) {
+		public bool NeedsFileStream(FileFormat format) {
+			return true;
+		}
+
+		public void WriteFile(FileStream stream, string path, FileFormat filetype) {
 			image.Save(stream, ImageFormat.Png);
 		}
 
@@ -57,7 +61,7 @@ namespace ASCReaderImagePlugin {
 
 		private void CalculateNormals(bool sharpMode) {
 			if(sharpMode) {
-				normals = new Vector3[grid.GetLength(0), grid.GetLength(1)];
+				normals = new Vector3[grid.GetLength(0) - 1, grid.GetLength(1) - 1];
 				for(int x = 0; x < image.Width; x++) {
 					for(int y = 0; y < image.Height; y++) {
 						float ll = GetValueAt(x, y);
@@ -76,7 +80,7 @@ namespace ASCReaderImagePlugin {
 					}
 				}
 			} else {
-				normals = new Vector3[grid.GetLength(0) - 1, grid.GetLength(1) - 1];
+				normals = new Vector3[grid.GetLength(0), grid.GetLength(1)];
 				for(int x = 0; x < image.Width; x++) {
 					for(int y = 0; y < image.Height; y++) {
 						float m = GetValueAt(x, y);
@@ -117,8 +121,8 @@ namespace ASCReaderImagePlugin {
 		}
 
 		private void MakeHillshademap() {
-			image = new Bitmap(grid.GetLength(0) - 1, grid.GetLength(1) - 1);
-			CalculateNormals(true);
+			image = new Bitmap(grid.GetLength(0), grid.GetLength(1));
+			CalculateNormals(false);
 			for(int x = 0; x < image.Width; x++) {
 				for(int y = 0; y < image.Height; y++) {
 					Vector3 nrm = normals[x, y];

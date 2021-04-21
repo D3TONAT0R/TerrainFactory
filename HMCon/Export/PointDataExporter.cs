@@ -15,7 +15,11 @@ namespace HMCon.Export.Exporters {
 			this.bounds = bounds;
 		}
 
-		public void WriteFile(FileStream stream, FileFormat filetype) {
+		public bool NeedsFileStream(FileFormat format) {
+			return true;
+		}
+
+		public void WriteFile(FileStream stream, string path, FileFormat filetype) {
 			if(filetype.IsFormat("ASC")) {
 				WriteFileASC(stream);
 			} else if(filetype.IsFormat("PTS_XYZ")) {

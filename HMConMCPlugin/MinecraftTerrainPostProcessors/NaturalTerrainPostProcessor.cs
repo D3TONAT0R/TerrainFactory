@@ -1,12 +1,15 @@
 using MCUtils;
 
-namespace ASCReaderMC.PostProcessors {
+namespace HMConMC.PostProcessors {
 	public class NaturalTerrainPostProcessor : MinecraftTerrainPostProcessor {
 
+		public override Priority OrderPriority => Priority.BeforeDefault;
+
 		public int waterLevel = -1;
+		public override PostProcessType PostProcessorType => PostProcessType.Both;
 
 		public NaturalTerrainPostProcessor(bool fillWithWater) {
-			waterLevel = fillWithWater ? 62 : -1;
+			waterLevel = fillWithWater ? 63 : -1;
 		}
 
 		public override void ProcessBlock(MCUtils.World world, int x, int y, int z) {

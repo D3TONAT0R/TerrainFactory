@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 
-namespace ASCReader3DPlugin {
+namespace HMCon3D {
 	public class Aspose3DExporter : IExporter {
 
 		private Scene scene;
@@ -46,7 +46,11 @@ namespace ASCReader3DPlugin {
 			}
 		}
 
-		public void WriteFile(FileStream stream, HMCon.FileFormat filetype) {
+		public bool NeedsFileStream(HMCon.FileFormat format) {
+			return true;
+		}
+
+		public void WriteFile(FileStream stream, string path, HMCon.FileFormat filetype) {
 			if(filetype.IsFormat("MDL_3DS")) {
 				scene.Save(stream, Aspose.ThreeD.FileFormat.Discreet3DS);
 			} else if(filetype.IsFormat("MDL_FBX")) {

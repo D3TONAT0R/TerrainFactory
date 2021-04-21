@@ -40,7 +40,7 @@ namespace HMCon.Util {
 			sb.Append(filename);
 			if(gridNum != null) sb.Append(string.Format(gridNumFormat, gridNum.Value.x, gridNum.Value.y));
 			if(!string.IsNullOrEmpty(suffix)) sb.Append(string.Format(suffixFormat, suffix));
-			sb.Append("." + extension);
+			sb.Append("." + extension.extension);
 			return sb.ToString();
 		}
 	}

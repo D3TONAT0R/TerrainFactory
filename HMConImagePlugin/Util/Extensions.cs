@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ASCReaderImagePlugin {
+namespace HMConImage {
 	static class Extensions {
 		public static bool IsImage(this FileFormat format) {
 			return format.Identifier.StartsWith("IMG");

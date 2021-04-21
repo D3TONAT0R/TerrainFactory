@@ -7,17 +7,18 @@ using System.Reflection;
 using System.Text;
 
 namespace HMCon {
-	static class PluginLoader {
+	public static class PluginLoader {
 
-		public static void LoadPlugins(string pluginPath) {
-			Program.WriteLineSpecial(pluginPath);
+		public static Dictionary<string, HMConPlugin> loadedPlugins;
+
+		internal static void LoadPlugins(string pluginPath) {
+			loadedPlugins = new Dictionary<string, HMConPlugin>();
 			foreach(var path in Directory.GetFiles(pluginPath, "*.dll")) {
 				try {
 					var assembly = Assembly.LoadFrom(path);
-					Program.WriteLineSpecial("Loading assembly: " + assembly.FullName);
 					foreach(var t in assembly.GetTypes()) {
-						if(t.IsSubclassOf(typeof(ASCReaderPlugin)) && !t.IsAbstract) {
-							var plugin = (ASCReaderPlugin)Activator.CreateInstance(t);
+						if(t.IsSubclassOf(typeof(HMConPlugin)) && !t.IsAbstract) {
+							var plugin = (HMConPlugin)Activator.CreateInstance(t);
 							string info = "";
 
 							var i = plugin.GetImportHandler();
@@ -38,11 +39,15 @@ namespace HMCon {
 
 
 							var attribute = t.GetCustomAttribute<PluginInfoAttribute>();
+							string pluginID;
 							if(attribute != null) {
 								Program.WriteLine($"Loaded Plugin '{attribute.Name}' [{info}]");
+								pluginID = attribute.ID.ToUpper();
 							} else {
 								Program.WriteWarning($"Plugin with class '{t.FullName}' does not specify a Plugin name!");
+								pluginID = "["+t.Name+"]";
 							}
+							loadedPlugins.Add(pluginID, plugin);
 							Program.numPluginsLoaded++;
 						}
 					}
@@ -53,5 +58,8 @@ namespace HMCon {
 			}
 		}
 
+		public static bool IsPluginLoaded(string id) {
+			return loadedPlugins.ContainsKey(id.ToUpper());
+		}
 	}
 }

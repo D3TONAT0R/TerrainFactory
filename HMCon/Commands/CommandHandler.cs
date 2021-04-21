@@ -6,7 +6,7 @@ using System.Text;
 namespace HMCon {
 	static class CommandHandler {
 
-		public static List<ASCReaderCommandHandler> commandHandlers = new List<ASCReaderCommandHandler>();
+		public static List<HMConCommandHandler> commandHandlers = new List<HMConCommandHandler>();
 
 		public static List<ConsoleCommand> GetConsoleCommands() {
 			List<ConsoleCommand> list = new List<ConsoleCommand>();

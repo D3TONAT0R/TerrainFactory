@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 
-namespace ASCReaderImagePlugin {
+namespace HMConImage {
 	public class Previewer {
 
 		public static readonly (int size, Color col)[] allGrids = new (int, Color)[] {
@@ -30,7 +30,7 @@ namespace ASCReaderImagePlugin {
 			var format = ExportUtility.GetFormatFromIdenfifier(heightmap ? "IMG_PNG-HEIGHT" : "IMG_PNG-HILLSHADE");
 			string path = Path.GetTempPath() + Guid.NewGuid().ToString() + ".png";
 			FileStream stream = File.OpenWrite(path);
-			exporter.WriteFile(stream, format);
+			exporter.WriteFile(stream, path, format);
 			stream.Close();
 			var p = new Process();
 			p.StartInfo = new ProcessStartInfo(path) {

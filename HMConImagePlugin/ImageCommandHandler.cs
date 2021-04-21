@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using static HMCon.Program;
 
-namespace ASCReaderImagePlugin {
-	public class ImageCommandHandler : ASCReaderCommandHandler {
+namespace HMConImage {
+	public class ImageCommandHandler : HMConCommandHandler {
 		public override void AddCommands(List<ConsoleCommand> list) {
 			list.Add(new ConsoleCommand("preview", "", "Previews the grid data in an image", this));
 			list.Add(new ConsoleCommand("preview-hm", "", "Previews the grid data in a heightmap", this));

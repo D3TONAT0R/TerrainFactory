@@ -6,8 +6,8 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
 
-namespace ASCReader3DPlugin {
-	class ModelExporter : ASCReaderExportHandler {
+namespace HMCon3D {
+	class ModelExporter : HMConExportHandler {
 		public override void AddFormatsToList(List<FileFormat> list) {
 			list.Add(new FileFormat("3DM_3DS", "3ds", "3ds", "3DS 3d model", this));
 			list.Add(new FileFormat("3DM_FBX", "fbx", "fbx", "FBX 3d model", this));

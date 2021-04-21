@@ -7,8 +7,8 @@ using System.Drawing;
 using System.IO;
 using System.Text;
 
-namespace ASCReaderImagePlugin {
-	public class HeightmapImporter : ASCReaderImportHandler {
+namespace HMConImage {
+	public class HeightmapImporter : HMConImportHandler {
 		public override void AddFormatsToList(List<FileFormat> list) {
 			list.Add(new FileFormat("IMG-PNG", "PNG", "png", "PNG Image", this));
 			list.Add(new FileFormat("IMG-JPG", "JPG", "jpg", "JPG Image", this));
@@ -50,7 +50,7 @@ namespace ASCReaderImagePlugin {
 			for(int x = 0; x < width; x++) {
 				for(int y = 0; y < height; y++) {
 					Color c = image.GetPixel(offsetX + x, offsetY + y);
-					arr[x, y] = (byte)Math.Round(c.GetBrightness() * 255);
+					arr[x, height-1-y] = (byte)Math.Round(c.GetBrightness() * 255);
 				}
 			}
 			return arr;

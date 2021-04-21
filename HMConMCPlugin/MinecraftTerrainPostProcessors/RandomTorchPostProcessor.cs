@@ -1,11 +1,15 @@
 using MCUtils;
 using System;
 
-namespace ASCReaderMC.PostProcessors {
+namespace HMConMC.PostProcessors {
 	public class RandomTorchPostProcessor : MinecraftTerrainPostProcessor {
 
 		public float chance;
 		private Random random;
+
+		public override Priority OrderPriority => Priority.AfterDefault;
+
+		public override PostProcessType PostProcessorType => PostProcessType.Surface;
 
 		public RandomTorchPostProcessor(float torchAmount) {
 			chance = torchAmount;

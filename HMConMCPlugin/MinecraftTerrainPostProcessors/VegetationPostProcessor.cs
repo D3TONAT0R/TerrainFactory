@@ -1,7 +1,7 @@
 using MCUtils;
 using System;
 
-namespace ASCReaderMC.PostProcessors {
+namespace HMConMC.PostProcessors {
 	public class VegetationPostProcessor : MinecraftTerrainPostProcessor {
 
 		readonly byte[,,] blueprintOakTreeTop = new byte[,,] {
@@ -44,6 +44,10 @@ namespace ASCReaderMC.PostProcessors {
 		private Random random;
 		private float grassChance;
 		private float treesChance;
+
+		public override Priority OrderPriority => Priority.AfterDefault;
+
+		public override PostProcessType PostProcessorType => PostProcessType.Surface;
 
 		public VegetationPostProcessor(float grassAmount, float treesAmount) {
 			random = new Random();

@@ -8,8 +8,12 @@ namespace HMCon {
 		public string Name {
 			get; private set;
 		}
+		public string ID {
+			get; private set;
+		}
 
-		public PluginInfoAttribute(string pluginName) {
+		public PluginInfoAttribute(string ID, string pluginName) {
+			this.ID = ID;
 			Name = pluginName;
 		}
 	}

@@ -7,7 +7,7 @@ using static HMCon.Program;
 
 namespace HMCon.Export {
 
-	class StandardExporter : ASCReaderExportHandler {
+	class StandardExporter : HMConExportHandler {
 
 		public override void AddFormatsToList(List<FileFormat> list) {
 			list.Add(new FileFormat("ASC", "asc", "asc", "ESRI ASCII grid (same as input)", this));

@@ -1,11 +1,11 @@
 using HMCon;
-using ASCReaderMC.PostProcessors;
+using HMConMC.PostProcessors;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 
-namespace ASCReaderMC {
+namespace HMConMC {
 	public class SplatmapDescriptorReader {
 
 		/*public enum Type {
@@ -22,7 +22,7 @@ namespace ASCReaderMC {
 
 		public string watermapPath = null;
 		public int waterLevel = 0;
-		public string waterBlock = "water";
+		public string waterBlock = "minecraft:water";
 
 		public SplatmapDescriptorReader(string path, bool mainFile) {
 			//type = t;
