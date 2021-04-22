@@ -56,7 +56,6 @@ namespace HMConMC {
 			if(useSplatmaps) {
 				postProcessors.Add(new SplatmappedSurfacePostProcessor(this, CurrentExportJobInfo.importedFilePath, 255, 0, 0, hmapFlipped.GetLength(0), hmapFlipped.GetLength(1)));
 			}
-			return;
 			if(useDefaultPostProcessors) {
 				if(!useSplatmaps) {
 					postProcessors.Add(new NaturalTerrainPostProcessor(true));

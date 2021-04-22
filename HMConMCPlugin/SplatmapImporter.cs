@@ -18,7 +18,7 @@ public static class SplatmapImporter {
 				} else {
 					mapping = GetClosestMapping(c, mappings);
 				}
-				map[x, sizeZ - y - 1] = (byte)mapping.value;
+				map[x, y] = (byte)mapping.value;
 			}
 		}
 		return map;

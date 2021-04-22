@@ -26,8 +26,8 @@ namespace HMCon.Util {
 			}
 		}*/
 
-		public static short[,] Flip(short[,] arr) {
-			short[,] flip = new short[arr.GetLength(0), arr.GetLength(1)];
+		public static T[,] Flip<T>(T[,] arr) {
+			T[,] flip = new T[arr.GetLength(0), arr.GetLength(1)];
 			for(int x = 0; x < arr.GetLength(0); x++) {
 				for(int y = 0; y < arr.GetLength(1); y++) {
 					flip[x, y] = arr[x, arr.GetLength(1) - y - 1];

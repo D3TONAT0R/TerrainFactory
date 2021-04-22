@@ -1,4 +1,5 @@
 using HMCon;
+using HMCon.Util;
 using HMConImage;
 using MCUtils;
 using System;
@@ -16,7 +17,7 @@ namespace HMConMC.PostProcessors {
 		public override PostProcessType PostProcessorType => PostProcessType.Surface;
 
 		public WatermapPostProcessor(string waterMapPath, int offsetX, int offsetZ, int sizeX, int sizeZ, int waterLevel, string waterBlock) {
-			waterSurfaceMap = HeightmapImporter.ImportHeightmapRaw(waterMapPath, offsetX, offsetZ, sizeX, sizeZ);
+			waterSurfaceMap = ArrayConverter.Flip(HeightmapImporter.ImportHeightmapRaw(waterMapPath, offsetX, offsetZ, sizeX, sizeZ));
 			this.waterLevel = waterLevel;
 			this.waterBlock = waterBlock;
 			Program.WriteLine("Water mapping enabled");
