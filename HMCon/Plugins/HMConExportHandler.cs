@@ -5,13 +5,13 @@ using System.IO;
 namespace HMCon.Export {
 	public abstract class HMConExportHandler {
 
-		public abstract bool ValidateExportOptions(ExportSettings options, FileFormat format, ASCData data);
+		public abstract bool AreExportSettingsValid(ExportSettings options, FileFormat format, HeightData data);
 
 		public virtual void HandleFileName(ExportSettings options, FileFormat format, ref string filename) {
 
 		}
 
-		public abstract bool Export(ASCData data, FileFormat ff, string fullPath);
+		public abstract bool Export(HeightData data, FileFormat ff, string fullPath);
 
 		public virtual void EditFileName(FileNameProvider path, FileFormat fileFormat) {
 			

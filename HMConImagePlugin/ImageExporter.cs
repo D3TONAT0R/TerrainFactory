@@ -14,58 +14,60 @@ namespace HMConImage {
 	public class ImageExporter : HMConExportHandler {
 		public override void AddFormatsToList(List<FileFormat> list) {
 			list.Add(new FileFormat("IMG_PNG-HM", "png-hm", "png", "Heightmap", this));
+			list.Add(new FileFormat("IMG_PNG-HM-S", "png-hm-s", "png", "Heightmap", this));
 			list.Add(new FileFormat("IMG_PNG-NM", "png-nm", "png", "Normalmap", this));
 			list.Add(new FileFormat("IMG_PNG-HS", "png-hs", "png", "Hillshade", this));
 		}
 
-		public override bool Export(ASCData data, FileFormat ff, string fullPath) {
+		public override bool Export(HeightData data, FileFormat ff, string fullPath) {
 			if(CurrentExportJobInfo.exportSettings == null) {
 				throw new NullReferenceException("exportSettings was null");
 			}
 			if(data == null) {
 				throw new NullReferenceException("data was null");
 			}
-			return WriteFileImage(data, fullPath, CurrentExportJobInfo.exportSettings.subsampling, CurrentExportJobInfo.bounds ?? data.GetBounds(), ff);
+			return WriteFileImage(data, fullPath, CurrentExportJobInfo.exportSettings.Subsampling, CurrentExportJobInfo.bounds ?? data.GetBounds(), ff);
 		}
 
 		public override void EditFileName(FileNameProvider path, FileFormat fileFormat) {
 			if(fileFormat.IsFormat("IMG_PNG-HM")) path.suffix = "_height";
+			if(fileFormat.IsFormat("IMG_PNG-HM-S")) path.suffix = "_height_s";
 			else if(fileFormat.IsFormat("IMG_PNG-NM")) path.suffix = "_normal";
 			else if(fileFormat.IsFormat("IMG_PNG-HS")) path.suffix = "_hillshade";
 		}
 
-		public override bool ValidateExportOptions(ExportSettings options, FileFormat format, ASCData data) {
+		public override bool AreExportSettingsValid(ExportSettings options, FileFormat format, HeightData data) {
 			return true;
 		}
 
-		bool WriteFileImage(ASCData source, string filename, int subsampling, Bounds bounds, FileFormat ff) {
+		bool WriteFileImage(HeightData source, string filename, int subsampling, Bounds bounds, FileFormat ff) {
 			if(subsampling < 1) subsampling = 1;
 			float[,] grid = new float[bounds.NumCols / subsampling, bounds.NumRows / subsampling];
 			for(int x = 0; x < grid.GetLength(0); x++) {
 				for(int y = 0; y < grid.GetLength(1); y++) {
-					grid[x, y] = source.data[bounds.xMin + x * subsampling, bounds.yMin + y * subsampling];
+					grid[x, y] = source.GetHeight(bounds.xMin + x * subsampling, bounds.yMin + y * subsampling);
 				}
 			}
-			IExporter exporter = new ImageGenerator(grid, source.cellsize, ff.GetImageType(), source.lowPoint, source.highPoint);
+			IExporter exporter = new ImageGenerator(grid, source.cellSize, ff.GetImageType(), source.lowPoint, source.highPoint);
 			ExportUtility.WriteFile(exporter, filename, ff);
 			return true;
 		}
 
-		public static Bitmap GenerateCompositeMap(ASCData data, Bitmap baseMap, float heightmapIntensity, float hillshadeIntensity) {
+		public static Bitmap GenerateCompositeMap(HeightData data, Bitmap baseMap, float heightmapIntensity, float hillshadeIntensity) {
 			Bitmap result;
 			if(baseMap == null) {
-				result = new Bitmap(data.ncols, data.nrows);
+				result = new Bitmap(data.GridWidth, data.GridHeight);
 				var graphics = Graphics.FromImage(result);
 				graphics.FillRectangle(new SolidBrush(Color.Gray), new Rectangle(0, 0, baseMap.Width, baseMap.Height));
 			} else {
 				result = baseMap;
 			}
 			if(heightmapIntensity > 0) {
-				Bitmap hm = new ImageGenerator(data.data, data.cellsize, ImageType.Heightmap, data.lowPoint, data.highPoint).image;
+				Bitmap hm = new ImageGenerator(data.GetDataGrid(), data.cellSize, ImageType.Heightmap, data.lowPoint, data.highPoint).image;
 				result = OverlayBlend(result, hm, heightmapIntensity);
 			}
 			if(hillshadeIntensity > 0) {
-				Bitmap hs = new ImageGenerator(data.data, data.cellsize, ImageType.Hillshade, data.lowPoint, data.highPoint).image;
+				Bitmap hs = new ImageGenerator(data.GetDataGrid(), data.cellSize, ImageType.Hillshade, data.lowPoint, data.highPoint).image;
 				result = OverlayBlend(result, hs, hillshadeIntensity);
 			}
 			return result;

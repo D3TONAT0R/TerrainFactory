@@ -29,6 +29,7 @@ namespace HMConImage {
 			if(type == ImageType.Heightmap) MakeHeightmap();
 			else if(type == ImageType.Normalmap) MakeNormalmap(false);
 			else if(type == ImageType.Hillshade) MakeHillshademap();
+			else if(type == ImageType.Heightmap_Banded) MakeBandedHeightmap();
 		}
 
 		public bool NeedsFileStream(FileFormat format) {
@@ -45,6 +46,18 @@ namespace HMConImage {
 				for(int y = 0; y < image.Height; y++) {
 					float v = (grid[x, y] - lowValue) / (highValue - lowValue);
 					image.SetPixel(x, image.Height - y - 1, CreateColorGrayscale(v));
+				}
+			}
+		}
+
+		private void MakeBandedHeightmap() {
+			image = new Bitmap(grid.GetLength(0), grid.GetLength(1));
+			for(int x = 0; x < image.Width; x++) {
+				for(int y = 0; y < image.Height; y++) {
+					float v = (grid[x, y] - lowValue) / (highValue - lowValue);
+					int vi = (int)grid[x, y];
+					Color c = CreateColor(vi % 2 == 1 ? 1 : v, v, v, 1);
+					image.SetPixel(x, image.Height - y - 1, c);
 				}
 			}
 		}
@@ -168,7 +181,7 @@ namespace HMConImage {
 		}
 
 		private int ToColorByte(float f) {
-			return (int)(Clamp(f, 0f, 1f) * 255f);
+			return (int)Math.Round(Clamp(f, 0f, 1f) * 255f, MidpointRounding.AwayFromZero);
 		}
 
 		private Color CreateColorGrayscale(float b) {

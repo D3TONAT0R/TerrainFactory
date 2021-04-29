@@ -28,7 +28,7 @@ namespace HMConMC.MinecraftTerrainPostProcessors {
 		public override void OnFinish(World world) {
 			for(float v = 0; v <= 1; v += 0.1f) {
 				var smooth = Smoothstep(v, 0, 1);
-				Program.WriteLine($"smoothstep of {v} = {smooth}");
+				ConsoleOutput.WriteLine($"smoothstep of {v} = {smooth}");
 			}
 		}
 

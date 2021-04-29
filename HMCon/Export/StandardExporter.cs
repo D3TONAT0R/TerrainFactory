@@ -3,7 +3,7 @@ using HMCon.Util;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using static HMCon.Program;
+using static HMCon.ConsoleOutput;
 
 namespace HMCon.Export {
 
@@ -14,7 +14,7 @@ namespace HMCon.Export {
 			list.Add(new FileFormat("PTS_XYZ", "xyz", "xyz", "ASCII-XYZ points", this));
 		}
 
-		public override bool Export(ASCData data, FileFormat ff, string fullPath) {
+		public override bool Export(HeightData data, FileFormat ff, string fullPath) {
 			if(ff.IsPointFormat()) {
 				return WriteFilePointData(data, ff, fullPath);
 			} else {
@@ -23,11 +23,11 @@ namespace HMCon.Export {
 		}
 
 
-		public static bool WriteFilePointData(ASCData source, FileFormat ff, string fullPath) {
+		public static bool WriteFilePointData(HeightData source, FileFormat ff, string fullPath) {
 			try {
 				if(ff.IsFormat("ASC") || ff.IsFormat("PTS_XYZ")) {
 					IExporter exporter;
-					exporter = new PointDataExporter(source, CurrentExportJobInfo.exportSettings.subsampling, CurrentExportJobInfo.bounds ?? source.GetBounds());
+					exporter = new PointDataExporter(source, CurrentExportJobInfo.exportSettings.Subsampling, CurrentExportJobInfo.bounds ?? source.GetBounds());
 					ExportUtility.WriteFile(exporter, fullPath, ff);
 					return true;
 				} else {
@@ -41,7 +41,7 @@ namespace HMCon.Export {
 			}
 		}
 
-		public override bool ValidateExportOptions(ExportSettings options, FileFormat format, ASCData data) {
+		public override bool AreExportSettingsValid(ExportSettings options, FileFormat format, HeightData data) {
 			if(options.outputFormats.Count == 0) {
 				WriteWarning("No export format is defined! choose at least one format for export!");
 				return false;

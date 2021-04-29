@@ -8,9 +8,9 @@ namespace HMCon.Import {
 			list.Add(new FileFormat("ASC", "ASC", "asc", "ESRI ASCII grid", this));
 		}
 
-		public override ASCData Import(string importPath, FileFormat ff) {
+		public override HeightData Import(string importPath, FileFormat ff, params string[] args) {
 			if(ff.IsFormat("ASC")) {
-				return new ASCData(importPath);
+				return ASCImporter.Import(importPath);
 			}
 			return null;
 		}

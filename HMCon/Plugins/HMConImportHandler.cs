@@ -6,6 +6,6 @@ namespace HMCon.Import {
 
 		public abstract void AddFormatsToList(List<FileFormat> list);
 
-		public abstract ASCData Import(string importPath, FileFormat ff);
+		public abstract HeightData Import(string importPath, FileFormat ff, params string[] args);
 	}
 }

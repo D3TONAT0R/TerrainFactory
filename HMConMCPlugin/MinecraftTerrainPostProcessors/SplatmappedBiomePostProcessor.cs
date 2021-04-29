@@ -29,7 +29,7 @@ namespace HMConMC.PostProcessors {
 			/*foreach(var sm in desc.layers.Keys) {
 				layers.Add((byte)sm.value, desc.layers[sm].Split(','));
 			}*/
-			Program.WriteLine("Biome mapping & decoration enabled");
+			ConsoleOutput.WriteLine("Biome mapping & decoration enabled");
 		}
 
 		public override void ProcessSurface(MCUtils.World world, int x, int y, int z) {

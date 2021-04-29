@@ -27,7 +27,7 @@ namespace HMConMC {
 		public SplatmapDescriptorReader(string path, bool mainFile) {
 			//type = t;
 			if(!File.Exists(path)) {
-				Program.WriteError("Splatmap file " + path + " does not exist!");
+				ConsoleOutput.WriteError("Splatmap file " + path + " does not exist!");
 			}
 			string[] lines = File.ReadAllLines(path);
 			Dictionary<SplatmapMapping, string[]> dic = new Dictionary<SplatmapMapping, string[]>();
@@ -55,7 +55,7 @@ namespace HMConMC {
 				} else if(ln.StartsWith("waterblock")) {
 					waterBlock = ln.Split('=')[1];
 				} else {
-					Program.WriteWarning("Unknown token in splat description: " + ln.Split(' ')[0]);
+					ConsoleOutput.WriteWarning("Unknown token in splat description: " + ln.Split(' ')[0]);
 				}
 			}
 		}
@@ -66,7 +66,7 @@ namespace HMConMC {
 			if(split.Length == 2) {
 				maps.Add(split[0], split[1]);
 			} else {
-				Program.WriteError("Syntax error in splat map description: " + s);
+				ConsoleOutput.WriteError("Syntax error in splat map description: " + s);
 			}
 		}
 
@@ -90,10 +90,10 @@ namespace HMConMC {
 					SplatmapMapping mapping = new SplatmapMapping(key[0], c, int.Parse(split[1]));
 					layers.Add(mapping, "red_wool");
 				} catch {
-					Program.WriteError("Syntax error in splat layer description: " + s);
+					ConsoleOutput.WriteError("Syntax error in splat layer description: " + s);
 				}
 			} else {
-				Program.WriteError("Syntax error in splat layer description: " + s);
+				ConsoleOutput.WriteError("Syntax error in splat layer description: " + s);
 			}
 		}
 
@@ -110,10 +110,10 @@ namespace HMConMC {
 						}
 					}
 				} catch {
-					Program.WriteError("Syntax error in splat assignment description: " + s);
+					ConsoleOutput.WriteError("Syntax error in splat assignment description: " + s);
 				}
 			} else {
-				Program.WriteError("Syntax error in splat assignment description: " + s);
+				ConsoleOutput.WriteError("Syntax error in splat assignment description: " + s);
 			}
 		}
 
@@ -124,10 +124,10 @@ namespace HMConMC {
 				try {
 					structures.Add(split[0], split[1]);
 				} catch {
-					Program.WriteError("Syntax error in splat structure description: " + s);
+					ConsoleOutput.WriteError("Syntax error in splat structure description: " + s);
 				}
 			} else {
-				Program.WriteError("Syntax error in splat structure description: " + s);
+				ConsoleOutput.WriteError("Syntax error in splat structure description: " + s);
 			}
 		}
 
@@ -147,7 +147,7 @@ namespace HMConMC {
 					gen.mainStructures.Add(filename, float.Parse(def[1]) / 256f);
 				}
 			} else {
-				Program.WriteError("Syntax error in splat gen description: " + s);
+				ConsoleOutput.WriteError("Syntax error in splat gen description: " + s);
 			}
 		}
 
@@ -158,7 +158,7 @@ namespace HMConMC {
 				BiomeGenerator bgen = new BiomeGenerator(byte.Parse(split[1]));
 				biomes.Add(byte.Parse(split[0]), bgen);
 			} else {
-				Program.WriteError("Syntax error in splat gen description: " + s);
+				ConsoleOutput.WriteError("Syntax error in splat gen description: " + s);
 			}
 		}
 	}

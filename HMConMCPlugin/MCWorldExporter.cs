@@ -41,13 +41,13 @@ namespace HMConMC {
 			heightmap = new byte[heightmapLengthX, heightmapLengthZ];
 			for(int x = 0; x < heightmapLengthX; x++) {
 				for(int z = 0; z < heightmapLengthZ; z++) {
-					heightmap[x, z] = (byte)Math.Round(hmapFlipped[x, z]);
+					heightmap[x, z] = (byte)MathUtils.Clamp((float)Math.Round(hmapFlipped[x, z], MidpointRounding.AwayFromZero), 0, 255);
 				}
 			}
 			regionNumX = (int)Math.Ceiling(heightmapLengthX / 512f);
 			regionNumZ = (int)Math.Ceiling(heightmapLengthZ / 512f);
 			if(heightmapLengthX % 512 > 0 || heightmapLengthZ % 512 > 0) {
-				Program.WriteWarning("Input heightmap is not a multiple of 512. Void borders will be present in the world.");
+				ConsoleOutput.WriteWarning("Input heightmap is not a multiple of 512. Void borders will be present in the world.");
 			}
 		}
 
@@ -70,7 +70,7 @@ namespace HMConMC {
 		}
 
 		public bool NeedsFileStream(FileFormat format) {
-			return false;
+			return format.Identifier.StartsWith("MCR");
 		}
 
 		private void CreateWorld() {
@@ -89,7 +89,7 @@ namespace HMConMC {
 						world.SetDefaultBlock(ox + x, y, oz + z);
 					}
 				}
-				if((x + 1) % 8 == 0) Program.WriteProgress("Generating base terrain", (x + 1) / (float)heightmapLengthX);
+				if((x + 1) % 8 == 0) ConsoleOutput.WriteProgress("Generating base terrain", (x + 1) / (float)heightmapLengthX);
 			}
 		}
 
@@ -108,7 +108,7 @@ namespace HMConMC {
 								post.ProcessBlock(world, x, y, z);
 							}
 						}
-						if((x + 1) % 8 == 0) Program.WriteProgress($"{i + 1}/{postProcessors.Count} Decorating terrain [{name}]", (x + 1) / (float)heightmapLengthX);
+						if((x + 1) % 8 == 0) ConsoleOutput.WriteProgress($"{i + 1}/{postProcessors.Count} Decorating terrain [{name}]", (x + 1) / (float)heightmapLengthX);
 					}
 				}
 				if(post.PostProcessorType == PostProcessType.Surface || post.PostProcessorType == PostProcessType.Both) {
@@ -117,7 +117,7 @@ namespace HMConMC {
 						for(int z = 0; z < heightmapLengthZ; z++) {
 							post.ProcessSurface(world, x, heightmap[x, z], z);
 						}
-						if((x + 1) % 8 == 0) Program.WriteProgress($"{i + 1}/{postProcessors.Count} Decorating surface [{name}]", (x + 1) / (float)heightmapLengthX);
+						if((x + 1) % 8 == 0) ConsoleOutput.WriteProgress($"{i + 1}/{postProcessors.Count} Decorating surface [{name}]", (x + 1) / (float)heightmapLengthX);
 					}
 				}
 				i++;

@@ -24,14 +24,14 @@ namespace HMConMCPlugin {
 
 		public OverviewmapExporter(MCWorldExporter world) {
 			var heightmap = world.GetHeightmap(HeightmapType.SolidBlocks, true);
-			ASCData heightData = new ASCData(ArrayConverter.ToFloatMap(ArrayConverter.Flip(heightmap)), 1);
+			HeightData heightData = new HeightData(ArrayConverter.ToFloatMap(ArrayConverter.Flip(heightmap)), 1);
 			heightData.lowPoint = 0;
 			heightData.highPoint = 256;
 			map = world.world.GetSurfaceMap(world.worldBounds.xMin, world.worldBounds.yMin, heightmap);
 			map = GenerateMap(heightData, map);
 		}
 
-		private Bitmap GenerateMap(ASCData data, Bitmap surface) {
+		private Bitmap GenerateMap(HeightData data, Bitmap surface) {
 			return ImageExporter.GenerateCompositeMap(data, surface, 0.3f, 0.3f);
 		}
 

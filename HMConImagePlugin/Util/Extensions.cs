@@ -13,6 +13,7 @@ namespace HMConImage {
 			if(ff.IsFormat("IMG_PNG-HM")) return ImageType.Heightmap;
 			else if(ff.IsFormat("IMG_PNG-NM")) return ImageType.Normalmap;
 			else if(ff.IsFormat("IMG_PNG-HS")) return ImageType.Hillshade;
+			else if(ff.IsFormat("IMG_PNG-HM-S")) return ImageType.Heightmap_Banded;
 			else return ImageType.Heightmap;
 		}
 	}

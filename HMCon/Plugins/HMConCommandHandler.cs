@@ -9,6 +9,6 @@ namespace HMCon {
 
 		public abstract void AddCommands(List<ConsoleCommand> list);
 
-		public abstract void HandleCommand(string cmd, string[] args, ExportSettings options, ASCData data);
+		public abstract void HandleCommand(string cmd, string[] args, ExportSettings options, HeightData data);
 	}
 }

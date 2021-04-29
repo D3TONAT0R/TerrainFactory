@@ -3,6 +3,7 @@ namespace HMConImage {
 
 		Heightmap,
 		Normalmap,
-		Hillshade
+		Hillshade,
+		Heightmap_Banded
 	}
 }

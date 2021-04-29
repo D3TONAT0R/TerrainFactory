@@ -10,6 +10,7 @@ namespace HMCon {
 	public static class PluginLoader {
 
 		public static Dictionary<string, HMConPlugin> loadedPlugins;
+		public static int NumPluginsLoaded => loadedPlugins.Count;
 
 		internal static void LoadPlugins(string pluginPath) {
 			loadedPlugins = new Dictionary<string, HMConPlugin>();
@@ -41,14 +42,13 @@ namespace HMCon {
 							var attribute = t.GetCustomAttribute<PluginInfoAttribute>();
 							string pluginID;
 							if(attribute != null) {
-								Program.WriteLine($"Loaded Plugin '{attribute.Name}' [{info}]");
+								ConsoleOutput.WriteLine($"Loaded Plugin '{attribute.Name}' [{info}]");
 								pluginID = attribute.ID.ToUpper();
 							} else {
-								Program.WriteWarning($"Plugin with class '{t.FullName}' does not specify a Plugin name!");
+								ConsoleOutput.WriteWarning($"Plugin with class '{t.FullName}' does not specify a Plugin name!");
 								pluginID = "["+t.Name+"]";
 							}
 							loadedPlugins.Add(pluginID, plugin);
-							Program.numPluginsLoaded++;
 						}
 					}
 				}

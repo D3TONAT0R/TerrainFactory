@@ -29,7 +29,7 @@ namespace HMConMC.PostProcessors {
 			foreach(var sm in desc.layers.Keys) {
 				layers.Add((byte)sm.value, desc.layers[sm].Split(','));
 			}
-			Program.WriteLine("Splatmapping enabled");
+			ConsoleOutput.WriteLine("Splatmapping enabled");
 			if(!string.IsNullOrWhiteSpace(desc.watermapPath)) {
 				exporter.postProcessors.Add(new WatermapPostProcessor(Path.Combine(root, desc.watermapPath), offsetX, offsetZ, sizeX, sizeZ, desc.waterLevel, desc.waterBlock));
 			}

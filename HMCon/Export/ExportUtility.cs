@@ -16,29 +16,37 @@ namespace HMCon.Export {
 			e.AddFormatsToList(supportedFormats);
 		}
 
-		public static bool CreateFilesForSection(ASCData source, string directory, string name) {
+		public static bool CreateFilesForSection(HeightData source, string directory, string name) {
 			int numX = CurrentExportJobInfo.exportNumX;
 			int numY = CurrentExportJobInfo.exportNumZ;
 			foreach(FileFormat ff in CurrentExportJobInfo.exportSettings.outputFormats) {
-				FileNameProvider path = new FileNameProvider(directory, name, ff);
-				path.gridNum = (numX, numY);
-				
+				FileNameProvider path = new FileNameProvider(directory, name, ff) {
+					gridNum = (numX, numY)
+				};
 				EditFilename(path, ff);
 				string fullpath = path.GetFullPath();
-				Program.WriteLine("Creating file " + fullpath + " ...");
+				ConsoleOutput.WriteLine("Creating file " + fullpath + " ...");
 				if(ExportFile(source, ff, fullpath)) {
-					Program.WriteSuccess(ff.Identifier + " file created successfully!");
+					ConsoleOutput.WriteSuccess(ff.Identifier + " file created successfully!");
 				} else {
-					Program.WriteError("Failed to write " + ff.Identifier + " file!");
+					ConsoleOutput.WriteError("Failed to write " + ff.Identifier + " file!");
 				}
 			}
 			return true;
 		}
 
-		public static bool ValidateExportOptions(ExportSettings exportOptions, ASCData data, FileFormat ff) {
+		public static bool ValidateExportSettings(ExportSettings settings, HeightData data) {
+			bool valid = true;
+			foreach(var ff in settings.outputFormats) {
+				valid &= ValidateExportSettings(settings, data, ff);
+			}
+			return valid;
+		}
+
+		public static bool ValidateExportSettings(ExportSettings settings, HeightData data, FileFormat ff) {
 			bool valid = true;
 			foreach(var ex in exportHandlers) {
-				valid &= ex.ValidateExportOptions(exportOptions, ff, data);
+				valid &= ex.AreExportSettingsValid(settings, ff, data);
 			}
 			return valid;
 		}
@@ -65,14 +73,14 @@ namespace HMCon.Export {
 			((HMConExportHandler)ff.handler).EditFileName(path, ff);
 		}
 
-		public static bool ExportFile(ASCData data, FileFormat ff, string fullPath) {
+		public static bool ExportFile(HeightData data, FileFormat ff, string fullPath) {
 			if(ff != null && ff.handler != null) {
 				return ((HMConExportHandler)ff.handler).Export(data, ff, fullPath);
 			} else {
 				if(ff != null) {
-					Program.WriteError("No exporter is defined for format '" + ff.Identifier + "'!");
+					ConsoleOutput.WriteError("No exporter is defined for format '" + ff.Identifier + "'!");
 				} else {
-					Program.WriteError("FileFormat is null!");
+					ConsoleOutput.WriteError("FileFormat is null!");
 				}
 				return false;
 			}
@@ -88,6 +96,7 @@ namespace HMCon.Export {
 				ie.WriteFile(stream, path, ff);
 			} finally {
 				if(stream != null) {
+					stream.Close();
 					stream.Dispose();
 				}
 			}

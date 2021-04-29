@@ -92,7 +92,7 @@ namespace HMConMC.PostProcessors {
 				structure.structure = arr;
 				structureDatas.Add(s, structure);
 			} catch {
-				Program.WriteWarning("Failed to import structure '" + s + "'");
+				ConsoleOutput.WriteWarning("Failed to import structure '" + s + "'");
 			}
 		}
 	}

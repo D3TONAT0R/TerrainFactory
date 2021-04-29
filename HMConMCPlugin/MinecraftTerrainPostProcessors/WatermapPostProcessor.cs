@@ -20,7 +20,7 @@ namespace HMConMC.PostProcessors {
 			waterSurfaceMap = ArrayConverter.Flip(HeightmapImporter.ImportHeightmapRaw(waterMapPath, offsetX, offsetZ, sizeX, sizeZ));
 			this.waterLevel = waterLevel;
 			this.waterBlock = waterBlock;
-			Program.WriteLine("Water mapping enabled");
+			ConsoleOutput.WriteLine("Water mapping enabled");
 		}
 
 		public override void ProcessSurface(MCUtils.World world, int x, int y, int z) {

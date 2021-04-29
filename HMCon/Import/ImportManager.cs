@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace HMCon.Import {
@@ -13,14 +14,22 @@ namespace HMCon.Import {
 			e.AddFormatsToList(supportedFormats);
 		}
 
-		public static ASCData ImportFile(string path, string ext) {
-			ext = ext.ToLower();
+		public static HeightData ImportFile(string path, params string[] args) {
+			string ext = Path.GetExtension(path).Replace(".", "").ToLower();
 			foreach(var ff in supportedFormats) {
 				if(ff.extension.ToLower() == ext) {
-					return ((HMConImportHandler)ff.handler).Import(path, ff);
+					return ((HMConImportHandler)ff.handler).Import(path, ff, args);
 				}
 			}
 			throw new NotSupportedException($"Unable to import file of type '{ext}'.");
+		}
+
+		public static bool SupportsFileType(string path) {
+			string ext = Path.GetExtension(path).Replace(".", "").ToLower();
+			foreach(var ff in supportedFormats) {
+				if(ff.extension.ToLower() == ext) return true;
+			}
+			return false;
 		}
 	}
 }

@@ -19,7 +19,7 @@ namespace HMConMC {
 			list.Add(new FileFormat("MCW", "mcw", "", "Minecraft World Save (1.16)", this));
 		}
 
-		public override bool Export(ASCData data, FileFormat ff, string fullPath) {
+		public override bool Export(HeightData data, FileFormat ff, string fullPath) {
 			if(ff.IsFormat("MCR") || ff.IsFormat("MCR-RAW")) {
 				return WriteFileMCA(data, fullPath, !ff.IsFormat("MCR-RAW"), CurrentExportJobInfo.exportSettings.useSplatmaps);
 			} else if(ff.IsFormat("IMG_MCR")) {
@@ -30,11 +30,11 @@ namespace HMConMC {
 			return false;
 		}
 
-		public override bool ValidateExportOptions(ExportSettings options, FileFormat format, ASCData data) {
+		public override bool AreExportSettingsValid(ExportSettings options, FileFormat format, HeightData data) {
 			if(options.ContainsFormat("MCR", "MCR-RAW")) {
-				bool sourceIs512 = (data.nrows == 512 && data.ncols == 512) || (options.exportRange.NumCols == 512 && options.exportRange.NumRows == 512);
+				bool sourceIs512 = (data.GridHeight == 512 && data.GridWidth == 512) || (options.exportRange.NumCols == 512 && options.exportRange.NumRows == 512);
 				if(options.fileSplitDims != 512 && !sourceIs512) {
-					Program.WriteError("File splitting dimensions must be 512 when exporting to minecraft regions!");
+					ConsoleOutput.WriteError("File splitting dimensions must be 512 when exporting to minecraft regions!");
 					return false;
 				}
 			}
@@ -52,22 +52,22 @@ namespace HMConMC {
 			if(fileFormat.IsFormat("IMG_MCR")) path.suffix = "overview";
 		}
 
-		public static bool WriteFileMCA(ASCData data, string fullPath, bool decorate, bool useSplatmaps) {
+		public static bool WriteFileMCA(HeightData data, string fullPath, bool decorate, bool useSplatmaps) {
 			var grid = GetGrid(data);
 			IExporter exporter = new MCWorldExporter(grid, decorate, useSplatmaps);
 			ExportUtility.WriteFile(exporter, fullPath, ExportUtility.GetFormatFromIdenfifier("MCR"));
 			return true;
 		}
 
-		public static bool WriteWorldSave(ASCData data, string fullPath, bool decorate, bool useSplatmaps) {
+		public static bool WriteWorldSave(HeightData data, string fullPath, bool decorate, bool useSplatmaps) {
 			var grid = GetGrid(data);
 			IExporter exporter = new MCWorldExporter(grid, decorate, useSplatmaps);
 			ExportUtility.WriteFile(exporter, fullPath, ExportUtility.GetFormatFromIdenfifier("MCW"));
 			return true;
 		}
 
-		private static float[,] GetGrid(ASCData data) {
-			int subsampling = CurrentExportJobInfo.exportSettings.subsampling;
+		private static float[,] GetGrid(HeightData data) {
+			int subsampling = CurrentExportJobInfo.exportSettings.Subsampling;
 			if(subsampling < 1) subsampling = 1;
 			var bounds = CurrentExportJobInfo.bounds ?? data.GetBounds();
 			float[,] grid = new float[bounds.NumCols / subsampling, bounds.NumRows / subsampling];
@@ -75,7 +75,7 @@ namespace HMConMC {
 			for(int x = 0; x < grid.GetLength(0); x++) {
 				for(int z = 0; z < grid.GetLength(1); z++) {
 					//Note: Minecraft's Z coordinate is upside-down, Z starts from top
-					grid[x, zLength - z - 1] = data.data[bounds.xMin + x * subsampling, bounds.yMin + z * subsampling];
+					grid[x, zLength - z - 1] = data.GetHeight(bounds.xMin + x * subsampling, bounds.yMin + z * subsampling);
 				}
 			}
 			return grid;

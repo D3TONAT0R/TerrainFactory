@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace HMCon {
-	static class CommandHandler {
+	public static class CommandHandler {
 
 		public static List<HMConCommandHandler> commandHandlers = new List<HMConCommandHandler>();
 
@@ -17,7 +17,7 @@ namespace HMCon {
 			List<ConsoleCommand> rm = new List<ConsoleCommand>();
 			foreach(var c in list) {
 				if(c.commandHandler == null) {
-					Program.WriteError($"CommandHandler for command '{c.command}' is null. The command has been removed.");
+					ConsoleOutput.WriteError($"CommandHandler for command '{c.command}' is null. The command has been removed.");
 					rm.Add(c);
 				}
 			}

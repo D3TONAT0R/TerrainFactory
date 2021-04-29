@@ -26,7 +26,7 @@ public class CommonSplatmapColors {
 			case "yellow": return yellow;
 			case "cyan": return cyan;
 			case "magenta": return magenta;
-			default: Program.WriteWarning("Unknown splat color: " + s); return black;
+			default: ConsoleOutput.WriteWarning("Unknown splat color: " + s); return black;
 		}
 	}
 }

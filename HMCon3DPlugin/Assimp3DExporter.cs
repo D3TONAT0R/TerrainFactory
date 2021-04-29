@@ -31,8 +31,8 @@ namespace HMCon3D {
 					}
 				}
 			} catch(Exception e) {
-				Program.WriteError("ERROR while creating 3D data for Assimp:");
-				Program.WriteLine(e.ToString());
+				ConsoleOutput.WriteError("ERROR while creating 3D data for Assimp:");
+				ConsoleOutput.WriteLine(e.ToString());
 				throw e;
 			}
 		}

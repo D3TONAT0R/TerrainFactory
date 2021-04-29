@@ -2,7 +2,7 @@
 using HMCon.Util;
 using System;
 using System.Collections.Generic;
-using static HMCon.Program;
+using static HMCon.ConsoleOutput;
 
 namespace HMCon {
 	public class StandardCommands : HMConCommandHandler {
@@ -16,11 +16,11 @@ namespace HMCon {
 		}
 
 
-		public override void HandleCommand(string cmd, string[] args, ExportSettings exportOptions, ASCData data) {
+		public override void HandleCommand(string cmd, string[] args, ExportSettings exportOptions, HeightData data) {
 			if(cmd == "subsample") {
 				if(args.Length > 0) {
 					if(int.TryParse(args[0], out int i)) {
-						exportOptions.subsampling = i;
+						exportOptions.Subsampling = i;
 						WriteLine("Subsampling set to: " + i);
 					} else {
 						WriteWarning("Can't parse to int: " + args[0]);
@@ -42,8 +42,8 @@ namespace HMCon {
 			} else if(cmd == "overridecellsize") {
 				if(args.Length > 0) {
 					if(float.TryParse(args[0], out float f)) {
-						WriteLine("Cellsize changed from {0} to {1}", data.cellsize, f);
-						data.cellsize = f;
+						WriteLine("Cellsize changed from {0} to {1}", data.cellSize, f);
+						data.cellSize = f;
 					} else {
 						WriteWarning("Can't parse to float: " + args[0]);
 					}
@@ -78,7 +78,7 @@ namespace HMCon {
 					bool b = true;
 					b &= float.TryParse(args[0], out float min) & float.TryParse(args[1], out float max);
 					if(b) {
-						data.SetRange(min, max);
+						data.Rescale(min, max);
 						WriteLine("Height rescaled successfully");
 					} else {
 						WriteWarning("Failed to parse to float");

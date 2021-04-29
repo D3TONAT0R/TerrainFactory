@@ -8,20 +8,23 @@ using System.Text;
 
 namespace HMCon3D {
 	class ModelExporter : HMConExportHandler {
+
+		public static int exported3dFiles = 0;
+
 		public override void AddFormatsToList(List<FileFormat> list) {
 			list.Add(new FileFormat("3DM_3DS", "3ds", "3ds", "3DS 3d model", this));
 			list.Add(new FileFormat("3DM_FBX", "fbx", "fbx", "FBX 3d model", this));
 		}
 
-		public override bool Export(ASCData data, FileFormat ff, string fullPath) {
+		public override bool Export(HeightData data, FileFormat ff, string fullPath) {
 			if(ff.Identifier.StartsWith("3DM")) {
-				return WriteFile3D(data, fullPath, CurrentExportJobInfo.exportSettings.subsampling, CurrentExportJobInfo.bounds ?? data.GetBounds(), ff);
+				return WriteFile3D(data, fullPath, CurrentExportJobInfo.exportSettings.Subsampling, CurrentExportJobInfo.bounds ?? data.GetBounds(), ff);
 			}
 			return false;
 		}
 
-		public override bool ValidateExportOptions(ExportSettings options, FileFormat format, ASCData data) {
-			int cellsPerFile = Program.GetTotalExportCellsPerFile();
+		public override bool AreExportSettingsValid(ExportSettings options, FileFormat format, HeightData data) {
+			int cellsPerFile = HMConManager.GetTotalExportCellsPerFile();
 			if(options.ContainsFormat("MDL_3DS")) {
 				if(cellsPerFile >= 65535) {
 					Console.WriteLine("ERROR: Cannot export more than 65535 cells in a single 3ds file! Current amount: "+cellsPerFile);
@@ -32,11 +35,11 @@ namespace HMCon3D {
 			return true;
 		}
 
-		bool WriteFile3D(ASCData source, string filename, int subsampling, Bounds bounds, FileFormat ff) {
+		bool WriteFile3D(HeightData source, string filename, int subsampling, Bounds bounds, FileFormat ff) {
 			var meshList = new List<(List<Vector3> verts, List<int> tris, List<Vector2> uvs)>();
 			//Increase boundaries for lossless tiling
-			if(bounds.xMax < source.ncols) bounds.xMax++;
-			if(bounds.yMax < source.nrows) bounds.yMax++;
+			if(bounds.xMax < source.GridWidth) bounds.xMax++;
+			if(bounds.yMax < source.GridHeight) bounds.yMax++;
 			int sizeX = bounds.NumCols - 1;
 			int sizeY = bounds.NumRows - 1;
 			int splitX = (int)Math.Ceiling(sizeX / 128f / subsampling);
@@ -54,23 +57,23 @@ namespace HMCon3D {
 			}
 			try {
 				IExporter exporter;
-				if(Program.exported3dFiles < 50) {
+				if(exported3dFiles < 50) {
 					exporter = new Aspose3DExporter(meshList);
 				} else {
-					Program.WriteWarning("Aspose3D's export limit was reached! Attempting to export using Assimp, which may throw an error.");
+					ConsoleOutput.WriteWarning("Aspose3D's export limit was reached! Attempting to export using Assimp, which may throw an error.");
 					exporter = new Assimp3DExporter(meshList);
 				}
 				ExportUtility.WriteFile(exporter, filename, ff);
 			} catch(Exception e) {
-				Program.WriteError("Failed to create 3D file!");
-				Program.WriteLine(e.ToString());
+				ConsoleOutput.WriteError("Failed to create 3D file!");
+				ConsoleOutput.WriteLine(e.ToString());
 				return false;
 			}
-			Program.exported3dFiles++;
+			exported3dFiles++;
 			return true;
 		}
 
-		(List<Vector3> verts, List<int> tris, List<Vector2> uvs) CreateMeshData(ASCData source, int subsampling, int xMin, int yMin, int xMax, int yMax) {
+		(List<Vector3> verts, List<int> tris, List<Vector2> uvs) CreateMeshData(HeightData source, int subsampling, int xMin, int yMin, int xMax, int yMax) {
 			Vector3[,] points = new Vector3[xMax - xMin + 1, yMax - yMin + 1];
 			List<Vector3> verts = new List<Vector3>();
 			List<int> tris = new List<int>();
@@ -79,9 +82,9 @@ namespace HMCon3D {
 			for(int y = yMin; y <= yMax; y++) {
 				for(int x = xMin; x <= xMax; x++) {
 					if(x % subsampling == 0 && y % subsampling == 0) {
-						float f = source.GetData(x, y);
+						float f = source.GetHeight(x, y);
 						if(f != source.nodata_value) {
-							Vector3 vec = new Vector3(-x * source.cellsize, source.data[x, y], y * source.cellsize);
+							Vector3 vec = new Vector3(-x * source.cellSize, source.GetHeight(x, y), y * source.cellSize);
 							points[x - xMin, y - yMin] = vec;
 							if(!verts.Contains(vec)) {
 								verts.Add(vec);
@@ -113,7 +116,7 @@ namespace HMCon3D {
 							tris.Add(i2);
 						} else {
 							nodatas++;
-							if(Program.debugLogging) Program.WriteWarning("[#" + nodatas + "] NODATA_VALUE or missing data at point " + x + " " + y);
+							if(ConsoleOutput.debugLogging) ConsoleOutput.WriteWarning("[#" + nodatas + "] NODATA_VALUE or missing data at point " + x + " " + y);
 						}
 					}
 				}

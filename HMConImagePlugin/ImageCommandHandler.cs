@@ -3,7 +3,6 @@ using HMCon.Export;
 using HMCon.Util;
 using System;
 using System.Collections.Generic;
-using static HMCon.Program;
 
 namespace HMConImage {
 	public class ImageCommandHandler : HMConCommandHandler {
@@ -12,13 +11,13 @@ namespace HMConImage {
 			list.Add(new ConsoleCommand("preview-hm", "", "Previews the grid data in a heightmap", this));
 		}
 
-		public override void HandleCommand(string cmd, string[] args, ExportSettings options, ASCData data) {
+		public override void HandleCommand(string cmd, string[] args, ExportSettings options, HeightData data) {
 			if(cmd == "preview-hm") {
-				WriteLine("Opening preview...");
-				Previewer.OpenDataPreview(data, exportOptions, true);
+				ConsoleOutput.WriteLine("Opening preview...");
+				Previewer.OpenDataPreview(data, HMConManager.currentJob.exportSettings, true);
 			} else if(cmd == "preview") {
-				WriteLine("Opening preview...");
-				Previewer.OpenDataPreview(data, exportOptions, false);
+				ConsoleOutput.WriteLine("Opening preview...");
+				Previewer.OpenDataPreview(data, HMConManager.currentJob.exportSettings, false);
 			}
 		}
 	}

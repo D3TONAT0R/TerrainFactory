@@ -18,14 +18,14 @@ namespace HMConImage {
 			(1000,Color.Yellow),
 		};
 
-		public static void OpenDataPreview(ASCData data, ExportSettings options, bool heightmap) {
+		public static void OpenDataPreview(HeightData data, ExportSettings options, bool heightmap) {
 			float[,] d;
-			if(options.useExportRange) {
+			if(options.UseExportRange) {
 				d = data.GetDataRange(options.exportRange);
 			} else {
-				d = data.data;
+				d = data.GetDataGrid();
 			}
-			var exporter = new ImageGenerator(d, data.cellsize, heightmap ? ImageType.Heightmap : ImageType.Hillshade, data.lowPoint, data.highPoint);
+			var exporter = new ImageGenerator(d, data.cellSize, heightmap ? ImageType.Heightmap : ImageType.Hillshade, data.lowPoint, data.highPoint);
 			MakeGrid(exporter.image, options);
 			var format = ExportUtility.GetFormatFromIdenfifier(heightmap ? "IMG_PNG-HEIGHT" : "IMG_PNG-HILLSHADE");
 			string path = Path.GetTempPath() + Guid.NewGuid().ToString() + ".png";
