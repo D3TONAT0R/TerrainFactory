@@ -11,9 +11,9 @@ namespace HMCon.Export {
 
 		}
 
-		public abstract bool Export(HeightData data, FileFormat ff, string fullPath);
+		public abstract bool Export(ExportJob job);
 
-		public virtual void EditFileName(FileNameProvider path, FileFormat fileFormat) {
+		public virtual void EditFileName(ExportJob exportJob, FileNameBuilder nameBuilder) {
 			
 		}
 

@@ -1,5 +1,5 @@
 ﻿namespace HMCon.Util {
-	public class Bounds {
+	public struct Bounds {
 
 		public int xMin;
 		public int yMin;
@@ -23,6 +23,22 @@
 			get {
 				return yMax - yMin + 1;
 			}
+		}
+
+		public int CellCount {
+			get {
+				return NumCols * NumRows;
+			}
+		}
+
+		public bool IsValid(HeightData d) {
+			if(xMin < 0 || xMin >= d.GridWidth) return false;
+			if(yMin < 0 || yMin >= d.GridHeight) return false;
+			if(xMax < 0 || xMax >= d.GridWidth) return false;
+			if(yMax < 0 || yMax >= d.GridHeight) return false;
+			if(xMin > xMax) return false;
+			if(yMin > yMax) return false;
+			return true;
 		}
 	}
 }

@@ -18,7 +18,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HMConTests", "HMConTests\HM
 		{3C1D45B7-B92C-4C8E-946A-5BA0BA810B95} = {3C1D45B7-B92C-4C8E-946A-5BA0BA810B95}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HMConApp", "HMConApp\HMConApp.csproj", "{59B96000-04C6-4222-86F3-FB081D049F25}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HMConConsole", "HMConConsole\HMConConsole.csproj", "{59B96000-04C6-4222-86F3-FB081D049F25}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0611DF51-C4AA-40A1-B02A-CC039CE24925}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HMConApp", "HMConApp\HMConApp.csproj", "{BCAD3233-2D20-4055-8C92-FF867EEA363B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3C740C15-A473-4A2F-8D44-AE3065FA179D} = {3C740C15-A473-4A2F-8D44-AE3065FA179D}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -54,6 +64,10 @@ Global
 		{59B96000-04C6-4222-86F3-FB081D049F25}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{59B96000-04C6-4222-86F3-FB081D049F25}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{59B96000-04C6-4222-86F3-FB081D049F25}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCAD3233-2D20-4055-8C92-FF867EEA363B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCAD3233-2D20-4055-8C92-FF867EEA363B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCAD3233-2D20-4055-8C92-FF867EEA363B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCAD3233-2D20-4055-8C92-FF867EEA363B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

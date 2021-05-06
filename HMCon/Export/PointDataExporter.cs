@@ -7,13 +7,9 @@ namespace HMCon.Export.Exporters {
 	public class PointDataExporter : IExporter {
 
 		private HeightData data;
-		private int subsampling;
-		private Bounds bounds;
 
-		public PointDataExporter(HeightData source, int subsampling, Bounds bounds) {
+		public PointDataExporter(HeightData source) {
 			data = source;
-			this.subsampling = subsampling;
-			this.bounds = bounds;
 		}
 
 		public bool NeedsFileStream(FileFormat format) {
@@ -29,13 +25,12 @@ namespace HMCon.Export.Exporters {
 		}
 
 		private void WriteFileASC(FileStream stream, int decimals = 2) {
-			WriteString(stream, "ncols        " + (bounds.NumCols / subsampling) + "\n");
-			WriteString(stream, "nrows        " + (bounds.NumRows / subsampling) + "\n");
-			WriteString(stream, "xllcorner    " + (data.lowerCornerPos.X + bounds.xMin * data.cellSize) + "\n");
-			WriteString(stream, "yllcorner    " + (data.lowerCornerPos.Y + bounds.yMin * data.cellSize) + "\n");
-			WriteString(stream, "cellsize     " + (data.cellSize * subsampling) + "\n");
+			WriteString(stream, "ncols        " + (data.GridWidth) + "\n");
+			WriteString(stream, "nrows        " + (data.GridHeight) + "\n");
+			WriteString(stream, "xllcorner    " + (data.lowerCornerPos.X) + "\n");
+			WriteString(stream, "yllcorner    " + (data.lowerCornerPos.Y) + "\n");
+			WriteString(stream, "cellsize     " + (data.cellSize) + "\n");
 			WriteString(stream, "NODATA_value " + data.nodata_value + "\n");
-			int y = bounds.yMax;
 			var grid = data.GetDataGrid();
 
 			string format = "";
@@ -50,35 +45,33 @@ namespace HMCon.Export.Exporters {
 
 			format = " " + format + ";" + "-" + format;
 
-			while(y >= bounds.yMin) {
-				int x = bounds.xMin;
+			int y = data.GridHeight - 1;
+			while(y >= 0) {
+				int x = 0;
 				StringBuilder str = new StringBuilder();
-				while(x <= bounds.xMax) {
+				while(x < data.GridWidth) {
 					if(str.Length > 0) str.Append(" ");
 					string value = grid[x, y].ToString(format);
 					str.Append(value);
-					x += subsampling;
+					x++;
 				}
 				str.Append("\n");
 				WriteString(stream, str.ToString());
-				y -= subsampling;
+				y--;
 			}
 		}
 
 		private void WriteFileXYZ(FileStream stream) {
 			var grid = data.GetDataGrid();
-			for(int y = bounds.yMin; y <= bounds.yMax; y++) {
-				for(int x = bounds.xMin; x <= bounds.xMax; x++) {
-					if(x % subsampling == 0 && y % subsampling == 0) {
-						float f = grid[x, y];
-						if(f != data.nodata_value) {
-							var bytes = Encoding.ASCII.GetBytes(x * data.cellSize + " " + y * data.cellSize + " " + f + "\n");
-							stream.Write(bytes, 0, bytes.Length);
-						}
+			for(int y = 0; y < data.GridHeight; y++) {
+				for(int x = 0; x < data.GridWidth; x++) {
+					float f = grid[x, y];
+					if(f != data.nodata_value) {
+						var bytes = Encoding.ASCII.GetBytes(x * data.cellSize + " " + y * data.cellSize + " " + f + "\n");
+						stream.Write(bytes, 0, bytes.Length);
 					}
 				}
 			}
-			stream.Close();
 		}
 
 		private void WriteString(FileStream stream, string str) {

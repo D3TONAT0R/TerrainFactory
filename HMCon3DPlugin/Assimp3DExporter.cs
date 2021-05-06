@@ -43,7 +43,7 @@ namespace HMCon3D {
 
 		public void WriteFile(FileStream stream, string path, FileFormat ff) {
 			AssimpContext context = new AssimpContext();
-			var blob = context.ExportToBlob(scene, ff.extension);
+			var blob = context.ExportToBlob(scene, ff.Extension);
 			stream.Write(blob.Data, 0, blob.Data.Length);
 			context.Dispose();
 		}

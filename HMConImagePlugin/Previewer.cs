@@ -18,28 +18,28 @@ namespace HMConImage {
 			(1000,Color.Yellow),
 		};
 
-		public static void OpenDataPreview(HeightData data, ExportSettings options, bool heightmap) {
+		public static void OpenDataPreview(Job job, bool heightmap) {
+
+			var data = job.ApplyModificationChain(job.CurrentData);
+
 			float[,] d;
-			if(options.UseExportRange) {
-				d = data.GetDataRange(options.exportRange);
-			} else {
-				d = data.GetDataGrid();
-			}
+			d = data.GetDataGrid();
 			var exporter = new ImageGenerator(d, data.cellSize, heightmap ? ImageType.Heightmap : ImageType.Hillshade, data.lowPoint, data.highPoint);
-			MakeGrid(exporter.image, options);
+			MakeGrid(exporter.image, data.offsetFromSource);
 			var format = ExportUtility.GetFormatFromIdenfifier(heightmap ? "IMG_PNG-HEIGHT" : "IMG_PNG-HILLSHADE");
 			string path = Path.GetTempPath() + Guid.NewGuid().ToString() + ".png";
 			FileStream stream = File.OpenWrite(path);
 			exporter.WriteFile(stream, path, format);
 			stream.Close();
-			var p = new Process();
-			p.StartInfo = new ProcessStartInfo(path) {
-				UseShellExecute = true
+			var p = new Process {
+				StartInfo = new ProcessStartInfo(path) {
+					UseShellExecute = true
+				}
 			};
 			p.Start();
 		}
 
-		private static void MakeGrid(Bitmap img, ExportSettings options) {
+		private static void MakeGrid(Bitmap img, (int x, int y) offsetFromSource) {
 			int dim = MinDim(img);
 			if(dim < 50) return;
 			Queue<(int size, Color col)> grids = new Queue<(int size, Color col)>();
@@ -49,9 +49,9 @@ namespace HMConImage {
 			int i = 0;
 			while(grids.Count > 0) {
 				float opacity = (float)Math.Pow(1f / grids.Count, 2);
-				var grid = grids.Dequeue();
-				DrawGrid(img, grid.size, grid.col, opacity, i == 0, options);
-				DrawGridLegend(img, grid.size, grid.col, i);
+				var (size, col) = grids.Dequeue();
+				DrawGrid(img, size, col, opacity, i == 0, offsetFromSource);
+				DrawGridLegend(img, size, col, i);
 				i++;
 			}
 		}
@@ -60,32 +60,30 @@ namespace HMConImage {
 			return i >= min && i < max;
 		}
 
-		private static void DrawGrid(Bitmap img, int size, Color color, float opacity, bool drawCoords, ExportSettings range) {
-			int shiftX = range.exportRange.xMin;
-			int shiftY = range.exportRange.yMin;
+		private static void DrawGrid(Bitmap img, int size, Color color, float opacity, bool drawCoords, (int x, int y) offsetFromSource) {
 			//vertical lines
 			for(int x = 0; x < img.Width; x++) {
-				if((x - shiftX) % size == 0) {
+				if((x - offsetFromSource.x) % size == 0) {
 					for(int y = 0; y < img.Height; y++) {
 						SetPixel(img, x, y, color, opacity);
 					}
 					if(drawCoords && x > 20) {
 						int tx = x;
 						int ty = 0;
-						DrawString(img, (x + shiftX).ToString(), color, ref tx, ref ty);
+						DrawString(img, (x + offsetFromSource.x).ToString(), color, ref tx, ref ty);
 					}
 				}
 			}
 			//horizontal lines
 			for(int y = 0; y < img.Height; y++) {
-				if((y - shiftY) % size == 0) {
+				if((y - offsetFromSource.y) % size == 0) {
 					for(int x = 0; x < img.Width; x++) {
 						SetPixel(img, x, y, color, opacity);
 					}
 					if(drawCoords && y > 20) {
 						int tx = 0;
 						int ty = img.Height - y - 1;
-						DrawString(img, (y + shiftY).ToString(), color, ref tx, ref ty);
+						DrawString(img, (y + offsetFromSource.y).ToString(), color, ref tx, ref ty);
 					}
 				}
 			}

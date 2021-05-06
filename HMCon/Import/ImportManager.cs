@@ -17,8 +17,8 @@ namespace HMCon.Import {
 		public static HeightData ImportFile(string path, params string[] args) {
 			string ext = Path.GetExtension(path).Replace(".", "").ToLower();
 			foreach(var ff in supportedFormats) {
-				if(ff.extension.ToLower() == ext) {
-					return ((HMConImportHandler)ff.handler).Import(path, ff, args);
+				if(ff.Extension.ToLower() == ext) {
+					return ff.importHandler.Import(path, ff, args);
 				}
 			}
 			throw new NotSupportedException($"Unable to import file of type '{ext}'.");
@@ -27,7 +27,7 @@ namespace HMCon.Import {
 		public static bool SupportsFileType(string path) {
 			string ext = Path.GetExtension(path).Replace(".", "").ToLower();
 			foreach(var ff in supportedFormats) {
-				if(ff.extension.ToLower() == ext) return true;
+				if(ff.Extension.ToLower() == ext) return true;
 			}
 			return false;
 		}

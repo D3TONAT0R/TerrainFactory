@@ -1,11 +1,7 @@
-﻿
-
-using HMConImage;
-using HMCon;
+﻿using HMCon;
 using HMCon.Export;
 using HMCon.Util;
 using HMConMCPlugin;
-using System;
 using System.Collections.Generic;
 
 namespace HMConMC {
@@ -19,20 +15,20 @@ namespace HMConMC {
 			list.Add(new FileFormat("MCW", "mcw", "", "Minecraft World Save (1.16)", this));
 		}
 
-		public override bool Export(HeightData data, FileFormat ff, string fullPath) {
-			if(ff.IsFormat("MCR") || ff.IsFormat("MCR-RAW")) {
-				return WriteFileMCA(data, fullPath, !ff.IsFormat("MCR-RAW"), CurrentExportJobInfo.exportSettings.useSplatmaps);
-			} else if(ff.IsFormat("IMG_MCR")) {
-				ExportUtility.WriteFile(new OverviewmapExporter(CurrentExportJobInfo.importedFilePath), fullPath, ff);
-			} else if(ff.IsFormat("MCW")) {
-				return WriteWorldSave(data, fullPath, true, CurrentExportJobInfo.exportSettings.useSplatmaps);
+		public override bool Export(ExportJob job) {
+			if(job.format.IsFormat("MCR") || job.format.IsFormat("MCR-RAW")) {
+				return WriteFileMCA(job, !job.format.IsFormat("MCR-RAW"), job.settings.GetCustomSetting("mcaUseSplatmaps", false));
+			} else if(job.format.IsFormat("IMG_MCR")) {
+				ExportUtility.WriteFile(new OverviewmapExporter(job.data.filename), job.FilePath, job.format);
+			} else if(job.format.IsFormat("MCW")) {
+				return WriteWorldSave(job, true, job.settings.GetCustomSetting("mcaUseSplatmaps", false));
 			}
 			return false;
 		}
 
 		public override bool AreExportSettingsValid(ExportSettings options, FileFormat format, HeightData data) {
 			if(options.ContainsFormat("MCR", "MCR-RAW")) {
-				bool sourceIs512 = (data.GridHeight == 512 && data.GridWidth == 512) || (options.exportRange.NumCols == 512 && options.exportRange.NumRows == 512);
+				bool sourceIs512 = (data.GridHeight == 512 && data.GridWidth == 512);
 				if(options.fileSplitDims != 512 && !sourceIs512) {
 					ConsoleOutput.WriteError("File splitting dimensions must be 512 when exporting to minecraft regions!");
 					return false;
@@ -41,44 +37,27 @@ namespace HMConMC {
 			return true;
 		}
 
-		public override void EditFileName(FileNameProvider path, FileFormat fileFormat) {
-			if(CurrentExportJobInfo.exportSettings.ContainsFormat("MCR")) {
-				path.gridNum = (CurrentExportJobInfo.exportNumX + CurrentExportJobInfo.exportSettings.mcaOffsetX, CurrentExportJobInfo.exportNumZ + CurrentExportJobInfo.exportSettings.mcaOffsetZ);
-				path.gridNumFormat = "r.{0}.{1}";
+		public override void EditFileName(ExportJob job, FileNameBuilder nameBuilder) {
+			if(job.settings.ContainsFormat("MCR")) {
+				nameBuilder.gridNum = (job.exportNumX + job.settings.GetCustomSetting("mcaOffsetX", 0), job.exportNumZ + job.settings.GetCustomSetting("mcaOffsetZ", 0));
+				nameBuilder.gridNumFormat = "r.{0}.{1}";
 			}
-			if(fileFormat.Identifier == "MCW") {
-				path.gridNumFormat = "";
+			if(job.format.Identifier == "MCW") {
+				nameBuilder.gridNumFormat = "";
 			}
-			if(fileFormat.IsFormat("IMG_MCR")) path.suffix = "overview";
+			if(job.format.IsFormat("IMG_MCR")) nameBuilder.suffix = "overview";
 		}
 
-		public static bool WriteFileMCA(HeightData data, string fullPath, bool decorate, bool useSplatmaps) {
-			var grid = GetGrid(data);
-			IExporter exporter = new MCWorldExporter(grid, decorate, useSplatmaps);
-			ExportUtility.WriteFile(exporter, fullPath, ExportUtility.GetFormatFromIdenfifier("MCR"));
+		public static bool WriteFileMCA(ExportJob job, bool decorate, bool useSplatmaps) {
+			IExporter exporter = new MCWorldExporter(job, decorate, useSplatmaps);
+			ExportUtility.WriteFile(exporter, job.FilePath, ExportUtility.GetFormatFromIdenfifier("MCR"));
 			return true;
 		}
 
-		public static bool WriteWorldSave(HeightData data, string fullPath, bool decorate, bool useSplatmaps) {
-			var grid = GetGrid(data);
-			IExporter exporter = new MCWorldExporter(grid, decorate, useSplatmaps);
-			ExportUtility.WriteFile(exporter, fullPath, ExportUtility.GetFormatFromIdenfifier("MCW"));
+		public static bool WriteWorldSave(ExportJob job, bool decorate, bool useSplatmaps) {
+			IExporter exporter = new MCWorldExporter(job, decorate, useSplatmaps);
+			ExportUtility.WriteFile(exporter, job.FilePath, ExportUtility.GetFormatFromIdenfifier("MCW"));
 			return true;
-		}
-
-		private static float[,] GetGrid(HeightData data) {
-			int subsampling = CurrentExportJobInfo.exportSettings.Subsampling;
-			if(subsampling < 1) subsampling = 1;
-			var bounds = CurrentExportJobInfo.bounds ?? data.GetBounds();
-			float[,] grid = new float[bounds.NumCols / subsampling, bounds.NumRows / subsampling];
-			var zLength = grid.GetLength(1);
-			for(int x = 0; x < grid.GetLength(0); x++) {
-				for(int z = 0; z < grid.GetLength(1); z++) {
-					//Note: Minecraft's Z coordinate is upside-down, Z starts from top
-					grid[x, zLength - z - 1] = data.GetHeight(bounds.xMin + x * subsampling, bounds.yMin + z * subsampling);
-				}
-			}
-			return grid;
 		}
 	}
 }

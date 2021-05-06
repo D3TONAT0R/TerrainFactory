@@ -19,35 +19,23 @@ namespace HMConImage {
 			list.Add(new FileFormat("IMG_PNG-HS", "png-hs", "png", "Hillshade", this));
 		}
 
-		public override bool Export(HeightData data, FileFormat ff, string fullPath) {
-			if(CurrentExportJobInfo.exportSettings == null) {
-				throw new NullReferenceException("exportSettings was null");
-			}
-			if(data == null) {
-				throw new NullReferenceException("data was null");
-			}
-			return WriteFileImage(data, fullPath, CurrentExportJobInfo.exportSettings.Subsampling, CurrentExportJobInfo.bounds ?? data.GetBounds(), ff);
+		public override bool Export(ExportJob job) {
+			return WriteFileImage(job.data, job.FilePath, job.format);
 		}
 
-		public override void EditFileName(FileNameProvider path, FileFormat fileFormat) {
-			if(fileFormat.IsFormat("IMG_PNG-HM")) path.suffix = "_height";
-			if(fileFormat.IsFormat("IMG_PNG-HM-S")) path.suffix = "_height_s";
-			else if(fileFormat.IsFormat("IMG_PNG-NM")) path.suffix = "_normal";
-			else if(fileFormat.IsFormat("IMG_PNG-HS")) path.suffix = "_hillshade";
+		public override void EditFileName(ExportJob job, FileNameBuilder nameBuilder) {
+			if(job.format.IsFormat("IMG_PNG-HM")) nameBuilder.suffix = "_height";
+			if(job.format.IsFormat("IMG_PNG-HM-S")) nameBuilder.suffix = "_height_s";
+			else if(job.format.IsFormat("IMG_PNG-NM")) nameBuilder.suffix = "_normal";
+			else if(job.format.IsFormat("IMG_PNG-HS")) nameBuilder.suffix = "_hillshade";
 		}
 
 		public override bool AreExportSettingsValid(ExportSettings options, FileFormat format, HeightData data) {
 			return true;
 		}
 
-		bool WriteFileImage(HeightData source, string filename, int subsampling, Bounds bounds, FileFormat ff) {
-			if(subsampling < 1) subsampling = 1;
-			float[,] grid = new float[bounds.NumCols / subsampling, bounds.NumRows / subsampling];
-			for(int x = 0; x < grid.GetLength(0); x++) {
-				for(int y = 0; y < grid.GetLength(1); y++) {
-					grid[x, y] = source.GetHeight(bounds.xMin + x * subsampling, bounds.yMin + y * subsampling);
-				}
-			}
+		bool WriteFileImage(HeightData source, string filename, FileFormat ff) {
+			float[,] grid = source.GetDataGrid();
 			IExporter exporter = new ImageGenerator(grid, source.cellSize, ff.GetImageType(), source.lowPoint, source.highPoint);
 			ExportUtility.WriteFile(exporter, filename, ff);
 			return true;

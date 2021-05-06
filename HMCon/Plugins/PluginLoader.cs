@@ -14,11 +14,12 @@ namespace HMCon {
 
 		internal static void LoadPlugins(string pluginPath) {
 			loadedPlugins = new Dictionary<string, HMConPlugin>();
-			foreach(var path in Directory.GetFiles(pluginPath, "*.dll")) {
+			var dllFiles = Directory.GetFiles(pluginPath, "*.dll");
+			foreach (var path in dllFiles) {
 				try {
 					var assembly = Assembly.LoadFrom(path);
 					foreach(var t in assembly.GetTypes()) {
-						if(t.IsSubclassOf(typeof(HMConPlugin)) && !t.IsAbstract) {
+						if(t.BaseType != null && t.BaseType.Name == typeof(HMConPlugin).Name && !t.IsAbstract) {
 							var plugin = (HMConPlugin)Activator.CreateInstance(t);
 							string info = "";
 
@@ -49,11 +50,13 @@ namespace HMCon {
 								pluginID = "["+t.Name+"]";
 							}
 							loadedPlugins.Add(pluginID, plugin);
+							continue;
 						}
 					}
+					//ConsoleOutput.WriteWarning("Not a plugin dll: " + path);
 				}
 				catch {
-
+					//ConsoleOutput.WriteWarning("Failed to load dll: " + path);
 				}
 			}
 		}

@@ -25,6 +25,9 @@ namespace HMConMC {
 		public int regionNumX;
 		public int regionNumZ;
 
+		public int regionOffsetX;
+		public int regionOffsetZ;
+
 		public int heightmapLengthX;
 		public int heightmapLengthZ;
 
@@ -32,9 +35,12 @@ namespace HMConMC {
 
 		public List<MinecraftTerrainPostProcessor> postProcessors;
 
-		public MCWorldExporter(float[,] hmapFlipped) {
-			int xmin = CurrentExportJobInfo.mcaGlobalPosX * 512;
-			int zmin = CurrentExportJobInfo.mcaGlobalPosZ * 512;
+		public MCWorldExporter(ExportJob job) {
+			regionOffsetX = job.exportNumX + job.settings.GetCustomSetting("mcaOffsetX", 0);
+			regionOffsetZ = job.exportNumZ + job.settings.GetCustomSetting("mcaOffsetZ", 0);
+			int xmin = regionOffsetX * 512;
+			int zmin = regionOffsetZ * 512;
+			var hmapFlipped = job.data.GetDataGridFlipped();
 			heightmapLengthX = hmapFlipped.GetLength(0);
 			heightmapLengthZ = hmapFlipped.GetLength(1);
 			worldBounds = new Bounds(xmin, zmin, xmin + heightmapLengthX - 1, zmin + heightmapLengthZ - 1);
@@ -51,10 +57,10 @@ namespace HMConMC {
 			}
 		}
 
-		public MCWorldExporter(float[,] hmapFlipped, bool useDefaultPostProcessors, bool useSplatmaps) : this(hmapFlipped) {
+		public MCWorldExporter(ExportJob job, bool useDefaultPostProcessors, bool useSplatmaps) : this(job) {
 			postProcessors = new List<MinecraftTerrainPostProcessor>();
 			if(useSplatmaps) {
-				postProcessors.Add(new SplatmappedSurfacePostProcessor(this, CurrentExportJobInfo.importedFilePath, 255, 0, 0, hmapFlipped.GetLength(0), hmapFlipped.GetLength(1)));
+				postProcessors.Add(new SplatmappedSurfacePostProcessor(this, job.data.filename, 255, 0, 0, job.data.GridWidth, job.data.GridHeight));
 			}
 			if(useDefaultPostProcessors) {
 				if(!useSplatmaps) {
@@ -73,20 +79,22 @@ namespace HMConMC {
 			return format.Identifier.StartsWith("MCR");
 		}
 
+		//private void GetMCAOffset(Job job, out int offsetX, out int offsetZ) {
+			
+		//}
+
 		private void CreateWorld() {
-			world = new World(CurrentExportJobInfo.mcaGlobalPosX, CurrentExportJobInfo.mcaGlobalPosZ, CurrentExportJobInfo.mcaGlobalPosX + regionNumX - 1, CurrentExportJobInfo.mcaGlobalPosZ + regionNumZ - 1);
+			world = new World(regionOffsetX, regionOffsetZ, regionOffsetX + regionNumX - 1, regionOffsetZ + regionNumZ - 1);
 			MakeBaseTerrain();
 			DecorateTerrain();
 			MakeBiomeArray();
 		}
 
 		private void MakeBaseTerrain() {
-			int ox = CurrentExportJobInfo.mcaGlobalPosX * 512;
-			int oz = CurrentExportJobInfo.mcaGlobalPosZ * 512;
 			for(int x = 0; x < heightmapLengthX; x++) {
 				for(int z = 0; z < heightmapLengthZ; z++) {
 					for(int y = 0; y <= heightmap[x, z]; y++) {
-						world.SetDefaultBlock(ox + x, y, oz + z);
+						world.SetDefaultBlock(regionOffsetX*512 + x, y, regionOffsetZ*512 + z);
 					}
 				}
 				if((x + 1) % 8 == 0) ConsoleOutput.WriteProgress("Generating base terrain", (x + 1) / (float)heightmapLengthX);
@@ -134,7 +142,7 @@ namespace HMConMC {
 		public void WriteFile(FileStream stream, string path, FileFormat filetype) {
 			CreateWorld();
 			if(filetype.IsFormat("MCR") || filetype.IsFormat("MCR-RAW")) {
-				world.WriteRegionFile(stream, CurrentExportJobInfo.mcaGlobalPosX, CurrentExportJobInfo.mcaGlobalPosZ);
+				world.WriteRegionFile(stream, regionOffsetX, regionOffsetZ);
 			} else {
 				path = Path.Combine(Path.GetDirectoryName(path), Path.GetFileNameWithoutExtension(path));
 				Directory.CreateDirectory(path);

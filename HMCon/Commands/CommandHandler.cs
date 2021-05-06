@@ -8,21 +8,18 @@ namespace HMCon {
 
 		public static List<HMConCommandHandler> commandHandlers = new List<HMConCommandHandler>();
 
-		public static List<ConsoleCommand> GetConsoleCommands() {
-			List<ConsoleCommand> list = new List<ConsoleCommand>();
+		public static List<ConsoleCommand> ConsoleCommands { get; private set; }
+		public static List<ModificationCommand> ModificationCommands { get; private set; }
+
+		public static void Initialize() {
+			ConsoleCommands = new List<ConsoleCommand>();
 			foreach(var ex in commandHandlers) {
-				ex.AddCommands(list);
+				ex.AddCommands(ConsoleCommands);
 			}
-			//Remove illegal commands
-			List<ConsoleCommand> rm = new List<ConsoleCommand>();
-			foreach(var c in list) {
-				if(c.commandHandler == null) {
-					ConsoleOutput.WriteError($"CommandHandler for command '{c.command}' is null. The command has been removed.");
-					rm.Add(c);
-				}
+			ModificationCommands = new List<ModificationCommand>();
+			foreach(var ex in commandHandlers) {
+				ex.AddModifiers(ModificationCommands);
 			}
-			foreach(var c in rm) list.Remove(c);
-			return list;
 		}
 	}
 }

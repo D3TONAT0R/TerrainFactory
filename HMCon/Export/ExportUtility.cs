@@ -16,26 +16,11 @@ namespace HMCon.Export {
 			e.AddFormatsToList(supportedFormats);
 		}
 
-		public static bool CreateFilesForSection(HeightData source, string directory, string name) {
-			int numX = CurrentExportJobInfo.exportNumX;
-			int numY = CurrentExportJobInfo.exportNumZ;
-			foreach(FileFormat ff in CurrentExportJobInfo.exportSettings.outputFormats) {
-				FileNameProvider path = new FileNameProvider(directory, name, ff) {
-					gridNum = (numX, numY)
-				};
-				EditFilename(path, ff);
-				string fullpath = path.GetFullPath();
-				ConsoleOutput.WriteLine("Creating file " + fullpath + " ...");
-				if(ExportFile(source, ff, fullpath)) {
-					ConsoleOutput.WriteSuccess(ff.Identifier + " file created successfully!");
-				} else {
-					ConsoleOutput.WriteError("Failed to write " + ff.Identifier + " file!");
-				}
-			}
-			return true;
-		}
-
 		public static bool ValidateExportSettings(ExportSettings settings, HeightData data) {
+			if(settings.outputFormats.Count == 0) {
+				ConsoleOutput.WriteError("You must specify at least one output format");
+				return false;
+			}
 			bool valid = true;
 			foreach(var ff in settings.outputFormats) {
 				valid &= ValidateExportSettings(settings, data, ff);
@@ -64,32 +49,15 @@ namespace HMCon.Export {
 
 		public static FileFormat GetFormatFromInput(string key) {
 			foreach(var f in supportedFormats) {
-				if(f.inputKey == key) return f;
+				if(f.InputKey == key) return f;
 			}
 			return null;
-		}
-
-		public static void EditFilename(FileNameProvider path, FileFormat ff) {
-			((HMConExportHandler)ff.handler).EditFileName(path, ff);
-		}
-
-		public static bool ExportFile(HeightData data, FileFormat ff, string fullPath) {
-			if(ff != null && ff.handler != null) {
-				return ((HMConExportHandler)ff.handler).Export(data, ff, fullPath);
-			} else {
-				if(ff != null) {
-					ConsoleOutput.WriteError("No exporter is defined for format '" + ff.Identifier + "'!");
-				} else {
-					ConsoleOutput.WriteError("FileFormat is null!");
-				}
-				return false;
-			}
 		}
 
 		public static void WriteFile(IExporter ie, string path, FileFormat ff) {
 			FileStream stream = null;
 			if(ie.NeedsFileStream(ff)) {
-				//Only create a file stream if the Exporter requires it
+				//Only create a file stream if the exporter needs one
 				stream = new FileStream(path, FileMode.Create);
 			}
 			try {

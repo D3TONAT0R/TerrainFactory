@@ -1,0 +1,81 @@
+﻿<Window x:Class="HMConApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HMConApp"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="553.576" Width="830.096">
+    <Grid x:Name="MainGrid" Margin="0">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="173*"/>
+            <ColumnDefinition Width="166*"/>
+        </Grid.ColumnDefinitions>
+        <Grid x:Name="VerticalSplit" Margin="0,0,5,5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="23*"/>
+                <RowDefinition Height="51*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <GridSplitter x:Name="gridSplitter2" HorizontalAlignment="Stretch" Height="5" VerticalAlignment="Bottom" Margin="0"/>
+            <ListView Name="InputList" Margin="0,0,0,34.96" SelectionMode="Single" SelectionChanged="OnInputSelectionChanged">
+                <ListView.View>
+                    <GridView AllowsColumnReorder="False">
+                        <GridViewColumn Header="Filename" Width="250" DisplayMemberBinding="{Binding Description}"/>
+                        <GridViewColumn Header="Ext." Width="50" DisplayMemberBinding="{Binding Identifier}"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+            <Grid Height="19.96" VerticalAlignment="Bottom" Margin="5,0,5,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Button x:Name="AddFileButton" Content="Add file ..." Margin="0,0,2.5,0" Click="OnAddFile"/>
+                <Button x:Name="RemoveFileButton" Content="Remove selected" Grid.Column="1" Margin="2.5,0" Click="OnRemoveSelectedFile"/>
+                <Button x:Name="PreviewFileButton" Content="Show in preview" Grid.Column="2" Margin="2.5,0,0,0"/>
+            </Grid>
+            <StackPanel Grid.Row="1" >
+                <Expander x:Name="expander" Header="Modification" VerticalAlignment="Top" Margin="0" FontWeight="Bold">
+                    <ScrollViewer Margin="0">
+                        <StackPanel x:Name="ModificationStack" Margin="0,0,5,0">
+                            <ToolBar x:Name="toolBar" VerticalAlignment="Top">
+                                <ComboBox x:Name="modificatorDropDown" Width="150" VerticalAlignment="Center" Margin="0,0,0,-1.96" ToolTip="Adds a new Modificator from the list of installed Modificators" Text="Add Modificator" Focusable="True" IsTabStop="False" IsTextSearchEnabled="False" IsReadOnly="True" SelectedIndex="0" DropDownClosed="OnModificatorDropdownClose">
+                                    <ComboBoxItem Content="- Add Modificator -" IsEnabled="False"/>
+                                    <ComboBoxItem Content="Hoi"/>
+                                    <ComboBoxItem Content="Pick me please"/>
+                                </ComboBox>
+                                <ToolBarPanel Height="20" VerticalAlignment="Top" Width="100">
+                                    <Button x:Name="button" Content="Button" HorizontalAlignment="Left" Width="100"/>
+                                </ToolBarPanel>
+                            </ToolBar>
+                            <GroupBox x:Name="groupBox" Header="GroupBox"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Expander>
+                <Expander x:Name="expander_Copy" Header="Formats" FontWeight="Bold" VerticalAlignment="Top" HorizontalContentAlignment="Left" Margin="0">
+                    <Grid Background="#FFE5E5E5" Margin="0" HorizontalAlignment="{Binding HorizontalAlignment, Mode=OneWayToSource, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContentPresenter}}}">
+                        <CheckBox x:Name="checkBox1" Content="CheckBox" HorizontalAlignment="Left" Margin="0,0,0,-0.001" VerticalAlignment="Top"/>
+                    </Grid>
+                </Expander>
+            </StackPanel>
+        </Grid>
+        <GridSplitter x:Name="gridSplitter" Width="5" Margin="0"/>
+        <Grid Grid.Column="1" Margin="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="298*"/>
+                <RowDefinition Height="215*"/>
+            </Grid.RowDefinitions>
+            <Frame x:Name="frame" Content="Frame" Grid.RowSpan="2"/>
+            <GroupBox x:Name="groupBox1" Header="Console output" Margin="0" Grid.Row="1" Height="215">
+                <TextBox x:Name="consoleWindow" Margin="0" TextWrapping="Wrap" Text="Console" IsReadOnly="True" IsTabStop="False"/>
+            </GroupBox>
+        </Grid>
+    </Grid>
+</Window>

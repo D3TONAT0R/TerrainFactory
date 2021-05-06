@@ -1,3 +1,4 @@
+using HMCon.Modification;
 using HMCon.Util;
 using System;
 using System.Collections.Generic;
@@ -5,26 +6,17 @@ using System.Collections.Generic;
 namespace HMCon.Export {
 	public class ExportSettings {
 
+		public List<Modifier> modificationChain = new List<Modifier>();
+
 		public List<FileFormat> outputFormats = new List<FileFormat>();
-		public int Subsampling {
-			get { return subsampling_value; }
-			set { subsampling_value = Math.Max(1, value); }
-		}
-		private int subsampling_value = 1;
 		public int fileSplitDims = -1;
-		public Bounds exportRange = new Bounds(0, 0, 0, 0);
-		public bool UseExportRange {
-			get {
-				return exportRange.xMax > 0 && exportRange.yMax > 0;
-			}
-		}
 
 		private readonly Dictionary<string, object> customSettings = new Dictionary<string, object>();
 
 		//Format specific settings
-		public int mcaOffsetX = 0;
+		/*public int mcaOffsetX = 0;
 		public int mcaOffsetZ = 0;
-		public bool useSplatmaps;
+		public bool useSplatmaps;*/
 
 		public void SetOutputFormats(string[] inputs, bool append) {
 			if(!append) outputFormats.Clear();
@@ -39,18 +31,6 @@ namespace HMCon.Export {
 			}
 		}
 
-		public bool SetExportRange(HeightData checkData, int x1, int y1, int x2, int y2) {
-			if(x1 < 0 || x1 >= checkData.GridWidth) return false;
-			if(y1 < 0 || y1 >= checkData.GridHeight) return false;
-			if(x2 < 0 || x2 >= checkData.GridWidth) return false;
-			if(y2 < 0 || y2 >= checkData.GridHeight) return false;
-			if(x1 > x2) return false;
-			if(y1 > y2) return false;
-			exportRange = new Bounds(x1, y1, x2, y2);
-			return true;
-		}
-
-
 		public bool ContainsFormat(params string[] ids) {
 			foreach(var f in outputFormats) {
 				foreach(var id in ids) {
@@ -60,21 +40,22 @@ namespace HMCon.Export {
 			return false;
 		}
 
-		public int ExportRangeCellCount {
-			get {
-				if(UseExportRange) {
-					return (exportRange.xMax - exportRange.xMin + 1) * (exportRange.yMax - exportRange.yMin + 1);
-				} else {
-					return 0;
-				}
-			}
-		}
-
 		public void SetCustomSetting<T>(string key, T value) {
 			if(customSettings.ContainsKey(key)) {
 				customSettings[key] = value;
 			} else {
 				customSettings.Add(key, value);
+			}
+		}
+
+		public bool ToggleCustomBoolSetting(string key) {
+			if(customSettings.ContainsKey(key) && customSettings[key] is bool b) {
+				b = !b;
+				customSettings[key] = b;
+				return b;
+			} else {
+				customSettings.Add(key, true);
+				return true;
 			}
 		}
 
@@ -91,6 +72,21 @@ namespace HMCon.Export {
 				return (T)customSettings[key];
 			} else {
 				return defaultValue;
+			}
+		}
+
+		public void AddModifierToChain(Modifier modifier, bool replaceSameType = true) {
+			if(!replaceSameType) {
+				modificationChain.Add(modifier);
+			} else {
+				for(int i = 0; i < modificationChain.Count; i++) {
+					if(modificationChain[i].GetType() == modifier.GetType()) {
+						modificationChain[i] = modifier;
+						return;
+					}
+				}
+				//A modifier of the same type was not found, append it instead
+				modificationChain.Add(modifier);
 			}
 		}
 	}

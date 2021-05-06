@@ -16,18 +16,18 @@ namespace HMCon3D {
 			list.Add(new FileFormat("3DM_FBX", "fbx", "fbx", "FBX 3d model", this));
 		}
 
-		public override bool Export(HeightData data, FileFormat ff, string fullPath) {
-			if(ff.Identifier.StartsWith("3DM")) {
-				return WriteFile3D(data, fullPath, CurrentExportJobInfo.exportSettings.Subsampling, CurrentExportJobInfo.bounds ?? data.GetBounds(), ff);
+		public override bool Export(ExportJob job) {
+			if(job.format.Identifier.StartsWith("3DM")) {
+				return WriteFile3D(job.data, job.FilePath, job.format);
 			}
 			return false;
 		}
 
 		public override bool AreExportSettingsValid(ExportSettings options, FileFormat format, HeightData data) {
-			int cellsPerFile = HMConManager.GetTotalExportCellsPerFile();
+			int cellsPerFile = 0;// HMConManager.GetTotalExportCellsPerFile();
 			if(options.ContainsFormat("MDL_3DS")) {
 				if(cellsPerFile >= 65535) {
-					Console.WriteLine("ERROR: Cannot export more than 65535 cells in a single 3ds file! Current amount: "+cellsPerFile);
+					Console.WriteLine("ERROR: Cannot export more than 65535 cells in a single 3ds file! Current amount: " + cellsPerFile);
 					Console.WriteLine("       Reduce splitting interval or increase subsampling to allow for exporting 3ds Files");
 					return false;
 				}
@@ -35,22 +35,19 @@ namespace HMCon3D {
 			return true;
 		}
 
-		bool WriteFile3D(HeightData source, string filename, int subsampling, Bounds bounds, FileFormat ff) {
+		bool WriteFile3D(HeightData source, string filename, FileFormat ff) {
 			var meshList = new List<(List<Vector3> verts, List<int> tris, List<Vector2> uvs)>();
-			//Increase boundaries for lossless tiling
-			if(bounds.xMax < source.GridWidth) bounds.xMax++;
-			if(bounds.yMax < source.GridHeight) bounds.yMax++;
-			int sizeX = bounds.NumCols - 1;
-			int sizeY = bounds.NumRows - 1;
-			int splitX = (int)Math.Ceiling(sizeX / 128f / subsampling);
-			int splitY = (int)Math.Ceiling(sizeY / 128f / subsampling);
+			int sizeX = source.GridWidth - 1;
+			int sizeY = source.GridHeight - 1;
+			int splitX = (int)Math.Ceiling(sizeX / 128f);
+			int splitY = (int)Math.Ceiling(sizeY / 128f);
 			int y = 0;
 			while(y < sizeY) {
 				int cellsY = (int)Math.Ceiling(sizeY / (float)splitY);
 				int x = 0;
 				while(x < sizeX) {
 					int cellsX = (int)Math.Ceiling(sizeX / (float)splitX);
-					meshList.Add(CreateMeshData(source, subsampling, bounds.xMin + x, bounds.yMin + y, bounds.xMin + x + cellsX, bounds.yMin + y + cellsY));
+					meshList.Add(CreateMeshData(source, x, y, x + cellsX, y + cellsY));
 					x += cellsX;
 				}
 				y += cellsY;
@@ -73,7 +70,7 @@ namespace HMCon3D {
 			return true;
 		}
 
-		(List<Vector3> verts, List<int> tris, List<Vector2> uvs) CreateMeshData(HeightData source, int subsampling, int xMin, int yMin, int xMax, int yMax) {
+		(List<Vector3> verts, List<int> tris, List<Vector2> uvs) CreateMeshData(HeightData source, int xMin, int yMin, int xMax, int yMax) {
 			Vector3[,] points = new Vector3[xMax - xMin + 1, yMax - yMin + 1];
 			List<Vector3> verts = new List<Vector3>();
 			List<int> tris = new List<int>();
@@ -81,17 +78,15 @@ namespace HMCon3D {
 			for(int i = 0; i <= xMax - xMin; i++) for(int j = 0; j <= yMax - yMin; j++) points[i, j] = Vector3.Zero;
 			for(int y = yMin; y <= yMax; y++) {
 				for(int x = xMin; x <= xMax; x++) {
-					if(x % subsampling == 0 && y % subsampling == 0) {
-						float f = source.GetHeight(x, y);
-						if(f != source.nodata_value) {
-							Vector3 vec = new Vector3(-x * source.cellSize, source.GetHeight(x, y), y * source.cellSize);
-							points[x - xMin, y - yMin] = vec;
-							if(!verts.Contains(vec)) {
-								verts.Add(vec);
-								float uvX = (x - xMin) / (float)(xMax - xMin);
-								float uvY = (y - yMin) / (float)(yMax - yMin);
-								uvs.Add(new Vector2(uvX, uvY));
-							}
+					float f = source.GetHeight(x, y);
+					if(f != source.nodata_value) {
+						Vector3 vec = new Vector3(-x * source.cellSize, source.GetHeight(x, y), y * source.cellSize);
+						points[x - xMin, y - yMin] = vec;
+						if(!verts.Contains(vec)) {
+							verts.Add(vec);
+							float uvX = (x - xMin) / (float)(xMax - xMin);
+							float uvY = (y - yMin) / (float)(yMax - yMin);
+							uvs.Add(new Vector2(uvX, uvY));
 						}
 					}
 				}
@@ -99,38 +94,35 @@ namespace HMCon3D {
 			int nodatas = 0;
 			for(int y = yMin; y < yMax; y++) {
 				for(int x = xMin; x < xMax; x++) {
-					if(x % subsampling == 0 && y % subsampling == 0) {
-						Vector3[] pts = GetPointsForFace(points, x - xMin, y - yMin, subsampling);
-						if(pts != null) { //if the list is null, then a nodata-value was found
-							int i0 = verts.IndexOf(pts[0]);
-							int i1 = verts.IndexOf(pts[1]);
-							int i2 = verts.IndexOf(pts[2]);
-							int i3 = verts.IndexOf(pts[3]);
-							//Lower-Right triangle
-							tris.Add(i0);
-							tris.Add(i1);
-							tris.Add(i3);
-							//Upper-Left triangle
-							tris.Add(i0);
-							tris.Add(i3);
-							tris.Add(i2);
-						} else {
-							nodatas++;
-							if(ConsoleOutput.debugLogging) ConsoleOutput.WriteWarning("[#" + nodatas + "] NODATA_VALUE or missing data at point " + x + " " + y);
-						}
+					Vector3[] pts = GetPointsForFace(points, x - xMin, y - yMin);
+					if(pts != null) { //if the list is null, then a nodata-value was found
+						int i0 = verts.IndexOf(pts[0]);
+						int i1 = verts.IndexOf(pts[1]);
+						int i2 = verts.IndexOf(pts[2]);
+						int i3 = verts.IndexOf(pts[3]);
+						//Lower-Right triangle
+						tris.Add(i0);
+						tris.Add(i1);
+						tris.Add(i3);
+						//Upper-Left triangle
+						tris.Add(i0);
+						tris.Add(i3);
+						tris.Add(i2);
+					} else {
+						nodatas++;
+						if(ConsoleOutput.debugLogging) ConsoleOutput.WriteWarning("[#" + nodatas + "] NODATA_VALUE or missing data at point " + x + " " + y);
 					}
 				}
 			}
 			return (verts, tris, uvs);
 		}
 
-		Vector3[] GetPointsForFace(Vector3[,] points, int x, int y, int subsample) {
+		Vector3[] GetPointsForFace(Vector3[,] points, int x, int y) {
 			Vector3[] pts = new Vector3[4];
-			int i = subsample > 1 ? subsample : 1;
 			int x1 = x;
 			int y1 = y;
-			int x2 = Math.Min(x1 + i, points.GetLength(0) - 1);
-			int y2 = Math.Min(y1 + i, points.GetLength(1) - 1);
+			int x2 = Math.Min(x1 + 1, points.GetLength(0) - 1);
+			int y2 = Math.Min(y1 + 1, points.GetLength(1) - 1);
 			pts[0] = points[x1, y1];
 			pts[1] = points[x2, y1];
 			pts[2] = points[x1, y2];

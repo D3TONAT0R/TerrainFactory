@@ -22,6 +22,7 @@ namespace HMCon.Util {
 						value = (T)Convert.ChangeType(split[1], typeof(T));
 					} else {
 						value = default;
+						return false;
 					}
 					return true;
 				}

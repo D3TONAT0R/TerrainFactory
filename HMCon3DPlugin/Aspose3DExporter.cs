@@ -11,18 +11,18 @@ using System.Numerics;
 namespace HMCon3D {
 	public class Aspose3DExporter : IExporter {
 
-		private Scene scene;
+		private readonly Scene scene;
 
 		public Aspose3DExporter(List<(List<Vector3> verts, List<int> tris, List<Vector2> uvs)> meshInfo) {
 			try {
 				bool makeChildNodes = meshInfo.Count > 1;
 				scene = new Scene();
 				for(int i = 0; i < meshInfo.Count; i++) {
-					var tuple = meshInfo[i];
+					var (verts, tris, uvs) = meshInfo[i];
 					Mesh m = new Mesh();
 					foreach(Vector3 v in meshInfo[i].verts) m.ControlPoints.Add(new Aspose.ThreeD.Utilities.Vector4(v.X, v.Y, v.Z, 1));
-					for(int j = 0; j < tuple.tris.Count; j += 3) {
-						m.CreatePolygon(tuple.tris[j], tuple.tris[j + 1], tuple.tris[j + 2]);
+					for(int j = 0; j < tris.Count; j += 3) {
+						m.CreatePolygon(tris[j], tris[j + 1], tris[j + 2]);
 					}
 					var elem = m.CreateElementUV(TextureMapping.Diffuse, MappingMode.PolygonVertex, ReferenceMode.Direct);
 					var uv = new List<Aspose.ThreeD.Utilities.Vector4>();
@@ -51,9 +51,9 @@ namespace HMCon3D {
 		}
 
 		public void WriteFile(FileStream stream, string path, HMCon.FileFormat filetype) {
-			if(filetype.IsFormat("MDL_3DS")) {
+			if(filetype.IsFormat("3DM_3DS")) {
 				scene.Save(stream, Aspose.ThreeD.FileFormat.Discreet3DS);
-			} else if(filetype.IsFormat("MDL_FBX")) {
+			} else if(filetype.IsFormat("3DM_FBX")) {
 				scene.Save(stream, Aspose.ThreeD.FileFormat.FBX7300ASCII);
 			}
 		}

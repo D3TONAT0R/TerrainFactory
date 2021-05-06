@@ -14,24 +14,24 @@ namespace HMCon.Export {
 			list.Add(new FileFormat("PTS_XYZ", "xyz", "xyz", "ASCII-XYZ points", this));
 		}
 
-		public override bool Export(HeightData data, FileFormat ff, string fullPath) {
-			if(ff.IsPointFormat()) {
-				return WriteFilePointData(data, ff, fullPath);
+		public override bool Export(ExportJob job) {
+			if(job.format.IsPointFormat()) {
+				return WriteFilePointData(job);
 			} else {
 				return false;
 			}
 		}
 
 
-		public static bool WriteFilePointData(HeightData source, FileFormat ff, string fullPath) {
+		public static bool WriteFilePointData(ExportJob job) {
 			try {
-				if(ff.IsFormat("ASC") || ff.IsFormat("PTS_XYZ")) {
+				if(job.format.IsFormat("ASC") || job.format.IsFormat("PTS_XYZ")) {
 					IExporter exporter;
-					exporter = new PointDataExporter(source, CurrentExportJobInfo.exportSettings.Subsampling, CurrentExportJobInfo.bounds ?? source.GetBounds());
-					ExportUtility.WriteFile(exporter, fullPath, ff);
+					exporter = new PointDataExporter(job.data);
+					ExportUtility.WriteFile(exporter, job.FilePath, job.format);
 					return true;
 				} else {
-					WriteError("Don't know how to export " + ff.ToString());
+					WriteError("Don't know how to export " + job.format.ToString());
 					return false;
 				}
 			} catch(Exception e) {

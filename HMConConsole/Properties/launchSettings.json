@@ -1,0 +1,15 @@
+{
+  "profiles": {
+    "Run (auto)": {
+      "commandName": "Project",
+      "commandLineArgs": "auto"
+    },
+    "Run": {
+      "commandName": "Project"
+    },
+    "Run (No plugins)": {
+      "commandName": "Project",
+      "commandLineArgs": "noplugins"
+    }
+  }
+}

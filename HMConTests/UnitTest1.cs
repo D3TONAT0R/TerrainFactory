@@ -10,20 +10,23 @@ using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Threading;
+using HMCon.Modification;
 
 namespace HMConTests {
 	public class Tests {
 
-		string sampleASCFile = "sample-maps.zh.asc";
-		string sampleASCFileHS = "sample-maps.zh_hs.png";
-		string sampleCroppedASCFile = "sample-cropped-maps.zh.asc";
-		string resizedASCFileHS = "sample-resized-maps.zh.png";
-		string sampleHeightmapFile = "sample-hm.png";
-		string sampleMCAFile = "sample-mca.16.26.mca";
-		string gradientMCAFile = "gradient-mca";
+		readonly string sampleASCFile = "sample-maps.zh.asc";
+		readonly string sampleASCFileHS = "sample-maps.zh_hs.png";
+		readonly string sampleCroppedASCFile = "sample-cropped-maps.zh.asc";
+		readonly string resizedASCFileHS = "sample-resized-maps.zh.png";
+		readonly string sampleHeightmapFile = "sample-hm.png";
+		readonly string sampleMCAFile = "sample-mca.16.26.mca";
+		readonly string gradientMCAFile = "gradient-mca";
 
 		string inputPath;
 		string outputPath;
+
+		static Job currentJob;
 
 		[OneTimeSetUp]
 		public void Start() {
@@ -41,8 +44,7 @@ namespace HMConTests {
 
 		[SetUp]
 		public void Setup() {
-			CurrentExportJobInfo.Reset();
-			CurrentExportJobInfo.importedFilePath = inputPath; //TODO: is this correct?
+			currentJob = new Job();
 		}
 
 		[Test]
@@ -71,7 +73,7 @@ namespace HMConTests {
 			int y2 = 1920;
 			var sampleLocations = GetSampleLocations(x1, y1, x2, y2);
 			var sourceSamples = GetHeightSamples(data, sampleLocations);
-			CurrentExportJobInfo.bounds = new Bounds(x1, y1, x2, y2);
+			data = new AreaSelectionModifier(x1, y1, x2, y2).Modify(data, false);
 			AssertExport(data, "ASC", sampleCroppedASCFile);
 			data = ASCImporter.Import(Path.Combine(outputPath, sampleCroppedASCFile));
 			for(int i = 0; i < sampleLocations.Length; i++) {
@@ -100,10 +102,10 @@ namespace HMConTests {
 			HeightData data = ImportManager.ImportFile(Path.Combine(inputPath, sampleMCAFile));
 			data.lowPoint = 0;
 			data.highPoint = 255;
-			var sampleLocations = GetSampleLocations(data.GridWidth, data.GridHeight);
-			var sourceSamples = GetHeightSamples(data, sampleLocations);
-			CurrentExportJobInfo.mcaGlobalPosX = 16;
-			CurrentExportJobInfo.mcaGlobalPosZ = 26;
+			//var sampleLocations = GetSampleLocations(data.GridWidth, data.GridHeight);
+			//var sourceSamples = GetHeightSamples(data, sampleLocations);
+			currentJob.exportSettings.SetCustomSetting("mcaOffsetX", 16);
+			currentJob.exportSettings.SetCustomSetting("mcaOffsetZ", 26);
 			AssertExport(data, "MCR", sampleMCAFile);
 			AssertExport(data, "IMG_PNG-HS", sampleMCAFile);
 			AssertExport(data, "IMG_PNG-HM", sampleMCAFile);
@@ -112,9 +114,10 @@ namespace HMConTests {
 		[Test]
 		public void TestMCAAccuracy() {
 			var heights = HeightmapImporter.ImportHeightmapRaw(Path.Combine(inputPath, sampleHeightmapFile), 0, 0, 512, 512);
-			HeightData data = new HeightData(512, 512, null);
-			data.lowPoint = 0;
-			data.highPoint = 255;
+			HeightData data = new HeightData(512, 512, null) {
+				lowPoint = 0,
+				highPoint = 255
+			};
 			for(int i = 0; i < 512; i++) {
 				for(int j = 0; j < 512; j++) {
 					data.SetHeight(i, j, heights[i, j]);
@@ -136,9 +139,11 @@ namespace HMConTests {
 			var sampleLocationsOriginal = GetSampleLocations(data.GridWidth, data.GridHeight);
 			var sourceSamples = GetHeightSamples(data, sampleLocationsOriginal);
 			int scale = (int)(data.GridWidth * 1.39f);
-			HeightData resized = data.Resize(scale, false);
-			HeightData rescaled = data.Resize(scale, true);
-			ExportUtility.ExportFile(rescaled, ExportUtility.GetFormatFromIdenfifier("IMG_PNG-HS"), resizedASCFileHS);
+			HeightData resized = new HeightData(data);
+			resized.Resize(scale, false);
+			HeightData rescaled = new HeightData(data); 
+			rescaled.Resize(scale, true);
+			AssertExport(rescaled, "IMG_PNG-HS", resizedASCFileHS);
 			var resizedSamples = GetHeightSamples(resized, GetSampleLocations(resized.GridWidth, resized.GridHeight));
 			double delta = 0.4f;
 			for(int i = 0; i < sourceSamples.Length; i++) {
@@ -153,7 +158,8 @@ namespace HMConTests {
 			HeightData data = ImportManager.ImportFile(Path.Combine(inputPath, sampleASCFile));
 			var sampleLocationsOriginal = GetSampleLocations(data.GridWidth, data.GridHeight);
 			var sourceSamples = GetHeightSamples(data, sampleLocationsOriginal);
-			HeightData resized = data.Resize(data.GridWidth * 2, false);
+			HeightData resized = new HeightData(data);
+			resized.Resize(data.GridWidth * 2, false);
 			Assert.AreEqual(4000, resized.GridWidth);
 			AssertExport(data, "IMG_PNG-HM", "asc-original");
 			AssertExport(resized, "IMG_PNG-HM", "asc-resized");
@@ -210,8 +216,9 @@ namespace HMConTests {
 
 		void AssertExport(HeightData data, string filetype, string path) {
 			var format = ExportUtility.GetFormatFromIdenfifier(filetype);
-			path = Path.ChangeExtension(Path.Combine(outputPath, path), format.extension);
-			Assert.IsTrue(ExportUtility.ExportFile(data, format, path), filetype + " export failed");
+			path = Path.ChangeExtension(Path.Combine(outputPath, path), format.Extension);
+			var job = new ExportJob(data, format, new ExportSettings(), outputPath, path);
+			job.Export();
 			Assert.IsTrue(File.Exists(path), "Written file not found");
 		}
 

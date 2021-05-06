@@ -13,6 +13,8 @@ namespace HMConMC {
 			BiomeSplatmapDesc
 		}*/
 
+		public readonly string sourcePath;
+
 		public Dictionary<string, string> maps = new Dictionary<string, string>();
 		public Dictionary<SplatmapMapping, string> layers = new Dictionary<SplatmapMapping, string>();
 		public Dictionary<string, string> structures = new Dictionary<string, string>();
@@ -25,7 +27,7 @@ namespace HMConMC {
 		public string waterBlock = "minecraft:water";
 
 		public SplatmapDescriptorReader(string path, bool mainFile) {
-			//type = t;
+			sourcePath = path;
 			if(!File.Exists(path)) {
 				ConsoleOutput.WriteError("Splatmap file " + path + " does not exist!");
 			}
@@ -155,7 +157,7 @@ namespace HMConMC {
 			string s = ln.Substring(8, ln.Length - 8);
 			string[] split = s.Split('=');
 			if(split.Length == 2) {
-				BiomeGenerator bgen = new BiomeGenerator(byte.Parse(split[1]));
+				BiomeGenerator bgen = new BiomeGenerator(byte.Parse(split[1]), sourcePath);
 				biomes.Add(byte.Parse(split[0]), bgen);
 			} else {
 				ConsoleOutput.WriteError("Syntax error in splat gen description: " + s);

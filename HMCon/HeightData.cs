@@ -1,4 +1,5 @@
 using HMCon.Export;
+using HMCon.Modification;
 using HMCon.Util;
 using System;
 using System.IO;
@@ -15,6 +16,8 @@ namespace HMCon {
 		public int GridHeight => dataGrid?.GetLength(1) ?? 0;
 
 		public Vector2 lowerCornerPos;
+		public (int x, int y) offsetFromSource = (0, 0);
+
 		public float cellSize;
 
 		public float nodata_value = float.MinValue;
@@ -34,6 +37,8 @@ namespace HMCon {
 
 		public bool isValid;
 
+		public bool wasModified = false;
+
 		public HeightData() {
 
 		}
@@ -48,16 +53,20 @@ namespace HMCon {
 			dataGrid = new float[ncols, nrows];
 		}
 
-		public HeightData(HeightData original) {
+		public HeightData(HeightData original, float[,] newGrid) {
 			filename = original.filename;
 			lowerCornerPos = original.lowerCornerPos;
+			offsetFromSource = original.offsetFromSource;
 			cellSize = original.cellSize;
 			nodata_value = original.nodata_value;
-			//fileHeader = original.fileHeader;
-			dataGrid = (float[,])original.dataGrid.Clone();
+			dataGrid = newGrid;
 			RecalculateValues(false);
 			lowPoint = original.lowPoint;
 			highPoint = original.highPoint;
+		}
+
+		public HeightData(HeightData original) : this(original, (float[,])original.dataGrid.Clone()) {
+
 		}
 
 		public void RecalculateValues(bool updateLowHighPoints) {
@@ -75,57 +84,6 @@ namespace HMCon {
 
 		public Bounds GetBounds() {
 			return new Bounds(0, 0, GridWidth - 1, GridHeight - 1);
-		}
-
-		public bool WriteAllFiles(string path, ExportSettings options) {
-			int rangeMinX = 0;
-			int rangeMinY = 0;
-			int rangeMaxX = GridWidth - 1;
-			int rangeMaxY = GridHeight - 1;
-			if(options.UseExportRange) {
-				rangeMinX = options.exportRange.xMin;
-				rangeMinY = options.exportRange.yMin;
-				rangeMaxX = options.exportRange.xMax;
-				rangeMaxY = options.exportRange.yMax;
-			}
-			string dir = Path.GetDirectoryName(path);
-			CurrentExportJobInfo.mcaGlobalPosX = options.mcaOffsetX;
-			CurrentExportJobInfo.mcaGlobalPosZ = options.mcaOffsetZ;
-			if(Directory.Exists(dir)) {
-				if(options.fileSplitDims < 32) {
-					CurrentExportJobInfo.bounds = new Bounds(rangeMinX, rangeMinY, rangeMaxX, rangeMaxY);
-					CurrentExportJobInfo.exportSettings = options;
-					ExportUtility.CreateFilesForSection(this, dir, path);
-				} else {
-					int dims = options.fileSplitDims;
-					int yMin = rangeMinY;
-					int fileY = 0;
-					while(yMin + dims <= rangeMaxY + 1) {
-						int xMin = rangeMinX;
-						int fileX = 0;
-						int yMax = Math.Min(yMin + dims, GridHeight);
-						while(xMin + dims <= rangeMaxX + 1) {
-							int xMax = Math.Min(xMin + dims, GridWidth);
-							CurrentExportJobInfo.exportNumX = fileX;
-							CurrentExportJobInfo.exportNumZ = fileY;
-							CurrentExportJobInfo.bounds = new Bounds(xMin, yMin, xMax - 1, yMax - 1);
-							CurrentExportJobInfo.exportSettings = options;
-							bool success = ExportUtility.CreateFilesForSection(this, filename, path);
-							if(!success) throw new IOException("Failed to write file!");
-							xMin += dims;
-							xMin = Math.Min(xMin, GridWidth);
-							fileX++;
-						}
-						yMin += dims;
-						yMin = Math.Min(yMin, GridHeight);
-						fileY++;
-					}
-				}
-				return true;
-			} else {
-				ConsoleOutput.WriteError("Directory " + dir + " does not exist!");
-				return false;
-			}
 		}
 
 		#region modification
@@ -174,22 +132,20 @@ namespace HMCon {
 			RecalculateValues(false);
 		}
 
-		public HeightData Resize(int newDimX, bool scaleHeight) {
-			HeightData newData = new HeightData(this);
+		public void Resize(int newDimX, bool scaleHeight) {
 			int dimX = newDimX;
 			float ratio = GridWidth / (float)GridHeight;
 			int dimY = (int)(dimX / ratio);
-			newData.dataGrid = GetResizedData(dimX, dimY);
-			float resizeRatio = newData.GridWidth / (float)GridWidth;
+			dataGrid = GetResizedData(dimX, dimY);
+			float resizeRatio = GridWidth / (float)GridWidth;
 			if(scaleHeight) {
-				for(int x = 0; x < newData.GridWidth; x++) {
-					for(int y = 0; y < newData.GridHeight; y++) {
-						newData.dataGrid[x, y] *= resizeRatio;
+				for(int x = 0; x < GridWidth; x++) {
+					for(int y = 0; y < GridHeight; y++) {
+						dataGrid[x, y] *= resizeRatio;
 					}
 				}
 			}
-			newData.cellSize = resizeRatio;
-			return newData;
+			cellSize = resizeRatio;
 		}
 
 		public float[,] GetResizedData(int dimX, int dimY) {
@@ -209,6 +165,22 @@ namespace HMCon {
 
 		public float[,] GetDataGrid() {
 			return dataGrid;
+		}
+
+		public float[,] GetDataGridFlipped() {
+			float[,] grid = new float[GridWidth, GridHeight];
+			var zLength = grid.GetLength(1);
+			for(int x = 0; x < grid.GetLength(0); x++) {
+				for(int z = 0; z < grid.GetLength(1); z++) {
+					//Z starts from top
+					grid[x, zLength - z - 1] = GetHeight(x, z);
+				}
+			}
+			return grid;
+		}
+
+		public void SetDataGrid(float[,] newGrid) {
+			dataGrid = newGrid;
 		}
 
 		public float GetHeight(int x, int y) {

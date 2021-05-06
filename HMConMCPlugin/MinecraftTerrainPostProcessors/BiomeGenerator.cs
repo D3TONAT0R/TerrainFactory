@@ -10,6 +10,8 @@ namespace HMConMC.PostProcessors {
 
 		Random rand = new Random();
 
+		private readonly string sourcePath;
+
 		public byte biomeID;
 
 		public Dictionary<string, float> mainStructures;
@@ -17,8 +19,9 @@ namespace HMConMC.PostProcessors {
 
 		Dictionary<string, Structure> structureDatas = new Dictionary<string, Structure>();
 
-		public BiomeGenerator(byte biome) {
+		public BiomeGenerator(byte biome, string sourcePath) {
 			biomeID = biome;
+			this.sourcePath = sourcePath;
 			mainStructures = new Dictionary<string, float>();
 			decorStructures = new Dictionary<string, float>();
 		}
@@ -46,7 +49,7 @@ namespace HMConMC.PostProcessors {
 		}
 
 		private void RegisterStructure(string s) {
-			string f = Path.GetDirectoryName(CurrentExportJobInfo.importedFilePath) + "\\" + s;
+			string f = Path.Combine(Path.GetDirectoryName(sourcePath), s);
 			try {
 				string[] lns = File.ReadAllLines(f);
 				bool inArray = false;
