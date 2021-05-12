@@ -11,7 +11,8 @@ namespace HMCon.Modification {
 		[DrawInInspector("New high")]
 		public float newHigh;
 
-		public LowHighPointModifier(float low, float high) {
+		public LowHighPointModifier(float low, float high)
+		{
 			newLow = low;
 			newHigh = high;
 		}

@@ -2,23 +2,14 @@
 using HMCon.Export;
 using HMCon.Modification;
 using HMCon.Util;
+using HMConApp.Controls;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 
 namespace HMConApp
 {
@@ -30,14 +21,15 @@ namespace HMConApp
 
 		ConsoleWindowHandler console;
 
-		ObservableCollection<FileFormat> formats = new ObservableCollection<FileFormat>();
+		public static ObservableCollection<ModificationCommand> supportedModifiers = new ObservableCollection<ModificationCommand>();
 
-		ObservableCollection<ModificationCommand> supportedModifiers = new ObservableCollection<ModificationCommand>();
+		public Job job = new Job();
 
-		Job job = new Job();
+		Dictionary<Modifier, ModifierStackEntry> stackEntries = new Dictionary<Modifier, ModifierStackEntry>();
 
 		public MainWindow()
 		{
+
 			InitializeComponent();
 
 			console = new ConsoleWindowHandler(consoleWindow);
@@ -51,21 +43,11 @@ namespace HMConApp
 			pluginDirectory = Path.Combine(pluginDirectory, @"HMConConsole\bin\Debug\netcoreapp3.1");*/
 			HMConManager.Initialize(pluginDirectory);
 
-			InputList.ItemsSource = formats;
-
-			formats.Add(new FileFormat("ASC", "asc", "asc", "ESRI ASCII Grid", (HMConExportHandler)null));
-			formats.Add(new FileFormat("3DM_3DS", "3ds", "3ds", "3ds Model", (HMConExportHandler)null));
-			formats.Add(new FileFormat("PNG", "png", "png", "PNG Image", (HMConExportHandler)null));
+			InputList.ItemsSource = job.InputFileList;
 
 			RemoveFileButton.IsEnabled = false;
 			PreviewFileButton.IsEnabled = false;
 
-			List<ComboBoxItem> dropDownItems = new List<ComboBoxItem>();
-			dropDownItems.Add(new ComboBoxItem()
-			{
-				Content = "- Select Modifier -",
-				IsEnabled = false
-			});
 			foreach (var mod in CommandHandler.ModificationCommands)
 			{
 				supportedModifiers.Add(mod);
@@ -73,11 +55,47 @@ namespace HMConApp
 				{
 					Content = mod.command
 				};
-				dropDownItems.Add(cbi);
+				modificatorDropDown.Items.Add(cbi);
 			}
 
-			modificatorDropDown.Items.Clear();
-			modificatorDropDown.ItemsSource = dropDownItems;
+			foreach (var ff in ExportUtility.supportedFormats)
+			{
+				var toggle = new CheckBox()
+				{
+					Content = ff.Identifier,
+					Tag = ff,
+				};
+				toggle.Checked += OnExportFormatChecked;
+				toggle.Unchecked += OnExportFormatUnchecked;
+				exportFormatToggleList.Children.Add(toggle);
+			}
+
+			UpdateModificationStack();
+		}
+
+		internal void UpdateModificationStack()
+		{
+			ModificationStack.Children.Clear();
+			for (int i = 0; i < job.exportSettings.modificationChain.Count; i++)
+			{
+				var m = job.exportSettings.modificationChain[i];
+				stackEntries[m].StackIndex = i;
+				ModificationStack.Children.Add(stackEntries[m]);
+			}
+		}
+
+		internal void OnModifierAdded(Modifier mod)
+		{
+			var entry = new ModifierStackEntry(this, mod, job.exportSettings, job.exportSettings.modificationChain.Count - 1);
+			stackEntries.Add(mod, entry);
+			ModificationStack.Children.Add(entry);
+		}
+
+		internal void OnModifierRemoved(ModifierStackEntry entry)
+		{
+			job.exportSettings.modificationChain.Remove(entry.mod);
+			stackEntries.Remove(entry.mod);
+			ModificationStack.Children.Remove(entry);
 		}
 
 		private void OnAddFile(object sender, RoutedEventArgs e)
@@ -91,8 +109,8 @@ namespace HMConApp
 			if (dialog.ShowDialog() == true)
 			{
 				string path = dialog.FileName;
-				formats.Add(new FileFormat(Path.GetExtension(path), "x", Path.GetExtension(path), path, (HMConExportHandler)null));
-				InputList.SelectedIndex = formats.Count - 1;
+				job.InputFileList.Add(path);
+				InputList.SelectedIndex = job.InputFileList.Count - 1;
 			}
 		}
 
@@ -100,7 +118,7 @@ namespace HMConApp
 		{
 			if (InputList.SelectedIndex >= 0)
 			{
-				formats.RemoveAt(InputList.SelectedIndex);
+				job.InputFileList.RemoveAt(InputList.SelectedIndex);
 			}
 		}
 
@@ -119,49 +137,45 @@ namespace HMConApp
 				i--;
 				ConsoleOutput.WriteLine("You selected " + modificatorDropDown.Items[i]);
 				var m = supportedModifiers[i].CreateModifier();
+				m.sourceCommand = supportedModifiers[i];
 				job.exportSettings.AddModifierToChain(m, false);
-				AddModifierComposite(m);
+				OnModifierAdded(m);
+				//AddModifierComposite(m);
 			}
 			modificatorDropDown.SelectedIndex = 0;
 		}
 
-		void AddModifierComposite(Modifier mod)
+		private void OnExportFormatChecked(object sender, RoutedEventArgs args)
 		{
-			var type = mod.GetType();
-			var group = new GroupBox()
-			{
-				Header = mod.GetType().Name
-			};
-			StackPanel stack = new StackPanel();
-			group.Content = stack;
-			foreach (var fi in GetExposedFields(type))
-			{
-				UIElement elem;
-				//if(fi.FieldType == typeof(int))
-				//{
-				elem = new TextBox()
-				{
-					Text = fi.GetValue(mod).ToString()
-				};
-				//}
-				stack.Children.Add(elem);
-			}
-			ModificationStack.Children.Add(group);
+			var ff = (FileFormat)((CheckBox)sender).Tag;
+			job.exportSettings.outputFormats.Add(ff);
 		}
 
-		FieldInfo[] GetExposedFields(Type t)
+		private void OnExportFormatUnchecked(object sender, RoutedEventArgs args)
 		{
-			List<FieldInfo> exposed = new List<FieldInfo>();
-			var fields = t.GetFields();
-			foreach (var f in fields)
+			var ff = (FileFormat)((CheckBox)sender).Tag;
+			for (int i = 0; i < job.exportSettings.outputFormats.Count; i++)
 			{
-				var attr = f.GetCustomAttribute<DrawInInspectorAttribute>();
-				if (attr != null)
+				if (job.exportSettings.outputFormats[i].IsFormat(ff.Identifier))
 				{
-					exposed.Add(f);
+					job.exportSettings.outputFormats.RemoveAt(i);
+					return;
 				}
 			}
-			return exposed.ToArray();
+		}
+
+		private void OnExportClick(object sender, RoutedEventArgs e)
+		{
+
+			if (Directory.Exists(Path.GetDirectoryName(outputPathBox.Text)))
+			{
+				job.outputPath = outputPathBox.Text;
+				job.ExportAll();
+			}
+			else
+			{
+				MessageBox.Show($"Directory does not exist!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+			}
 		}
 	}
 }

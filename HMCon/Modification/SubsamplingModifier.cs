@@ -9,7 +9,8 @@ namespace HMCon.Modification {
 		[DrawInInspector("Subsample amount")]
 		public int subsampleAmount;
 
-		public SubsamplingModifier(int subsample) {
+		public SubsamplingModifier(int subsample)
+		{
 			subsampleAmount = subsample;
 		}
 

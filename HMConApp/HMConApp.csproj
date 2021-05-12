@@ -37,6 +37,10 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Drawing.Common, Version=4.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Drawing.Common.4.7.0\lib\net461\System.Drawing.Common.dll</HintPath>
+    </Reference>
     <Reference Include="System.Numerics" />
     <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
@@ -59,6 +63,25 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\InspectorField.xaml.cs">
+      <DependentUpon>InspectorField.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ModifierStackEntry.xaml.cs">
+      <DependentUpon>ModifierStackEntry.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Page Include="Controls\InspectorField.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ModifierStackEntry.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -91,6 +114,10 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -101,7 +128,37 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\HMCon3DPlugin\HMCon3DPlugin.csproj">
+      <Project>{d0eb9482-24f4-4c96-9fc9-420202ca0ffa}</Project>
+      <Name>HMCon3DPlugin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\HMConImagePlugin\HMConImagePlugin.csproj">
+      <Project>{3c1d45b7-b92c-4c8e-946a-5ba0ba810b95}</Project>
+      <Name>HMConImagePlugin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\HMConMCPlugin\HMConMCPlugin.csproj">
+      <Project>{36d6c43f-3823-414d-9ad8-5bafa4874032}</Project>
+      <Name>HMConMCPlugin</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HMCon\HMCon.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\icon_delete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\icon_add.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\icon_down.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\icon_up.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\icon_reset.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\icon_info.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

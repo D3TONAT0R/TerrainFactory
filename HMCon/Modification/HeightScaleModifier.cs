@@ -15,7 +15,8 @@ namespace HMCon.Modification {
 
 		}
 
-		public HeightScaleModifier(float pivot, float scale) {
+		public HeightScaleModifier(float pivot, float scale)
+		{
 			scalePivot = pivot;
 			scaleMultiplier = scale;
 		}

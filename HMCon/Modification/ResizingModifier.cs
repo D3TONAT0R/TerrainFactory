@@ -11,7 +11,8 @@ namespace HMCon.Modification {
 		[DrawInInspector("Adjust height")]
 		public bool adjustHeight;
 
-		public ResizingModifier(int newDimX, bool scaleHeight) {
+		public ResizingModifier(int newDimX, bool scaleHeight)
+		{
 			newWidth = newDimX;
 			adjustHeight = scaleHeight;
 		}

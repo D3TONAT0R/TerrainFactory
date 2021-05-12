@@ -1,0 +1,17 @@
+﻿<UserControl x:Name="userControl" x:Class="HMConApp.Controls.InspectorField"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:HMConApp.Controls"
+             mc:Ignorable="d" d:DesignWidth="251.048" Height="20">
+    <Grid Margin="0" VerticalAlignment="Center">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <TextBlock x:Name="label" Text="{Binding Label, ElementName=userControl, FallbackValue=Label}" VerticalAlignment="Top" Margin="0,1"/>
+        <TextBox x:Name="valueBox" TextWrapping="Wrap" Text="{Binding BindingTarget, ElementName=userControl, FallbackValue=Value, Mode=TwoWay}" VerticalAlignment="Top" Grid.Column="1"/>
+
+    </Grid>
+</UserControl>

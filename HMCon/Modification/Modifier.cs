@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HMCon.Util;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -7,8 +8,12 @@ namespace HMCon.Modification {
 
 		public Modifier()
 		{
-
+			
 		}
+
+		public ModificationCommand sourceCommand;
+
+		public virtual string Name => GetType().Name;
 
 		protected abstract void ModifyData(HeightData data);
 
@@ -21,6 +26,22 @@ namespace HMCon.Modification {
 		public virtual object Clone()
 		{
 			return MemberwiseClone();
+		}
+
+		public string VerboseOutput()
+		{
+			StringBuilder sb = new StringBuilder();
+			foreach(var t in GetType().GetFields())
+			{
+				var attr = t.GetCustomAttributes(typeof(DrawInInspectorAttribute), true);
+				if (attr.Length > 0)
+				{
+					var a = (DrawInInspectorAttribute)attr[0];
+					if (sb.Length > 0) sb.Append(", ");
+					sb.Append(a.label+"="+t.GetValue(this));
+				}
+			}
+			return sb.ToString();
 		}
 	}
 }

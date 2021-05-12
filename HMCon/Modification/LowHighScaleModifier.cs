@@ -14,7 +14,8 @@ namespace HMCon.Modification {
 		public float? srcLow;
 		public float? srcHigh;
 
-		public LowHighScaleModifier(float? sourceLow, float? sourceHigh, float targetLow, float targetHigh) {
+		public LowHighScaleModifier(float? sourceLow, float? sourceHigh, float targetLow, float targetHigh)
+		{
 			srcLow = sourceLow;
 			srcHigh = sourceHigh;
 			newLow = targetLow;

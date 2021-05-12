@@ -9,7 +9,8 @@ namespace HMCon.Modification {
 		[DrawInInspector("New cell size")]
 		public float newCellSize;
 
-		public CellSizeModifier(float newSize) {
+		public CellSizeModifier(float newSize)
+		{
 			newCellSize = newSize;
 		}
 

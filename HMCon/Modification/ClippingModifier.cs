@@ -11,7 +11,8 @@ namespace HMCon.Modification {
 		[DrawInInspector("Maximum")]
 		public float maximum;
 
-		public ClippingModifier(float min, float max) {
+		public ClippingModifier(float min, float max)
+		{
 			minimum = min;
 			maximum = max;
 		}

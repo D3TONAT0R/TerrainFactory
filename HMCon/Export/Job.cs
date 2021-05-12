@@ -51,13 +51,13 @@ namespace HMCon.Export {
 					if(d != null) {
 						//CurrentExportJobInfo.importedFilePath = f;
 						CurrentData = d;
-						FileImported(CurrentFileIndex, f);
+						if(FileImported != null) FileImported(CurrentFileIndex, f);
 						return d;
 					} else {
 						throw new IOException("Unsupported file type: " + ext);
 					}
 				} catch(Exception e) {
-					FileImportFailed(CurrentFileIndex, f, e);
+					if (FileImportFailed != null) FileImportFailed(CurrentFileIndex, f, e);
 					return null;
 				}
 			} else {
@@ -111,7 +111,7 @@ namespace HMCon.Export {
 			} else {
 				ExportFile(CurrentData, outputPath);
 			}
-			ExportCompleted();
+			if(ExportCompleted != null) ExportCompleted();
 		}
 
 		void ExportFile(HeightData data, string outPath) {
@@ -145,9 +145,9 @@ namespace HMCon.Export {
 				} else {
 					throw new IOException($"Directory '{dir}' does not exist!");
 				}
-				FileExported(CurrentFileIndex, outputPath);
+				if(FileExported != null) FileExported(CurrentFileIndex, outputPath);
 			} catch(Exception e) {
-				FileExportFailed(CurrentFileIndex, outputPath, e);
+				if (FileExportFailed != null) FileExportFailed(CurrentFileIndex, outputPath, e);
 			}
 		}
 
