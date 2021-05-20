@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy &quot;$(ProjectDir)$(OutDir)$(ProjectName)$(TargetExt)&quot; &quot;$(SolutionDir)HMConApp\bin\$(ConfigurationName)\$(ProjectName)$(TargetExt)&quot;" />
+    <Exec Command="copy &quot;$(ProjectDir)$(OutDir)$(ProjectName)$(TargetExt)&quot; &quot;$(SolutionDir)HMConApp\bin\$(ConfigurationName)\$(ProjectName)$(TargetExt)&quot;&#xD;&#xA;copy &quot;$(ProjectDir)$(OutDir)$(ProjectName)$(TargetExt)&quot; &quot;$(SolutionDir)HMConConsole\bin\$(ConfigurationName)\netcoreapp3.1\(ProjectName)$(TargetExt)&quot;" />
   </Target>
 
 </Project>

@@ -6,19 +6,19 @@ public static class SplatmapImporter {
 
 	public static Random random = new Random();
 
-	public static byte[,] GetFixedSplatmap(string path, SplatmapMapping[] mappings, int ditherLimit, int offsetX, int offsetZ, int sizeX, int sizeZ) {
+	public static byte[,] GetFixedSplatmap(string path, Color[] mappings, int ditherLimit, int offsetX, int offsetZ, int sizeX, int sizeZ) {
 		var splat = GetBitmap(path);
 		byte[,] map = new byte[sizeX, sizeZ];
 		for(int x = 0; x < sizeX; x++) {
 			for(int y = 0; y < sizeZ; y++) {
 				Color c = splat.GetPixel(offsetX + x, offsetZ + y);
-				SplatmapMapping mapping;
+				byte mapping;
 				if(ditherLimit > 1) {
 					mapping = GetDitheredMapping(c, mappings, ditherLimit);
 				} else {
 					mapping = GetClosestMapping(c, mappings);
 				}
-				map[x, y] = (byte)mapping.value;
+				map[x, y] = mapping;
 			}
 		}
 		return map;
@@ -29,31 +29,31 @@ public static class SplatmapImporter {
 		return new Bitmap(stream);
 	}
 
-	static SplatmapMapping GetClosestMapping(Color c, SplatmapMapping[] mappings) {
+	static byte GetClosestMapping(Color c, Color[] mappings) {
 		int[] deviations = new int[mappings.Length];
 		for(int i = 0; i < mappings.Length; i++) {
-			deviations[i] += Math.Abs(c.R - mappings[i].color.R);
-			deviations[i] += Math.Abs(c.G - mappings[i].color.G);
-			deviations[i] += Math.Abs(c.B - mappings[i].color.B);
+			deviations[i] += Math.Abs(c.R - mappings[i].R);
+			deviations[i] += Math.Abs(c.G - mappings[i].G);
+			deviations[i] += Math.Abs(c.B - mappings[i].B);
 		}
-		int index = -1;
+		byte index = 255;
 		int closest = 999;
-		for(int i = 0; i < mappings.Length; i++) {
+		for(byte i = 0; i < mappings.Length; i++) {
 			if(deviations[i] < closest) {
 				index = i;
 				closest = deviations[i];
 			}
 		}
-		return mappings[index];
+		return index;
 	}
 
-	static SplatmapMapping GetDitheredMapping(Color c, SplatmapMapping[] mappings, int ditherLimit) {
+	static byte GetDitheredMapping(Color c, Color[] mappings, int ditherLimit) {
 		float[] probs = new float[mappings.Length];
 		for(int i = 0; i < mappings.Length; i++) {
 			int deviation = 0;
-			deviation += Math.Abs(c.R - mappings[i].color.R);
-			deviation += Math.Abs(c.G - mappings[i].color.G);
-			deviation += Math.Abs(c.B - mappings[i].color.B);
+			deviation += Math.Abs(c.R - mappings[i].R);
+			deviation += Math.Abs(c.G - mappings[i].G);
+			deviation += Math.Abs(c.B - mappings[i].B);
 			if(deviation >= ditherLimit) {
 				probs[i] = 0;
 			} else {
@@ -64,10 +64,10 @@ public static class SplatmapImporter {
 		foreach(float p in probs) max += p;
 		double d = random.NextDouble() * max;
 		double v = 0;
-		for(int i = 0; i < probs.Length; i++) {
+		for(byte i = 0; i < probs.Length; i++) {
 			v += probs[i];
-			if(d < v) return mappings[i];
+			if(d < v) return i;
 		}
-		return mappings[0];
+		return 255;
 	}
 }

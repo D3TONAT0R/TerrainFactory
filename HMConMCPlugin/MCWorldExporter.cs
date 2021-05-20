@@ -3,7 +3,6 @@ using HMCon;
 using HMCon.Export;
 using HMCon.Util;
 using HMConImage;
-using HMConMC.MinecraftTerrainPostProcessors;
 using HMConMC.PostProcessors;
 using HMConMCPlugin;
 using Ionic.Zlib;
@@ -105,30 +104,43 @@ namespace HMConMC {
 			//Sort the postProcessors by priority
 			postProcessors = postProcessors.OrderBy(post => post.OrderPriority).ToList();
 
-			int i = 0;
+			int processorIndex = 0;
 			foreach(var post in postProcessors) {
 				string name = post.GetType().Name;
 				if(post.PostProcessorType == PostProcessType.Block || post.PostProcessorType == PostProcessType.Both) {
 					//Iterate the postprocessors over every block
-					for(int x = 0; x < heightmapLengthX; x++) {
-						for(int z = 0; z < heightmapLengthZ; z++) {
-							for(int y = post.BlockProcessYMin; y <= Math.Min(heightmap[x, z], post.BlockProcessYMax); y++) {
-								post.ProcessBlock(world, x, y, z);
+					for (int pass = 0; pass < post.NumberOfPasses; pass++)
+					{
+						for (int x = 0; x < heightmapLengthX; x++)
+						{
+							for (int z = 0; z < heightmapLengthZ; z++)
+							{
+								for (int y = post.BlockProcessYMin; y <= Math.Min(heightmap[x, z], post.BlockProcessYMax); y++)
+								{
+									post.ProcessBlock(world, x, y, z, pass);
+								}
 							}
+							//TODO: Account for multiple passes
+							if ((x + 1) % 8 == 0) ConsoleOutput.WriteProgress($"{processorIndex + 1}/{postProcessors.Count} Decorating terrain [{name}]", (x + 1) / (float)heightmapLengthX);
 						}
-						if((x + 1) % 8 == 0) ConsoleOutput.WriteProgress($"{i + 1}/{postProcessors.Count} Decorating terrain [{name}]", (x + 1) / (float)heightmapLengthX);
 					}
 				}
 				if(post.PostProcessorType == PostProcessType.Surface || post.PostProcessorType == PostProcessType.Both) {
 					//Iterate the postprocessors over every surface block
-					for(int x = 0; x < heightmapLengthX; x++) {
-						for(int z = 0; z < heightmapLengthZ; z++) {
-							post.ProcessSurface(world, x, heightmap[x, z], z);
+					for (int pass = 0; pass < post.NumberOfPasses; pass++)
+					{
+						for (int x = 0; x < heightmapLengthX; x++)
+						{
+							for (int z = 0; z < heightmapLengthZ; z++)
+							{
+								post.ProcessSurface(world, x, heightmap[x, z], z, pass);
+							}
+							//TODO: Account for multiple passes
+							if ((x + 1) % 8 == 0) ConsoleOutput.WriteProgress($"{processorIndex + 1}/{postProcessors.Count} Decorating surface [{name}]", (x + 1) / (float)heightmapLengthX);
 						}
-						if((x + 1) % 8 == 0) ConsoleOutput.WriteProgress($"{i + 1}/{postProcessors.Count} Decorating surface [{name}]", (x + 1) / (float)heightmapLengthX);
 					}
 				}
-				i++;
+				processorIndex++;
 			}
 			foreach(var post in postProcessors) {
 				post.OnFinish(world);
@@ -148,7 +160,13 @@ namespace HMConMC {
 				Directory.CreateDirectory(path);
 				var mapPath = Path.Combine(path, "overviewmap.png");
 				using(var mapStream = new FileStream(mapPath, FileMode.Create)) {
-					var mapExporter = new OverviewmapExporter(this);
+					var mapExporter = new OverviewmapExporter(this, true);
+					mapExporter.WriteFile(mapStream, mapPath, null);
+				}
+				mapPath = Path.Combine(path, "overviewmap_no-water.png");
+				using (var mapStream = new FileStream(mapPath, FileMode.Create))
+				{
+					var mapExporter = new OverviewmapExporter(this, true, HeightmapType.SolidBlocksNoLiquid);
 					mapExporter.WriteFile(mapStream, mapPath, null);
 				}
 				world.WriteWorldSave(path);

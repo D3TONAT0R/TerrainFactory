@@ -16,7 +16,8 @@ namespace HMConMC.PostProcessors {
 			random = new Random();
 		}
 
-		public override void ProcessSurface(MCUtils.World world, int x, int y, int z) {
+		public override void ProcessSurface(MCUtils.World world, int x, int y, int z, int pass)
+		{
 			if(random.NextDouble() <= chance && world.IsAir(x, y + 1, z)) world.SetBlock(x, y + 1, z, "minecraft:torch");
 		}
 	}

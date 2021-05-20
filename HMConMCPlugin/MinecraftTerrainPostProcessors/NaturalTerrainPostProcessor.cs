@@ -12,7 +12,8 @@ namespace HMConMC.PostProcessors {
 			waterLevel = fillWithWater ? 63 : -1;
 		}
 
-		public override void ProcessBlock(MCUtils.World world, int x, int y, int z) {
+		public override void ProcessBlock(MCUtils.World world, int x, int y, int z, int pass)
+		{
 			//Make flat bedrock
 			if(y == 0) {
 				if(world.IsDefaultBlock(x, 0, z)) world.SetBlock(x, 0, z, "minecraft:bedrock");
@@ -23,7 +24,8 @@ namespace HMConMC.PostProcessors {
 			}
 		}
 
-		public override void ProcessSurface(MCUtils.World world, int x, int y, int z) {
+		public override void ProcessSurface(MCUtils.World world, int x, int y, int z, int pass)
+		{
 			//Place grass on top & 3 layers of dirt below
 			if(y > waterLevel + 1) {
 				world.SetBlock(x, y, z, "minecraft:grass_block");

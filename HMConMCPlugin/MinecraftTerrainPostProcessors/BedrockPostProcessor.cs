@@ -18,7 +18,8 @@ namespace HMConMC.PostProcessors {
 			random = new Random();
 		}
 
-		public override void ProcessBlock(MCUtils.World world, int x, int y, int z) {
+		public override void ProcessBlock(MCUtils.World world, int x, int y, int z, int pass)
+		{
 			if(random.NextDouble() < 1f - y / 4f && !world.IsAir(x,y,z)) world.SetBlock(x, 0, z, "minecraft:bedrock");
 		}
 	}

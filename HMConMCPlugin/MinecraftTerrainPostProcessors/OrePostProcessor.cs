@@ -41,7 +41,8 @@ namespace HMConMC.PostProcessors {
 		public override int BlockProcessYMin => 1;
 		public override int BlockProcessYMax => 128;
 
-		public override void ProcessBlock(MCUtils.World world, int x, int y, int z) {
+		public override void ProcessBlock(MCUtils.World world, int x, int y, int z, int pass)
+		{
 			foreach(Ore o in ores) {
 				if(random.NextDouble() * rarityMul < o.spawnsPerBlock) SpawnOre(world, o, x, y, z);
 			}

@@ -4,8 +4,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.29911.84
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HMCon", "HMCon\HMCon.csproj", "{3C740C15-A473-4A2F-8D44-AE3065FA179D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5188A3B9-2565-4485-8EB5-83F05186DF9B} = {5188A3B9-2565-4485-8EB5-83F05186DF9B}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HMConMCPlugin", "HMConMCPlugin\HMConMCPlugin.csproj", "{36D6C43F-3823-414D-9AD8-5BAFA4874032}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5188A3B9-2565-4485-8EB5-83F05186DF9B} = {5188A3B9-2565-4485-8EB5-83F05186DF9B}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MCUtils", "..\MCUtils\MCUtils.csproj", "{E12B8D5D-F841-4092-80BC-E0106FF8740D}"
 EndProject
@@ -32,6 +38,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HMConApp", "HMConApp\HMConA
 		{D0EB9482-24F4-4C96-9FC9-420202CA0FFA} = {D0EB9482-24F4-4C96-9FC9-420202CA0FFA}
 		{3C1D45B7-B92C-4C8E-946A-5BA0BA810B95} = {3C1D45B7-B92C-4C8E-946A-5BA0BA810B95}
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NoiseGenerator", "..\NoiseGenerator\NoiseGenerator.csproj", "{5188A3B9-2565-4485-8EB5-83F05186DF9B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -71,6 +79,10 @@ Global
 		{BCAD3233-2D20-4055-8C92-FF867EEA363B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BCAD3233-2D20-4055-8C92-FF867EEA363B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BCAD3233-2D20-4055-8C92-FF867EEA363B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5188A3B9-2565-4485-8EB5-83F05186DF9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5188A3B9-2565-4485-8EB5-83F05186DF9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5188A3B9-2565-4485-8EB5-83F05186DF9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5188A3B9-2565-4485-8EB5-83F05186DF9B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

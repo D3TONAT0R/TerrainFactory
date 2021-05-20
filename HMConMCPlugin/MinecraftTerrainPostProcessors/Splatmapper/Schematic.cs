@@ -1,9 +1,10 @@
 ﻿using MCUtils;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace HMConMC.PostProcessors {
-	public class Structure {
+	public class Schematic {
 
 		public byte[,,] structure;
 
@@ -23,7 +24,62 @@ namespace HMConMC.PostProcessors {
 		public byte trunkHeightMin;
 		public byte trunkHeightMax;
 
-		public bool Generate(MCUtils.World world, int x, int y, int z, Random r) {
+		public Schematic(string filepath)
+		{
+			string[] lns = File.ReadAllLines(filepath);
+			bool inArray = false;
+			int dimX = 0;
+			int dimY = 0;
+			int dimZ = 0;
+			byte[,,] arr = null;
+			int y = 0;
+			int z = 0;
+			Dictionary<byte, (string block, float prob)> blocks = new Dictionary<byte, (string block, float prob)>();
+			foreach (string ln in lns)
+			{
+				if (!inArray)
+				{
+					if (ln.StartsWith("ARRAY:"))
+					{
+						inArray = true;
+						arr = new byte[dimX, dimY, dimZ];
+						continue;
+					}
+					if (ln.StartsWith("trunk=")) trunkBlock = ln.Split('=')[1];
+					if (ln.StartsWith("trunk_min=")) trunkHeightMin = byte.Parse(ln.Split('=')[1]);
+					if (ln.StartsWith("trunk_max=")) trunkHeightMax = byte.Parse(ln.Split('=')[1]);
+					if (ln.StartsWith("dim_x=")) dimX = int.Parse(ln.Split('=')[1]);
+					if (ln.StartsWith("dim_y=")) dimY = int.Parse(ln.Split('=')[1]);
+					if (ln.StartsWith("dim_z=")) dimZ = int.Parse(ln.Split('=')[1]);
+					if (ln.StartsWith("block "))
+					{
+						string[] split = ln.Split(' ')[1].Split('=');
+						string[] bsplit = split[1].Split(',');
+						blocks.Add(byte.Parse(split[0]), (bsplit[0], float.Parse(bsplit[1])));
+					}
+				}
+				else
+				{
+					if (ln.StartsWith(";"))
+					{
+						z = 0;
+						y++;
+					}
+					else
+					{
+						string[] lnsplit = ln.Split(',');
+						for (int i = 0; i < dimX; i++)
+						{
+							arr[i, y, z] = byte.Parse(lnsplit[i]);
+						}
+						z++;
+					}
+				}
+			}
+			structure = arr;
+		}
+
+		public bool Build(MCUtils.World world, int x, int y, int z, Random r) {
 			byte h = (byte)r.Next(trunkHeightMin, trunkHeightMax);
 			if(IsObstructed(world, x, y + h, z)) {
 				return false;

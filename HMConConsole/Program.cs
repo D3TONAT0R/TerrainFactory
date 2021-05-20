@@ -13,9 +13,9 @@ namespace HMConApp {
 #if DEBUG
 		internal static int autoInputNum = 0;
 		internal static string[] autoInputs = new string[]{
-			"C:\\Users\\Yanic Gottardi\\Dropbox\\Iceland Replacement Project\\output\\heightmap.png",
-			"setrange 0 255",
+			"C:\\Users\\Yanic Gottardi\\Dropbox\\Iceland Replacement Project\\output\\heightmap.png -bytes",
 			"mcasplatmapper",
+			//"modify selection 512 512 1023 1023",
 			"format mcw",
 			"export",
 			"{user}\\Dropbox\\Iceland Replacement Project\\output\\world_export_test_{datetimeshort}"

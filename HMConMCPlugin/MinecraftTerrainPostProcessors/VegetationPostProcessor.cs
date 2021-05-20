@@ -55,7 +55,8 @@ namespace HMConMC.PostProcessors {
 			treesChance = treesAmount / 128f;
 		}
 
-		public override void ProcessSurface(MCUtils.World world, int x, int y, int z) {
+		public override void ProcessSurface(MCUtils.World world, int x, int y, int z, int pass)
+		{
 			//Place trees
 			if(random.NextDouble() <= treesChance) {
 				if(PlaceTree(world, x, y + 1, z)) {

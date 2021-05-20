@@ -27,11 +27,15 @@ namespace HMConMC.PostProcessors {
 		public virtual int BlockProcessYMin => 0;
 		public virtual int BlockProcessYMax => 255;
 
-		public virtual void ProcessBlock(MCUtils.World world, int x, int y, int z) {
+		public virtual int NumberOfPasses => 1;
+
+		public virtual void ProcessBlock(MCUtils.World world, int x, int y, int z, int pass)
+		{
 
 		}
 
-		public virtual void ProcessSurface(MCUtils.World world, int x, int y, int z) {
+		public virtual void ProcessSurface(MCUtils.World world, int x, int y, int z, int pass)
+		{
 
 		}
 

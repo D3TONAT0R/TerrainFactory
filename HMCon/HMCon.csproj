@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\MCUtils\MCUtils.csproj" />
+    <ProjectReference Include="..\..\NoiseGenerator\NoiseGenerator.csproj" />
   </ItemGroup>
 
 </Project>

@@ -19,7 +19,7 @@ namespace HMConMC {
 			if(job.format.IsFormat("MCR") || job.format.IsFormat("MCR-RAW")) {
 				return WriteFileMCA(job, !job.format.IsFormat("MCR-RAW"), job.settings.GetCustomSetting("mcaUseSplatmaps", false));
 			} else if(job.format.IsFormat("IMG_MCR")) {
-				ExportUtility.WriteFile(new OverviewmapExporter(job.data.filename), job.FilePath, job.format);
+				ExportUtility.WriteFile(new OverviewmapExporter(job.data.filename, true), job.FilePath, job.format);
 			} else if(job.format.IsFormat("MCW")) {
 				return WriteWorldSave(job, true, job.settings.GetCustomSetting("mcaUseSplatmaps", false));
 			}
