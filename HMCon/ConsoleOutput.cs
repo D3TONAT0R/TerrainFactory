@@ -26,8 +26,9 @@ namespace HMCon {
 						progressString = null;
 						Console.SetCursorPosition(0, Console.CursorTop);
 					}
-					Console.WriteLine(str);
+					Console.Write(str);
 					Console.ResetColor();
+					Console.WriteLine();
 				} catch {
 
 				}

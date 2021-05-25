@@ -37,7 +37,7 @@ namespace HMConMC.PostProcessors.Splatmapper
 			short start = Math.Max(waterSurfaceMap?[x, z] ?? (short)-1, waterLevel);
 			for (short y2 = start; y2 > y; y2--)
 			{
-				if (world.IsAir(x, y, z))
+				if (world.IsAir(x, y2, z))
 				{
 					world.SetBlock(x, y2, z, waterBlock);
 				}

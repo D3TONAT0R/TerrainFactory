@@ -8,6 +8,10 @@ namespace HMConMC.PostProcessors {
 
 		public byte[,,] structure;
 
+		public readonly int dimX = 0;
+		public readonly int dimY = 0;
+		public readonly int dimZ = 0;
+
 		public int structureSizeX {
 			get { return structure.GetLength(0); }
 		}
@@ -28,13 +32,9 @@ namespace HMConMC.PostProcessors {
 		{
 			string[] lns = File.ReadAllLines(filepath);
 			bool inArray = false;
-			int dimX = 0;
-			int dimY = 0;
-			int dimZ = 0;
 			byte[,,] arr = null;
 			int y = 0;
 			int z = 0;
-			Dictionary<byte, (string block, float prob)> blocks = new Dictionary<byte, (string block, float prob)>();
 			foreach (string ln in lns)
 			{
 				if (!inArray)

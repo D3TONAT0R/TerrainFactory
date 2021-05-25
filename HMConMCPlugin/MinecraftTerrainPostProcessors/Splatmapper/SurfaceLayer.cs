@@ -111,7 +111,7 @@ namespace HMConMC.PostProcessors
 				}
 				else
 				{
-					return world.SetBlock(x, y, z, block);
+					return world.SetBlock(x, y + 1, z, block);
 				}
 			}
 			else

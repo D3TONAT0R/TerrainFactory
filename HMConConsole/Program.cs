@@ -21,10 +21,10 @@ namespace HMConConsole
 			try
 			{
 				List<string> list = new List<string>();
-				foreach (var ln in Resources.autoinputs.Split('\n')) {
+				foreach (var ln in Resources.autoinputs.Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries)) {
 					if(!ln.StartsWith("//") && !ln.StartsWith("#"))
 					{
-						list.Add(ln);
+						list.Add(ln.Trim());
 					}
 				}
 				return list.ToArray();

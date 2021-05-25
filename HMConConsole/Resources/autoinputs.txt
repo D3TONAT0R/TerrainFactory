@@ -3,4 +3,4 @@ mcasplatmapper
 //modify selection 512 512 1023 1023
 format mcw
 export
-@{user}\Dropbox\Iceland Replacement Project\output\world_export_test_{datetimeshort}
+{user}\Dropbox\Iceland Replacement Project\output\world_export_test_{datetimeshort}
