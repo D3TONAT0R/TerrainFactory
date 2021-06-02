@@ -29,12 +29,17 @@ namespace HMConMC.PostProcessors {
 
 		public virtual int NumberOfPasses => 1;
 
-		public virtual void ProcessBlock(MCUtils.World world, int x, int y, int z, int pass)
+		public virtual void ProcessBlock(World world, int x, int y, int z, int pass)
 		{
 
 		}
 
-		public virtual void ProcessSurface(MCUtils.World world, int x, int y, int z, int pass)
+		public virtual void ProcessSurface(World world, int x, int y, int z, int pass)
+		{
+
+		}
+
+		public virtual void ProcessRegion(World world, Region reg, int rx, int rz, int pass)
 		{
 
 		}

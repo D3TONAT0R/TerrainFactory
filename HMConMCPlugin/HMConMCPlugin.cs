@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace HMConMC {
 
-	[PluginInfo("MinecraftPlugin", "Minecraft Region Exporter v0.9.4")]
+	[PluginInfo("MinecraftPlugin", "Minecraft Region Exporter v0.9.5")]
 	public class HMConMCPlugin : HMConPlugin {
 
 		public override HMConExportHandler GetExportHandler() {

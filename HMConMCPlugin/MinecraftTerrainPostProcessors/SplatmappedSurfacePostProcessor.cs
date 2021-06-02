@@ -24,7 +24,7 @@ namespace HMConMC.PostProcessors
 
 		public override int NumberOfPasses => generators.Count;
 
-		public SplatmappedSurfacePostProcessor(MCWorldExporter exporter, string importedFilePath, int ditherLimit, int offsetX, int offsetZ, int sizeX, int sizeZ)
+		public SplatmappedSurfacePostProcessor(string importedFilePath, int ditherLimit, int offsetX, int offsetZ, int sizeX, int sizeZ)
 		{
 			var xmlPath = Path.ChangeExtension(importedFilePath, null) + "-splat.xml";
 			LoadSettings(xmlPath, ditherLimit, offsetX, offsetZ, sizeX, sizeZ);
@@ -67,6 +67,11 @@ namespace HMConMC.PostProcessors
 			else if (splatXml.Name.LocalName == "water")
 			{
 				var gen = new WatermappedGenerator(splatXml, rootPath, offsetX, offsetZ, sizeX, sizeZ);
+				generators.Add(gen);
+			}
+			else if (splatXml.Name.LocalName == "merger")
+			{
+				var gen = new MaskedWorldMerger(splatXml, rootPath, offsetX, offsetZ, sizeX, sizeZ);
 				generators.Add(gen);
 			}
 			else if (splatXml.Name.LocalName == "include")
@@ -124,6 +129,12 @@ namespace HMConMC.PostProcessors
 		{
 			var gen = generators[pass];
 			gen.RunGenerator(world, x, y, z);
+		}
+
+		public override void ProcessRegion(World world, MCUtils.Region reg, int rx, int rz, int pass)
+		{
+			var gen = generators[pass];
+			gen.RunGeneratorForRegion(world, reg, rx, rz);
 		}
 	}
 }

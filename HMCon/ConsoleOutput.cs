@@ -71,22 +71,25 @@ namespace HMCon {
 #endif
 		}
 
+		static object locker = new object();
 		public static void WriteProgress(string str, float progress) {
-			if(consoleHandler != null) {
-				consoleHandler.DisplayProgressBar(str, progress);
-			} else if(GetConsoleWindow() != IntPtr.Zero) {
-				Console.CursorVisible = false;
-				int lastLength = 0;
-				if(progressString != null) {
-					lastLength = progressString.Length;
-					Console.SetCursorPosition(0, Console.CursorTop);
+			lock(locker) {
+				if (consoleHandler != null) {
+					consoleHandler.DisplayProgressBar(str, progress);
+				} else if (GetConsoleWindow() != IntPtr.Zero) {
+					Console.CursorVisible = false;
+					int lastLength = 0;
+					if (progressString != null) {
+						lastLength = progressString.Length;
+						Console.SetCursorPosition(0, Console.CursorTop);
+					}
+					progressString = str;
+					if (progress >= 0) progressString += " " + GetProgressBar(progress) + " " + (int)Math.Round(progress * 100) + "%";
+					if (lastLength > 0) progressString = progressString.PadRight(lastLength, ' ');
+					Console.ForegroundColor = ConsoleColor.DarkGray;
+					Console.Write(progressString);
+					Console.ResetColor();
 				}
-				progressString = str;
-				if(progress >= 0) progressString += " " + GetProgressBar(progress) + " " + (int)Math.Round(progress * 100) + "%";
-				if(lastLength > 0) progressString = progressString.PadRight(lastLength, ' ');
-				Console.ForegroundColor = ConsoleColor.DarkGray;
-				Console.Write(progressString);
-				Console.ResetColor();
 			}
 		}
 

@@ -60,8 +60,8 @@ namespace HMConMC.PostProcessors
 
 		public PerlinSurfaceLayerGenerator(IEnumerable<string> blockLayer, float scale, float threshold) : base(blockLayer)
 		{
-			scale /= 6f;
-			perlinGen = new PerlinGenerator(scale);
+			scale *= 6f;
+			perlinGen = new PerlinGenerator(1f/scale);
 			perlinThreshold = threshold;
 		}
 

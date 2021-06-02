@@ -21,6 +21,8 @@ namespace HMConMC.PostProcessors.Splatmapper
 
 		public SplatmappedGenerator(SplatmappedSurfacePostProcessor post, XElement xml, string rootPath, int ditherLimit, int offsetX, int offsetZ, int sizeX, int sizeZ)
 		{
+			worldOriginOffsetX = offsetX;
+			worldOriginOffsetZ = offsetZ;
 			postProcessor = post;
 			string mapFileName = Path.Combine(rootPath, xml.Attribute("file").Value);
 			foreach (var layer in xml.Elements("layer"))
@@ -53,7 +55,7 @@ namespace HMConMC.PostProcessors.Splatmapper
 				mappedColors[i] = layers[i].layerColor;
 			}
 
-			map = SplatmapImporter.GetFixedSplatmap(mapFileName, mappedColors, ditherLimit, offsetX, offsetZ, sizeX, sizeZ);
+			map = SplatmapImporter.GetFixedSplatmap(mapFileName, mappedColors, ditherLimit, 0, 0, sizeX, sizeZ);
 		}
 
 
@@ -78,7 +80,7 @@ namespace HMConMC.PostProcessors.Splatmapper
 
 		public override void RunGenerator(World w, int x, int y, int z)
 		{
-			byte i = map[x, z];
+			byte i = map[x - worldOriginOffsetX, z - worldOriginOffsetZ];
 			if (i < 255)
 			{
 				layers[i].RunGenerator(w, x, y, z);
