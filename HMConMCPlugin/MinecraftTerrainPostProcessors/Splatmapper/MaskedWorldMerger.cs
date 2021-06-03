@@ -34,7 +34,11 @@ namespace HMConMC.PostProcessors.Splatmapper
 		{
 			ConsoleOutput.WriteLine($"Starting merge for region [{rx},{rz}] ...");
 			int scale = chunkMode ? 32 : 512;
-			var fraction = mask.Clone(new Rectangle((rx - upperLeftCornerRegionX) * scale, (rz - upperLeftCornerRegionZ) * scale, scale, scale), mask.PixelFormat);
+			Bitmap fraction;
+			lock (mask)
+			{
+				fraction = mask.Clone(new Rectangle((rx - upperLeftCornerRegionX) * scale, (rz - upperLeftCornerRegionZ) * scale, scale, scale), mask.PixelFormat);
+			}
 			string otherRegionName = otherRegionPrefix + $"r.{rx}.{rz}.mca";
 			var filename = Path.Combine(otherRegionFolder, otherRegionName);
 			if (File.Exists(filename))

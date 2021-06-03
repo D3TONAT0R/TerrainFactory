@@ -15,6 +15,7 @@ namespace HMCon {
 #endif
 
 		public static void Initialize(string pluginPath) {
+			ConsoleOutput.Initialize();
 			ImportManager.RegisterHandler(new StandardImporter());
 			ExportUtility.RegisterHandler(new StandardExporter());
 			CommandHandler.commandHandlers.Add(new StandardCommands());

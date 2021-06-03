@@ -105,7 +105,8 @@ namespace HMConMC
 		private void MakeBaseTerrain()
 		{
 			int progress = 0;
-			Parallel.For(0, (int)Math.Ceiling(heightmapLengthX / 16f),
+			int iterations = (int)Math.Ceiling(heightmapLengthX / 16f);
+			Parallel.For(0, iterations,
 				delegate (int cx, ParallelLoopState s)
 				{
 					for (int bx = 0; bx < Math.Min(16, heightmapLengthX - cx * 16); bx++)
@@ -119,6 +120,8 @@ namespace HMConMC
 							}
 						}
 					}
+					progress++;
+					ConsoleOutput.UpdateProgressBar("Generating base terrain", progress / (float)iterations);
 				}
 			);
 		}
@@ -146,8 +149,7 @@ namespace HMConMC
 									post.ProcessBlock(world, x, y, z, pass);
 								}
 							}
-							//TODO: Account for multiple passes
-							if ((x + 1) % 8 == 0) ConsoleOutput.WriteProgress($"{processorIndex + 1}/{postProcessors.Count} Decorating terrain [{name}]", (x + 1) / (float)heightmapLengthX);
+							UpdateProgressBar(processorIndex, "Decorating terrain", name, (x + 1) / (float)heightmapLengthX, pass, post.NumberOfPasses);
 						}
 					}
 
@@ -160,17 +162,14 @@ namespace HMConMC
 							{
 								post.ProcessSurface(world, x + regionOffsetX * 512, heightmap[x, z], z + regionOffsetZ * 512, pass);
 							}
-							//TODO: Account for multiple passes
-							if ((x + 1) % 8 == 0) ConsoleOutput.WriteProgress($"{processorIndex + 1}/{postProcessors.Count} Decorating surface [{name}]", (x + 1) / (float)heightmapLengthX);
+							UpdateProgressBar(processorIndex, "Decorating surface", name, (x + 1) / (float)heightmapLengthX, pass, post.NumberOfPasses);
 						}
 					}
 
 					//Run every postprocessor once for every region (rarely used)
-					foreach (var reg in world.regions.Values)
-					{
+					Parallel.ForEach(world.regions.Values, (Region reg) => {
 						post.ProcessRegion(world, reg, reg.regionPosX, reg.regionPosZ, pass);
-					}
-
+					});
 				}
 				processorIndex++;
 			}
@@ -178,6 +177,13 @@ namespace HMConMC
 			{
 				post.OnFinish(world);
 			}
+		}
+
+		private void UpdateProgressBar(int index, string title, string name, float progress, int currentPass, int numPasses)
+		{
+			string passInfo = numPasses > 1 ? $" Pass {currentPass}/{numPasses}" : "";
+			float progressWithPasses = (currentPass + progress) / numPasses;
+			ConsoleOutput.UpdateProgressBar($"{index + 1}/{postProcessors.Count} {title} [{name}{passInfo}]", progressWithPasses);
 		}
 
 		private void MakeBiomeArray()

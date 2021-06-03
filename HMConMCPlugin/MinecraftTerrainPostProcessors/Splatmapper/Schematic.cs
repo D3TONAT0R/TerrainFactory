@@ -89,7 +89,7 @@ namespace HMConMC.PostProcessors
 					for (int x = x1; x < x2; x++)
 					{
 						if (schematic[sx, sy, sz] == 0) continue; //Do not check this block if the result is nothing anyway
-						if (!world.IsAir(x, y, z) || !world.IsWithinBoundaries(x, y, z)) return true;
+						if (!world.IsAir(x, y, z) || world.TryGetRegion(x,z) == null) return true;
 						sx++;
 					}
 					sz++;

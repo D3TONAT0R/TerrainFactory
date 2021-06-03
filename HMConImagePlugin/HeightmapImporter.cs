@@ -12,6 +12,8 @@ using System.Text;
 namespace HMConImage {
 	public class HeightmapImporter : HMConImportHandler {
 
+		const string progString = "Importing heightmap";
+
 		public enum ColorChannel {
 			Red,
 			Green,
@@ -46,10 +48,11 @@ namespace HMConImage {
 		}
 
 		public HeightData ImportHeightmap(string filepath, float low, float high, ColorChannel channel = ColorChannel.CombinedBrightness) {
+			ConsoleOutput.UpdateProgressBar(progString, 0);
 			FileStream stream = File.Open(filepath, FileMode.Open);
 			var image = new Bitmap(stream);
+			ConsoleOutput.UpdateProgressBar(progString, 0.5f);
 			HeightData data = new HeightData(image.Width, image.Height, filepath);
-			ConsoleOutput.WriteLine(image.Width + "x" + image.Height);
 			data.cellSize = 1;
 			data.nodata_value = -9999;
 			for(int x = 0; x < image.Width; x++) {
@@ -57,6 +60,7 @@ namespace HMConImage {
 					Color c = image.GetPixel(x, image.Height - y - 1);
 					data.SetHeight(x, y, GetValue(c, channel));
 				}
+				ConsoleOutput.UpdateProgressBar(progString, 0.5f+((x+1)/image.Width)*0.5f);
 			}
 			data.RecalculateValues(false);
 			data.lowPoint = low;
@@ -68,10 +72,11 @@ namespace HMConImage {
 		}
 
 		public HeightData ImportHeightmap256(string filepath, ColorChannel channel = ColorChannel.CombinedBrightness) {
+			ConsoleOutput.UpdateProgressBar(progString, 0);
 			FileStream stream = File.Open(filepath, FileMode.Open);
 			var image = new Bitmap(stream);
+			ConsoleOutput.UpdateProgressBar(progString, 0.5f);
 			HeightData data = new HeightData(image.Width, image.Height, filepath);
-			ConsoleOutput.WriteLine(image.Width + "x" + image.Height);
 			data.cellSize = 1;
 			data.nodata_value = -9999;
 			for(int x = 0; x < image.Width; x++) {
@@ -79,6 +84,7 @@ namespace HMConImage {
 					Color c = image.GetPixel(x, image.Height - y - 1);
 					data.SetHeight(x, y, GetValueRaw(c, channel));
 				}
+				ConsoleOutput.UpdateProgressBar(progString, 0.5f + ((x + 1) / image.Width) * 0.5f);
 			}
 			data.RecalculateValues(false);
 			data.lowPoint = 0;

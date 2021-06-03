@@ -79,9 +79,9 @@ namespace HMCon.Export {
 			if(CurrentData == null) {
 				throw new NullReferenceException("CurrentData is null");
 			}
-			WriteProgress($"Applying {exportSettings.modificationChain.Count} modifiers...", -1);
+			UpdateProgressBar($"Applying {exportSettings.modificationChain.Count} modifiers...", -1);
 			CurrentData = ApplyModificationChain(CurrentData);
-			WriteProgress("", -1);
+			UpdateProgressBar("", -1);
 		}
 
 		public void ExportAll() {
@@ -134,7 +134,13 @@ namespace HMCon.Export {
 
 								WriteLine($"Creating file {fullpath} ...");
 								try {
+									var startTime = DateTime.Now;
 									exportJob.Export();
+									var span = DateTime.Now - startTime;
+									if(span.TotalSeconds > 5)
+									{
+										WriteLine($"Time: {span.TotalSeconds:F2}");
+									}
 									WriteSuccess($"{format.Identifier} file created successfully!");
 								} catch(Exception e) {
 									throw new IOException($"Failed to write {format.Identifier} file!", e);

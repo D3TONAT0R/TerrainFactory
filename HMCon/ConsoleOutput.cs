@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Timers;
 
 namespace HMCon {
 	public static class ConsoleOutput {
@@ -9,11 +10,25 @@ namespace HMCon {
 		public static IConsoleHandler consoleHandler;
 		public static bool debugLogging = false;
 
-		static string progressString = null;
-
+		static string progressString;
+		static float progressValue;
+		static string newProgressString;
+		static int progressBarUpdateTick;
+		static int lastProgressBarUpdateTick = -1;
 
 		[System.Runtime.InteropServices.DllImport("kernel32.dll")]
 		static extern IntPtr GetConsoleWindow();
+
+		static Timer progressBarUpdateTimer;
+
+		internal static void Initialize()
+		{
+			if (GetConsoleWindow() != null) {
+				progressBarUpdateTimer = new Timer(250);
+				progressBarUpdateTimer.Elapsed += OnProgressBarUpdate;
+				progressBarUpdateTimer.Start();
+			}
+		}
 
 		static void WriteConsoleLine(string str) {
 			if(consoleHandler != null) {
@@ -24,6 +39,7 @@ namespace HMCon {
 					if(progressString != null) {
 						WriteProgress("", -1);
 						progressString = null;
+						lastProgressBarUpdateTick = -1;
 						Console.SetCursorPosition(0, Console.CursorTop);
 					}
 					Console.Write(str);
@@ -72,7 +88,30 @@ namespace HMCon {
 		}
 
 		static object locker = new object();
-		public static void WriteProgress(string str, float progress) {
+
+		static void OnProgressBarUpdate(object sender, ElapsedEventArgs e)
+		{
+			if(progressBarUpdateTick == lastProgressBarUpdateTick)
+			{
+				WriteProgress(progressString, progressValue);
+			}
+			progressBarUpdateTick++;
+		}
+
+		public static void UpdateProgressBar(string str, float progress)
+		{
+			progressString = str;
+			progressValue = progress;
+			lastProgressBarUpdateTick = progressBarUpdateTick;
+		}
+
+		public static void ClearProgressBar()
+		{
+			progressString = null;
+			progressValue = -1;
+		}
+
+		private static void WriteProgress(string str, float progress) {
 			lock(locker) {
 				if (consoleHandler != null) {
 					consoleHandler.DisplayProgressBar(str, progress);
