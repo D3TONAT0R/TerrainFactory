@@ -10,6 +10,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\HMCon3DPlugin\HMCon3DPlugin.csproj" />
+    <ProjectReference Include="..\HMConImagePlugin\HMConImagePlugin.csproj" />
+    <ProjectReference Include="..\HMConMCPlugin\HMConMCPlugin.csproj" />
     <ProjectReference Include="..\HMCon\HMCon.csproj" />
   </ItemGroup>
 
