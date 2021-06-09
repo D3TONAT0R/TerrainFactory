@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.Text;
 using System.Timers;
 
-namespace HMCon {
-	public static class ConsoleOutput {
+namespace HMCon
+{
+	public static class ConsoleOutput
+	{
 
 		public static IConsoleHandler consoleHandler;
 		public static bool debugLogging = false;
@@ -23,20 +25,27 @@ namespace HMCon {
 
 		internal static void Initialize()
 		{
-			if (GetConsoleWindow() != null) {
+			if (GetConsoleWindow() != null)
+			{
 				progressBarUpdateTimer = new Timer(250);
 				progressBarUpdateTimer.Elapsed += OnProgressBarUpdate;
 				progressBarUpdateTimer.Start();
 			}
 		}
 
-		static void WriteConsoleLine(string str) {
-			if(consoleHandler != null) {
+		static void WriteConsoleLine(string str)
+		{
+			if (consoleHandler != null)
+			{
 				consoleHandler.WriteLine(str);
-			} else if(GetConsoleWindow() != IntPtr.Zero) {
-				try {
+			}
+			else if (GetConsoleWindow() != IntPtr.Zero)
+			{
+				try
+				{
 					Console.CursorVisible = false;
-					if(progressString != null) {
+					if (progressString != null)
+					{
 						WriteProgress("", -1);
 						progressString = null;
 						lastProgressBarUpdateTick = -1;
@@ -45,41 +54,50 @@ namespace HMCon {
 					Console.Write(str);
 					Console.ResetColor();
 					Console.WriteLine();
-				} catch {
+				}
+				catch
+				{
 
 				}
 			}
 		}
 
-		public static void WriteLine(string str) {
+		public static void WriteLine(string str)
+		{
 			WriteConsoleLine(str);
 		}
 
-		public static void WriteSuccess(string str) {
+		public static void WriteSuccess(string str)
+		{
 			Console.ForegroundColor = ConsoleColor.Green;
 			WriteConsoleLine(str);
 		}
 
-		public static void WriteLineSpecial(string str) {
+		public static void WriteLineSpecial(string str)
+		{
 			Console.ForegroundColor = ConsoleColor.Cyan;
 			WriteConsoleLine(str);
 		}
 
-		public static void WriteAutoTask(string str) {
+		public static void WriteAutoTask(string str)
+		{
 			Console.BackgroundColor = ConsoleColor.DarkBlue;
 			WriteConsoleLine(str);
 		}
 
-		public static void WriteLine(string str, params Object[] args) {
+		public static void WriteLine(string str, params Object[] args)
+		{
 			Console.WriteLine(str, args);
 		}
 
-		public static void WriteWarning(string str) {
+		public static void WriteWarning(string str)
+		{
 			Console.ForegroundColor = ConsoleColor.DarkYellow;
 			WriteConsoleLine(str);
 		}
 
-		public static void WriteError(string str) {
+		public static void WriteError(string str)
+		{
 			Console.ForegroundColor = ConsoleColor.DarkRed;
 			WriteConsoleLine(str);
 #if DEBUG
@@ -91,7 +109,7 @@ namespace HMCon {
 
 		static void OnProgressBarUpdate(object sender, ElapsedEventArgs e)
 		{
-			if(progressBarUpdateTick == lastProgressBarUpdateTick)
+			if (progressBarUpdateTick == lastProgressBarUpdateTick)
 			{
 				WriteProgress(progressString, progressValue);
 			}
@@ -100,9 +118,12 @@ namespace HMCon {
 
 		public static void UpdateProgressBar(string str, float progress)
 		{
-			progressString = str;
-			progressValue = progress;
-			lastProgressBarUpdateTick = progressBarUpdateTick;
+			lock (locker)
+			{
+				progressString = str;
+				progressValue = progress;
+				lastProgressBarUpdateTick = progressBarUpdateTick;
+			}
 		}
 
 		public static void ClearProgressBar()
@@ -111,14 +132,22 @@ namespace HMCon {
 			progressValue = -1;
 		}
 
-		private static void WriteProgress(string str, float progress) {
-			lock(locker) {
-				if (consoleHandler != null) {
+		static object lockObj = new object();
+
+		private static void WriteProgress(string str, float progress)
+		{
+			lock (lockObj)
+			{
+				if (consoleHandler != null)
+				{
 					consoleHandler.DisplayProgressBar(str, progress);
-				} else if (GetConsoleWindow() != IntPtr.Zero) {
+				}
+				else if (GetConsoleWindow() != IntPtr.Zero)
+				{
 					Console.CursorVisible = false;
 					int lastLength = 0;
-					if (progressString != null) {
+					if (progressString != null)
+					{
 						lastLength = progressString.Length;
 						Console.SetCursorPosition(0, Console.CursorTop);
 					}
@@ -132,9 +161,11 @@ namespace HMCon {
 			}
 		}
 
-		static string GetProgressBar(float prog) {
+		static string GetProgressBar(float prog)
+		{
 			StringBuilder s = new StringBuilder();
-			for(int i = 0; i < 20; i++) {
+			for (int i = 0; i < 20; i++)
+			{
 				s.Append((prog >= (i + 1) / 20f) ? "█" : "░");
 			}
 			return s.ToString();
