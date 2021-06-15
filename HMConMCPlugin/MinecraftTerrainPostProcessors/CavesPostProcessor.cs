@@ -9,7 +9,7 @@ using System.Text;
 
 namespace HMConMC.PostProcessors
 {
-	public class CavesPostProcessor : MinecraftTerrainPostProcessor
+	public class CavesPostProcessor : PostProcessor
 	{
 
 		const double avgBlocksPerChunkRate = 1f / (16 * 16 * 64);
@@ -30,7 +30,7 @@ namespace HMConMC.PostProcessors
 			random = new Random();
 		}
 
-		public override void ProcessBlock(World world, int x, int y, int z, int pass)
+		protected override void OnProcessBlock(World world, int x, int y, int z, int pass, float mask)
 		{
 			if (y < 5) return;
 

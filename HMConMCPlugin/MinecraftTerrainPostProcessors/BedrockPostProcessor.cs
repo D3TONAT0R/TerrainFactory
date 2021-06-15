@@ -2,7 +2,7 @@ using MCUtils;
 using System;
 
 namespace HMConMC.PostProcessors {
-	public class BedrockPostProcessor : MinecraftTerrainPostProcessor {
+	public class BedrockPostProcessor : PostProcessor {
 
 		public bool flatBedrock = false;
 		Random random;
@@ -18,7 +18,7 @@ namespace HMConMC.PostProcessors {
 			random = new Random();
 		}
 
-		public override void ProcessBlock(MCUtils.World world, int x, int y, int z, int pass)
+		protected override void OnProcessBlock(MCUtils.World world, int x, int y, int z, int pass, float mask)
 		{
 			if(random.NextDouble() < 1f - y / 4f && !world.IsAir(x,y,z)) world.SetBlock(x, 0, z, "minecraft:bedrock");
 		}

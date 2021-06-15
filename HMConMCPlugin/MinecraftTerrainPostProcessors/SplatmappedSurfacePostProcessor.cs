@@ -13,17 +13,11 @@ using System.Xml.Linq;
 
 namespace HMConMC.PostProcessors
 {
-	public class SplatmappedSurfacePostProcessor : MinecraftTerrainPostProcessor
+	public class SplatmappedSurfacePostProcessor
 	{
 
-		public List<Generator> generators = new List<Generator>();
+		public List<PostProcessor> generators = new List<PostProcessor>();
 		public Dictionary<string, Schematic> schematics = new Dictionary<string, Schematic>();
-
-		public override Priority OrderPriority => Priority.BeforeDefault;
-
-		public override PostProcessType PostProcessorType => PostProcessType.Surface;
-
-		public override int NumberOfPasses => generators.Count;
 
 		public SplatmappedSurfacePostProcessor(string importedFilePath, int ditherLimit, int offsetX, int offsetZ, int sizeX, int sizeZ)
 		{
@@ -38,9 +32,9 @@ namespace HMConMC.PostProcessors
 			XElement xmlRoot = XDocument.Parse(File.ReadAllText(xmlPath)).Root;
 			try
 			{
-				foreach(var schematicsContainer in xmlRoot.Descendants("schematics"))
+				foreach (var schematicsContainer in xmlRoot.Descendants("schematics"))
 				{
-					foreach(var elem in schematicsContainer.Elements())
+					foreach (var elem in schematicsContainer.Elements())
 					{
 						RegisterStructure(Path.Combine(Path.GetDirectoryName(root), elem.Value), elem.Name.LocalName);
 					}
@@ -92,9 +86,9 @@ namespace HMConMC.PostProcessors
 
 				var include = XDocument.Parse(File.ReadAllText(includePath)).Root;
 
-				foreach(var elem in include.Elements())
+				foreach (var elem in include.Elements())
 				{
-					if(elem.Name == "schematics")
+					if (elem.Name == "schematics")
 					{
 						foreach (var se in elem.Elements())
 						{
@@ -113,6 +107,18 @@ namespace HMConMC.PostProcessors
 			}
 		}
 
+		public bool ContinsGeneratorOfType(Type type)
+		{
+			foreach (var g in generators)
+			{
+				if (g.GetType() == type)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
 		private void RegisterStructure(string filename, string key)
 		{
 			try
@@ -126,16 +132,75 @@ namespace HMConMC.PostProcessors
 			}
 		}
 
-		public override void ProcessSurface(World world, int x, int y, int z, int pass)
+		public void DecorateTerrain(MCWorldExporter exporter)
 		{
-			var gen = generators[pass];
-			gen.RunGenerator(world, x, y, z);
+
+			int processorIndex = 0;
+			foreach (var post in generators)
+			{
+				for (int pass = 0; pass < post.NumberOfPasses; pass++)
+				{
+					string name = post.GetType().Name;
+					if (post.PostProcessorType == PostProcessType.Block || post.PostProcessorType == PostProcessType.Both)
+					{
+						//Iterate the postprocessors over every block
+						for (int x = 0; x < exporter.heightmapLengthX; x++)
+						{
+							for (int z = 0; z < exporter.heightmapLengthZ; z++)
+							{
+								for (int y = post.BlockProcessYMin; y <= Math.Min(exporter.heightmap[x, z], post.BlockProcessYMax); y++)
+								{
+									post.ProcessBlock(exporter.world, x, y, z, pass);
+								}
+							}
+							UpdateProgressBar(processorIndex, "Decorating terrain", name, (x + 1) / (float)exporter.heightmapLengthX, pass, post.NumberOfPasses);
+						}
+					}
+
+					if (post.PostProcessorType == PostProcessType.Surface || post.PostProcessorType == PostProcessType.Both)
+					{
+						//Iterate the postprocessors over every surface block
+						for (int x = 0; x < exporter.heightmapLengthX; x++)
+						{
+							for (int z = 0; z < exporter.heightmapLengthZ; z++)
+							{
+								post.ProcessSurface(exporter.world, x + exporter.regionOffsetX * 512, exporter.heightmap[x, z], z + exporter.regionOffsetZ * 512, pass);
+							}
+							UpdateProgressBar(processorIndex, "Decorating surface", name, (x + 1) / (float)exporter.heightmapLengthX, pass, post.NumberOfPasses);
+						}
+					}
+
+					//Run every postprocessor once for every region (rarely used)
+					Parallel.ForEach(exporter.world.regions.Values, (MCUtils.Region reg) =>
+					{
+						post.ProcessRegion(exporter.world, reg, reg.regionPosX, reg.regionPosZ, pass);
+					});
+				}
+				processorIndex++;
+			}
+			foreach (var post in generators)
+			{
+				post.OnFinish(exporter.world);
+			}
 		}
 
-		public override void ProcessRegion(World world, MCUtils.Region reg, int rx, int rz, int pass)
+		private void UpdateProgressBar(int index, string title, string name, float progress, int currentPass, int numPasses)
+		{
+			string passInfo = numPasses > 1 ? $" Pass {currentPass}/{numPasses}" : "";
+			float progressWithPasses = (currentPass + progress) / numPasses;
+			ConsoleOutput.UpdateProgressBar($"{index + 1}/{generators.Count} {title} [{name}{passInfo}]", progressWithPasses);
+		}
+
+		public void ProcessSurface(World world, int x, int y, int z, int pass, float mask)
 		{
 			var gen = generators[pass];
-			gen.RunGeneratorForRegion(world, reg, rx, rz);
+			gen.ProcessSurface(world, x, y, z, 0);
+		}
+
+		public void ProcessRegion(World world, MCUtils.Region reg, int rx, int rz, int pass)
+		{
+			var gen = generators[pass];
+			gen.ProcessRegion(world, reg, rx, rz, 0);
 		}
 	}
 }

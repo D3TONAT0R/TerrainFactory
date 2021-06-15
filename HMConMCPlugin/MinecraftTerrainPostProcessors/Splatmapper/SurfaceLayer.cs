@@ -8,10 +8,14 @@ using System.Drawing;
 using System.Text;
 using System.Xml.Linq;
 
-namespace HMConMC.PostProcessors
+namespace HMConMC.PostProcessors.Splatmapper
 {
 	public abstract class SurfaceLayerGenerator
 	{
+
+		public int yMin = int.MinValue;
+		public int yMax = int.MaxValue;
+
 		public abstract bool Generate(World w, int x, int y, int z);
 
 		protected bool SetBlock(World w, int x, int y, int z, string b)
@@ -43,6 +47,10 @@ namespace HMConMC.PostProcessors
 
 		public override bool Generate(World w, int x, int y, int z)
 		{
+			if (y < yMin || y > yMax)
+			{
+				return false;
+			}
 			bool b = false;
 			for (int i = 0; i < blocks.Count; i++)
 			{
@@ -60,8 +68,8 @@ namespace HMConMC.PostProcessors
 
 		public PerlinSurfaceLayerGenerator(IEnumerable<string> blockLayer, float scale, float threshold) : base(blockLayer)
 		{
-			scale *= 6f;
-			perlinGen = new PerlinGenerator(1f/scale);
+			scale *= 2.5f;
+			perlinGen = new PerlinGenerator(1f / scale);
 			perlinThreshold = threshold;
 		}
 
@@ -102,6 +110,7 @@ namespace HMConMC.PostProcessors
 		public override bool Generate(World world, int x, int y, int z)
 		{
 			if (!Blocks.IsPlantSustaining(world.GetBlockState(x, y, z)) || !world.IsAir(x, y + 1, z)) return false;
+			if (y < yMin || y > yMax) return false;
 
 			if (random.NextDouble() < chance / 128f)
 			{
@@ -132,6 +141,7 @@ namespace HMConMC.PostProcessors
 
 		public override bool Generate(World w, int x, int y, int z)
 		{
+			if (y < yMin || y > yMax) return false;
 			w.SetBiome(x, z, biomeID);
 			return true;
 		}
@@ -155,17 +165,29 @@ namespace HMConMC.PostProcessors
 		{
 			string type = xml.Attribute("type")?.Value ?? "standard";
 			string[] blocks = xml.Attribute("blocks").Value.Split(',');
+			SurfaceLayerGenerator gen = null;
 			if (type == "standard" || string.IsNullOrWhiteSpace(type))
 			{
-				generators.Add(new StandardSurfaceLayerGenerator(blocks));
-				return true;
+				gen = new StandardSurfaceLayerGenerator(blocks);
 			}
 			else if (type == "perlin")
 			{
 				float scale = float.Parse(xml.Attribute("scale")?.Value ?? "1.0");
 				float threshold = float.Parse(xml.Attribute("threshold")?.Value ?? "0.5");
-				generators.Add(new PerlinSurfaceLayerGenerator(blocks, scale, threshold));
-				return false;
+				gen = new PerlinSurfaceLayerGenerator(blocks, scale, threshold);
+			}
+			if (gen != null)
+			{
+				if(xml.Attribute("y-min") != null)
+				{
+					gen.yMin = int.Parse(xml.Attribute("y-min").Value);
+				}
+				if (xml.Attribute("y-max") != null)
+				{
+					gen.yMax = int.Parse(xml.Attribute("y-max").Value);
+				}
+				generators.Add(gen);
+				return true;
 			}
 			else
 			{

@@ -2,7 +2,7 @@ using MCUtils;
 using System;
 
 namespace HMConMC.PostProcessors {
-	public class VegetationPostProcessor : MinecraftTerrainPostProcessor {
+	public class VegetationPostProcessor : PostProcessor {
 
 		readonly byte[,,] blueprintOakTreeTop = new byte[,,] {
 		//YZX
@@ -55,7 +55,7 @@ namespace HMConMC.PostProcessors {
 			treesChance = treesAmount / 128f;
 		}
 
-		public override void ProcessSurface(MCUtils.World world, int x, int y, int z, int pass)
+		protected override void OnProcessSurface(MCUtils.World world, int x, int y, int z, int pass, float mask)
 		{
 			//Place trees
 			if(random.NextDouble() <= treesChance) {

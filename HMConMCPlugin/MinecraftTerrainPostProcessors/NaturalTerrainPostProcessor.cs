@@ -1,7 +1,7 @@
 using MCUtils;
 
 namespace HMConMC.PostProcessors {
-	public class NaturalTerrainPostProcessor : MinecraftTerrainPostProcessor {
+	public class NaturalTerrainPostProcessor : PostProcessor {
 
 		public override Priority OrderPriority => Priority.BeforeDefault;
 
@@ -12,7 +12,7 @@ namespace HMConMC.PostProcessors {
 			waterLevel = fillWithWater ? 63 : -1;
 		}
 
-		public override void ProcessBlock(MCUtils.World world, int x, int y, int z, int pass)
+		protected override void OnProcessBlock(MCUtils.World world, int x, int y, int z, int pass, float mask)
 		{
 			//Make flat bedrock
 			if(y == 0) {
@@ -24,7 +24,7 @@ namespace HMConMC.PostProcessors {
 			}
 		}
 
-		public override void ProcessSurface(MCUtils.World world, int x, int y, int z, int pass)
+		protected override void OnProcessSurface(MCUtils.World world, int x, int y, int z, int pass, float mask)
 		{
 			//Place grass on top & 3 layers of dirt below
 			if(y > waterLevel + 1) {

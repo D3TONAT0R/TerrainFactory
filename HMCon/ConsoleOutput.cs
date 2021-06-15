@@ -14,7 +14,6 @@ namespace HMCon
 
 		static string progressString;
 		static float progressValue;
-		static string newProgressString;
 		static int progressBarUpdateTick;
 		static int lastProgressBarUpdateTick = -1;
 

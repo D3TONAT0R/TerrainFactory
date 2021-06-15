@@ -9,7 +9,7 @@ using System.Xml.Linq;
 
 namespace HMConMC.PostProcessors.Splatmapper
 {
-	public class SplatmappedGenerator : Generator
+	public class SplatmappedGenerator : PostProcessor
 	{
 
 		public byte[,] map;
@@ -17,7 +17,7 @@ namespace HMConMC.PostProcessors.Splatmapper
 
 		public SplatmappedSurfacePostProcessor postProcessor;
 
-		//public Dictionary<string, Schematic> schematics = new Dictionary<string, Schematic>();
+		public override PostProcessType PostProcessorType => PostProcessType.Surface;
 
 		public SplatmappedGenerator(SplatmappedSurfacePostProcessor post, XElement xml, string rootPath, int ditherLimit, int offsetX, int offsetZ, int sizeX, int sizeZ)
 		{
@@ -78,7 +78,7 @@ namespace HMConMC.PostProcessors.Splatmapper
 			return c;
 		}
 
-		public override void RunGenerator(World w, int x, int y, int z)
+		protected override void OnProcessSurface (World w, int x, int y, int z, int pass, float mask)
 		{
 			byte i = map[x - worldOriginOffsetX, z - worldOriginOffsetZ];
 			if (i < 255)

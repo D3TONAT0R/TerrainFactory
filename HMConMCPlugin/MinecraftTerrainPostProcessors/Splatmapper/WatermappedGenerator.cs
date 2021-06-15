@@ -8,12 +8,14 @@ using System.Xml.Linq;
 
 namespace HMConMC.PostProcessors.Splatmapper
 {
-	public class WatermappedGenerator : Generator
+	public class WatermappedGenerator : PostProcessor
 	{
 
 		short waterLevel = -1;
 		public string waterBlock = "minecraft:water";
 		byte[,] waterSurfaceMap;
+
+		public override PostProcessType PostProcessorType => PostProcessType.Surface;
 
 		/*public WatermappedGenerator(string waterMapPath, int offsetX, int offsetZ, int sizeX, int sizeZ, short? waterLevel, string waterBlock)
 		{
@@ -34,9 +36,9 @@ namespace HMConMC.PostProcessors.Splatmapper
 			ConsoleOutput.WriteLine("Water mapping enabled");
 		}
 
-		public override void RunGenerator(World world, int x, int y, int z)
+		protected override void OnProcessSurface(World world, int x, int y, int z, int pass, float mask)
 		{
-			short start = Math.Max(waterSurfaceMap?[x-worldOriginOffsetX, z- worldOriginOffsetZ] ?? (short)-1, waterLevel);
+			short start = Math.Max(waterSurfaceMap?[x - worldOriginOffsetX, z - worldOriginOffsetZ] ?? (short)-1, waterLevel);
 			for (short y2 = start; y2 > y; y2--)
 			{
 				if (world.IsAir(x, y2, z))

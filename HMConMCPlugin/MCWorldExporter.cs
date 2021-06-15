@@ -35,7 +35,7 @@ namespace HMConMC
 
 		public Bounds worldBounds;
 
-		public List<MinecraftTerrainPostProcessor> postProcessors;
+		public SplatmappedSurfacePostProcessor postProcessor = null;
 
 		public MCWorldExporter(ExportJob job)
 		{
@@ -65,23 +65,9 @@ namespace HMConMC
 
 		public MCWorldExporter(ExportJob job, bool useDefaultPostProcessors, bool useSplatmaps) : this(job)
 		{
-			postProcessors = new List<MinecraftTerrainPostProcessor>();
 			if (useSplatmaps)
 			{
-				postProcessors.Add(new SplatmappedSurfacePostProcessor(job.data.filename, 255, regionOffsetX * 512, regionOffsetZ * 512, job.data.GridWidth, job.data.GridHeight));
-			}
-			if (useDefaultPostProcessors)
-			{
-				if (!useSplatmaps)
-				{
-					postProcessors.Add(new NaturalTerrainPostProcessor(true));
-					postProcessors.Add(new VegetationPostProcessor(0.1f, 0.01f));
-				}
-				postProcessors.AddRange(new MinecraftTerrainPostProcessor[] {
-					new BedrockPostProcessor(),
-					new CavesPostProcessor(),
-					new OrePostProcessor(2),
-				});
+				postProcessor = new SplatmappedSurfacePostProcessor(job.data.filename, 255, regionOffsetX * 512, regionOffsetZ * 512, job.data.GridWidth, job.data.GridHeight);
 			}
 		}
 
@@ -99,7 +85,6 @@ namespace HMConMC
 			world = new World(regionOffsetX, regionOffsetZ, regionOffsetX + regionNumX - 1, regionOffsetZ + regionNumZ - 1);
 			MakeBaseTerrain();
 			DecorateTerrain();
-			MakeBiomeArray();
 		}
 
 		private void MakeBaseTerrain()
@@ -126,69 +111,12 @@ namespace HMConMC
 			);
 		}
 
-		private void DecorateTerrain()
+		public void DecorateTerrain()
 		{
-			//Sort the postProcessors by priority
-			postProcessors = postProcessors.OrderBy(post => post.OrderPriority).ToList();
-
-			int processorIndex = 0;
-			foreach (var post in postProcessors)
+			if(postProcessor != null)
 			{
-				for (int pass = 0; pass < post.NumberOfPasses; pass++)
-				{
-					string name = post.GetType().Name;
-					if (post.PostProcessorType == PostProcessType.Block || post.PostProcessorType == PostProcessType.Both)
-					{
-						//Iterate the postprocessors over every block
-						for (int x = 0; x < heightmapLengthX; x++)
-						{
-							for (int z = 0; z < heightmapLengthZ; z++)
-							{
-								for (int y = post.BlockProcessYMin; y <= Math.Min(heightmap[x, z], post.BlockProcessYMax); y++)
-								{
-									post.ProcessBlock(world, x, y, z, pass);
-								}
-							}
-							UpdateProgressBar(processorIndex, "Decorating terrain", name, (x + 1) / (float)heightmapLengthX, pass, post.NumberOfPasses);
-						}
-					}
-
-					if (post.PostProcessorType == PostProcessType.Surface || post.PostProcessorType == PostProcessType.Both)
-					{
-						//Iterate the postprocessors over every surface block
-						for (int x = 0; x < heightmapLengthX; x++)
-						{
-							for (int z = 0; z < heightmapLengthZ; z++)
-							{
-								post.ProcessSurface(world, x + regionOffsetX * 512, heightmap[x, z], z + regionOffsetZ * 512, pass);
-							}
-							UpdateProgressBar(processorIndex, "Decorating surface", name, (x + 1) / (float)heightmapLengthX, pass, post.NumberOfPasses);
-						}
-					}
-
-					//Run every postprocessor once for every region (rarely used)
-					Parallel.ForEach(world.regions.Values, (Region reg) => {
-						post.ProcessRegion(world, reg, reg.regionPosX, reg.regionPosZ, pass);
-					});
-				}
-				processorIndex++;
+				postProcessor.DecorateTerrain(this);
 			}
-			foreach (var post in postProcessors)
-			{
-				post.OnFinish(world);
-			}
-		}
-
-		private void UpdateProgressBar(int index, string title, string name, float progress, int currentPass, int numPasses)
-		{
-			string passInfo = numPasses > 1 ? $" Pass {currentPass}/{numPasses}" : "";
-			float progressWithPasses = (currentPass + progress) / numPasses;
-			ConsoleOutput.UpdateProgressBar($"{index + 1}/{postProcessors.Count} {title} [{name}{passInfo}]", progressWithPasses);
-		}
-
-		private void MakeBiomeArray()
-		{
-			foreach (Region r in world.regions.Values) r.MakeBiomeArray();
 		}
 
 		public void WriteFile(FileStream stream, string path, FileFormat filetype)

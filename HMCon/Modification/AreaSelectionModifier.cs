@@ -6,7 +6,6 @@ using System.Text;
 namespace HMCon.Modification {
 	public class AreaSelectionModifier : Modifier {
 
-		private bool useBounds = true;
 		[DrawInInspector("Bounds")]
 		public Bounds bounds;
 
