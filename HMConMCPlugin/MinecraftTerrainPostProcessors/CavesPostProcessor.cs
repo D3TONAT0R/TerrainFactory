@@ -6,10 +6,11 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Xml.Linq;
 
 namespace HMConMC.PostProcessors
 {
-	public class CavesPostProcessor : PostProcessor
+	public class CavesPostProcessor : AbstractPostProcessor
 	{
 
 		const double avgBlocksPerChunkRate = 1f / (16 * 16 * 64);
@@ -25,7 +26,7 @@ namespace HMConMC.PostProcessors
 		public override int BlockProcessYMin => 8;
 		public override int BlockProcessYMax => 72;
 
-		public CavesPostProcessor()
+		public CavesPostProcessor(string rootPath, XElement xml, int offsetX, int offsetZ, int sizeX, int sizeZ) : base(rootPath, xml, offsetX, offsetZ, sizeX, sizeZ)
 		{
 			random = new Random();
 		}

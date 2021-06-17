@@ -38,7 +38,7 @@ namespace HMConMC.PostProcessors
 
 		public bool Build(World world, int x, int y, int z, Random r)
 		{
-			byte h = (byte)r.Next(trunkHeightMin, trunkHeightMax);
+			byte h = (byte)r.Next(trunkHeightMin, trunkHeightMax + 1);
 			if (IsObstructed(world, x, y + h, z))
 			{
 				return false;
@@ -89,7 +89,7 @@ namespace HMConMC.PostProcessors
 					for (int x = x1; x < x2; x++)
 					{
 						if (schematic[sx, sy, sz] == 0) continue; //Do not check this block if the result is nothing anyway
-						if (!world.IsAir(x, y, z) || world.TryGetRegion(x,z) == null) return true;
+						if (!world.IsAir(x, y, z) || world.TryGetRegion(x, z) == null) return true;
 						sx++;
 					}
 					sz++;
@@ -114,8 +114,8 @@ namespace HMConMC.PostProcessors
 				if (trunkElem != null)
 				{
 					trunkBlock = ParseBlock(trunkElem.Element("block").Value);
-					trunkHeightMin = byte.Parse(trunkElem.Element("trunk_min")?.Value ?? "1");
-					trunkHeightMax = byte.Parse(trunkElem.Element("trunk_max")?.Value ?? "1");
+					trunkHeightMin = byte.Parse(trunkElem.Element("height_min")?.Value ?? "1");
+					trunkHeightMax = byte.Parse(trunkElem.Element("height_max")?.Value ?? "1");
 				}
 				else
 				{
@@ -166,7 +166,7 @@ namespace HMConMC.PostProcessors
 		{
 			string[] rows = plane.Split('\n');
 			int i = 0;
-			foreach(string r in rows)
+			foreach (string r in rows)
 			{
 				if (string.IsNullOrWhiteSpace(r)) continue;
 				int z = StructureSizeZ - i - 1;

@@ -16,7 +16,7 @@ namespace HMConMC.PostProcessors
 	public class SplatmappedSurfacePostProcessor
 	{
 
-		public List<PostProcessor> generators = new List<PostProcessor>();
+		public List<AbstractPostProcessor> generators = new List<AbstractPostProcessor>();
 		public Dictionary<string, Schematic> schematics = new Dictionary<string, Schematic>();
 
 		public SplatmappedSurfacePostProcessor(string importedFilePath, int ditherLimit, int offsetX, int offsetZ, int sizeX, int sizeZ)
@@ -36,7 +36,7 @@ namespace HMConMC.PostProcessors
 				{
 					foreach (var elem in schematicsContainer.Elements())
 					{
-						RegisterStructure(Path.Combine(Path.GetDirectoryName(root), elem.Value), elem.Name.LocalName);
+						RegisterStructure(Path.Combine(root, elem.Value), elem.Name.LocalName);
 					}
 				}
 
@@ -56,18 +56,43 @@ namespace HMConMC.PostProcessors
 		{
 			if (splatXml.Name.LocalName == "splat")
 			{
-				var gen = new SplatmappedGenerator(this, splatXml, rootPath, ditherLimit, offsetX, offsetZ, sizeX, sizeZ);
-				generators.Add(gen);
+				generators.Add(new SplatmappedGenerator(this, splatXml, rootPath, ditherLimit, offsetX, offsetZ, sizeX, sizeZ));
 			}
 			else if (splatXml.Name.LocalName == "water")
 			{
-				var gen = new WatermappedGenerator(splatXml, rootPath, offsetX, offsetZ, sizeX, sizeZ);
-				generators.Add(gen);
+				generators.Add(new WatermappedGenerator(rootPath, splatXml, offsetX, offsetZ, sizeX, sizeZ));
 			}
 			else if (splatXml.Name.LocalName == "merger")
 			{
-				var gen = new MaskedWorldMerger(splatXml, rootPath, offsetX, offsetZ, sizeX, sizeZ);
-				generators.Add(gen);
+				generators.Add(new MaskedWorldMerger(rootPath, splatXml, offsetX, offsetZ, sizeX, sizeZ));
+			}
+			else if (splatXml.Name.LocalName == "oregen")
+			{
+				generators.Add(new OreGenerator(rootPath, splatXml, offsetX, offsetZ, sizeX, sizeZ));
+			}
+			else if (splatXml.Name.LocalName == "deice")
+			{
+				generators.Add(new DeIcingPostProcessor(rootPath, splatXml, offsetX, offsetZ, sizeX, sizeZ));
+			}
+			else if (splatXml.Name.LocalName == "naturalize")
+			{
+				generators.Add(new NaturalTerrainPostProcessor(rootPath, splatXml, offsetX, offsetZ, sizeX, sizeZ));
+			}
+			else if (splatXml.Name.LocalName == "vegetation")
+			{
+				generators.Add(new VegetationPostProcessor(rootPath, splatXml, offsetX, offsetZ, sizeX, sizeZ));
+			}
+			else if (splatXml.Name.LocalName == "torches")
+			{
+				generators.Add(new RandomTorchPostProcessor(rootPath, splatXml, offsetX, offsetZ, sizeX, sizeZ));
+			}
+			else if (splatXml.Name.LocalName == "caves")
+			{
+				generators.Add(new CavesPostProcessor(rootPath, splatXml, offsetX, offsetZ, sizeX, sizeZ));
+			}
+			else if (splatXml.Name.LocalName == "bedrock")
+			{
+				generators.Add(new BedrockPostProcessor(rootPath, splatXml, offsetX, offsetZ, sizeX, sizeZ));
 			}
 			else if (splatXml.Name.LocalName == "include")
 			{
@@ -148,9 +173,9 @@ namespace HMConMC.PostProcessors
 						{
 							for (int z = 0; z < exporter.heightmapLengthZ; z++)
 							{
-								for (int y = post.BlockProcessYMin; y <= Math.Min(exporter.heightmap[x, z], post.BlockProcessYMax); y++)
+								for (int y = post.BlockProcessYMin; y <= post.BlockProcessYMax; y++)
 								{
-									post.ProcessBlock(exporter.world, x, y, z, pass);
+									post.ProcessBlock(exporter.world, x + exporter.regionOffsetX * 512, y, z + exporter.regionOffsetZ * 512, pass);
 								}
 							}
 							UpdateProgressBar(processorIndex, "Decorating terrain", name, (x + 1) / (float)exporter.heightmapLengthX, pass, post.NumberOfPasses);

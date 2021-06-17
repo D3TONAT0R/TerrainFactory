@@ -132,9 +132,9 @@ namespace HMConMC.PostProcessors.Splatmapper
 
 	public class BiomeGenerator : SurfaceLayerGenerator
 	{
-		private byte biomeID;
+		private BiomeID biomeID;
 
-		public BiomeGenerator(byte biome)
+		public BiomeGenerator(BiomeID biome)
 		{
 			biomeID = biome;
 		}
@@ -224,14 +224,20 @@ namespace HMConMC.PostProcessors.Splatmapper
 		public bool AddBiomeGenerator(XElement xml)
 		{
 			var id = xml.Attribute("id");
-			if (id != null)
+			if (id != null && id.Value.Length > 0)
 			{
-				generators.Add(new BiomeGenerator(byte.Parse(id.Value)));
+				if(char.IsDigit(id.Value[0]))
+				{
+					generators.Add(new BiomeGenerator((BiomeID)byte.Parse(id.Value)));
+				} else
+				{
+					generators.Add(new BiomeGenerator((BiomeID)Enum.Parse(typeof(BiomeID), id.Value)));
+				}
 				return true;
 			}
 			else
 			{
-				ConsoleOutput.WriteError("biome generator is missing 'id' attribute");
+				ConsoleOutput.WriteError("Biome generator is missing 'id' attribute");
 				return false;
 			}
 		}

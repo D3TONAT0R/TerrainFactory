@@ -9,7 +9,7 @@ using System.Xml.Linq;
 
 namespace HMConMC.PostProcessors.Splatmapper
 {
-	public class SplatmappedGenerator : PostProcessor
+	public class SplatmappedGenerator : AbstractPostProcessor
 	{
 
 		public byte[,] map;
@@ -20,9 +20,8 @@ namespace HMConMC.PostProcessors.Splatmapper
 		public override PostProcessType PostProcessorType => PostProcessType.Surface;
 
 		public SplatmappedGenerator(SplatmappedSurfacePostProcessor post, XElement xml, string rootPath, int ditherLimit, int offsetX, int offsetZ, int sizeX, int sizeZ)
+			: base(rootPath, xml, offsetX, offsetZ, sizeX, sizeZ)
 		{
-			worldOriginOffsetX = offsetX;
-			worldOriginOffsetZ = offsetZ;
 			postProcessor = post;
 			string mapFileName = Path.Combine(rootPath, xml.Attribute("file").Value);
 			foreach (var layer in xml.Elements("layer"))
@@ -45,6 +44,10 @@ namespace HMConMC.PostProcessors.Splatmapper
 					else if (elem.Name.LocalName == "gen")
 					{
 						surfaceLayer.AddSchematicGenerator(this, elem);
+					}
+					else if (elem.Name.LocalName == "biome")
+					{
+						surfaceLayer.AddBiomeGenerator(elem);
 					}
 				}
 			}

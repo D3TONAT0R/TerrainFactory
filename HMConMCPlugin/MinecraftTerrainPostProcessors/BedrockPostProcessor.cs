@@ -1,8 +1,9 @@
 using MCUtils;
 using System;
+using System.Xml.Linq;
 
 namespace HMConMC.PostProcessors {
-	public class BedrockPostProcessor : PostProcessor {
+	public class BedrockPostProcessor : AbstractPostProcessor {
 
 		public bool flatBedrock = false;
 		Random random;
@@ -14,7 +15,8 @@ namespace HMConMC.PostProcessors {
 		public override int BlockProcessYMin => 0;
 		public override int BlockProcessYMax => flatBedrock ? 0 : 3;
 
-		public BedrockPostProcessor() {
+		public BedrockPostProcessor(string rootPath, XElement xml, int offsetX, int offsetZ, int sizeX, int sizeZ) : base(rootPath, xml, offsetX, offsetZ, sizeX, sizeZ)
+		{
 			random = new Random();
 		}
 

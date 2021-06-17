@@ -91,9 +91,7 @@ namespace HMConMC
 		{
 			int progress = 0;
 			int iterations = (int)Math.Ceiling(heightmapLengthX / 16f);
-			Parallel.For(0, iterations,
-				delegate (int cx, ParallelLoopState s)
-				{
+			Parallel.For(0, iterations, (int cx) => {
 					for (int bx = 0; bx < Math.Min(16, heightmapLengthX - cx * 16); bx++)
 					{
 						int x = cx * 16 + bx;

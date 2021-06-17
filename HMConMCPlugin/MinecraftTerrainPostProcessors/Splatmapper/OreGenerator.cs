@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Xml.Linq;
 
 namespace HMConMC.PostProcessors.Splatmapper
 {
-	public class OreGenerator : PostProcessor
+	public class OreGenerator : AbstractPostProcessor
 	{
 		public class Ore
 		{
@@ -25,10 +26,10 @@ namespace HMConMC.PostProcessors.Splatmapper
 			}
 		}
 
-		public OreGenerator(float totalRarityMul)
+		public OreGenerator(string rootPath, XElement xml, int offsetX, int offsetZ, int sizeX, int sizeZ) : base(rootPath, xml, offsetX, offsetZ, sizeX, sizeZ)
 		{
 			random = new Random();
-			rarityMul = totalRarityMul;
+			rarityMul = float.Parse(xml.Element("multiplier")?.Value ?? "1");
 		}
 
 		public Random random;

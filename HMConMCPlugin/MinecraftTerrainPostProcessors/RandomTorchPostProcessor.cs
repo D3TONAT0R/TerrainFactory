@@ -1,8 +1,9 @@
 using MCUtils;
 using System;
+using System.Xml.Linq;
 
 namespace HMConMC.PostProcessors {
-	public class RandomTorchPostProcessor : PostProcessor {
+	public class RandomTorchPostProcessor : AbstractPostProcessor {
 
 		public float chance;
 		private Random random;
@@ -11,8 +12,9 @@ namespace HMConMC.PostProcessors {
 
 		public override PostProcessType PostProcessorType => PostProcessType.Surface;
 
-		public RandomTorchPostProcessor(float torchAmount) {
-			chance = torchAmount;
+		public RandomTorchPostProcessor(string rootPath, XElement xml, int offsetX, int offsetZ, int sizeX, int sizeZ) : base(rootPath, xml, offsetX, offsetZ, sizeX, sizeZ)
+		{
+			chance = float.Parse(xml.Element("amount")?.Value ?? "0.02");
 			random = new Random();
 		}
 

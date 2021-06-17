@@ -1,8 +1,9 @@
 using MCUtils;
 using System;
+using System.Xml.Linq;
 
 namespace HMConMC.PostProcessors {
-	public class VegetationPostProcessor : PostProcessor {
+	public class VegetationPostProcessor : AbstractPostProcessor {
 
 		readonly byte[,,] blueprintOakTreeTop = new byte[,,] {
 		//YZX
@@ -49,10 +50,11 @@ namespace HMConMC.PostProcessors {
 
 		public override PostProcessType PostProcessorType => PostProcessType.Surface;
 
-		public VegetationPostProcessor(float grassAmount, float treesAmount) {
+		public VegetationPostProcessor(string rootPath, XElement xml, int offsetX, int offsetZ, int sizeX, int sizeZ) : base(rootPath, xml, offsetX, offsetZ, sizeX, sizeZ)
+		{
 			random = new Random();
-			grassChance = grassAmount;
-			treesChance = treesAmount / 128f;
+			grassChance = float.Parse(xml.Element("grass")?.Value ?? "0.25");
+			treesChance = float.Parse(xml.Element("grass")?.Value ?? "1") / 128f;
 		}
 
 		protected override void OnProcessSurface(MCUtils.World world, int x, int y, int z, int pass, float mask)

@@ -1,15 +1,17 @@
 using MCUtils;
+using System.Xml.Linq;
 
 namespace HMConMC.PostProcessors {
-	public class NaturalTerrainPostProcessor : PostProcessor {
+	public class NaturalTerrainPostProcessor : AbstractPostProcessor {
 
 		public override Priority OrderPriority => Priority.BeforeDefault;
 
 		public int waterLevel = -1;
 		public override PostProcessType PostProcessorType => PostProcessType.Both;
 
-		public NaturalTerrainPostProcessor(bool fillWithWater) {
-			waterLevel = fillWithWater ? 63 : -1;
+		public NaturalTerrainPostProcessor(string rootPath, XElement xml, int offsetX, int offsetZ, int sizeX, int sizeZ) : base(rootPath, xml, offsetX, offsetZ, sizeX, sizeZ)
+		{
+			waterLevel = int.Parse(xml.Element("waterlevel")?.Value ?? "-1");
 		}
 
 		protected override void OnProcessBlock(MCUtils.World world, int x, int y, int z, int pass, float mask)

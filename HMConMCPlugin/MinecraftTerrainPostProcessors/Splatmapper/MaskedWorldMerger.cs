@@ -2,32 +2,37 @@ using HMCon;
 using HMCon.Util;
 using HMConImage;
 using MCUtils;
+using MCUtils.Coordinates;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Xml.Linq;
 
 namespace HMConMC.PostProcessors.Splatmapper
 {
-	public class MaskedWorldMerger : PostProcessor
+	public class MaskedWorldMerger : AbstractPostProcessor
 	{
 		int upperLeftCornerRegionX;
 		int upperLeftCornerRegionZ;
 		string otherRegionFolder;
 		string otherRegionPrefix = "";
 		bool chunkMode = false;
+		float threshold = 0.5f;
 
-		new bool[,] mask;
-
-		public MaskedWorldMerger(XElement xml, string rootPath, int offsetX, int offsetZ, int sizeX, int sizeZ) : base()
+		public MaskedWorldMerger(string rootPath, XElement xml, int offsetX, int offsetZ, int sizeX, int sizeZ)
+			: base(rootPath, xml, offsetX, offsetZ, sizeX, sizeZ)
 		{
+			if (mask == null)
+			{
+				throw new NullReferenceException("mask is not set in world merger");
+			}
 			otherRegionFolder = Path.Combine(rootPath, xml.Element("regions").Value);
 			otherRegionPrefix = xml.Element("prefix")?.Value ?? "";
 			upperLeftCornerRegionX = int.Parse(xml.Element("origin_x").Value);
 			upperLeftCornerRegionZ = int.Parse(xml.Element("origin_z").Value);
 			chunkMode = xml.Element("mode")?.Value.ToLower() == "chunk";
-			var path = Path.Combine(rootPath, xml.Element("mask").Value);
-			mask = SplatmapImporter.GetBitMask(SplatmapImporter.GetMask(path, ColorChannel.Red, offsetX, offsetZ, sizeX, sizeZ), 0.5f);
+			threshold = float.Parse(xml.Element("threshold")?.Value ?? "0.5");
 		}
 
 		public override PostProcessType PostProcessorType => PostProcessType.RegionOnly;
@@ -65,11 +70,11 @@ namespace HMConMC.PostProcessors.Splatmapper
 		private bool[,] GetSubMask(int x, int y, int width, int height)
 		{
 			bool[,] subMask = new bool[width, height];
-			for(int x1 = 0; x1 < width; x1++)
+			for (int x1 = 0; x1 < width; x1++)
 			{
 				for (int y1 = 0; y1 < height; y1++)
 				{
-					subMask[x, y] = mask[x + x1, y + y1];
+					subMask[x1, y1] = mask[x + x1, y + y1] >= threshold;
 				}
 			}
 			return subMask;
