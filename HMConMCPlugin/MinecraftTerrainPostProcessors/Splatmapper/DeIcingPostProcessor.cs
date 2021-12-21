@@ -66,11 +66,11 @@ namespace HMConMC.PostProcessors
 			if (block.properties.Contains("snowy"))
 			{
 				//Replace block with itself to get rid of the "snowy" property
-				world.SetBlock(x, y, z, block.ID);
+				world.SetBlock(x, y, z, block.block.ID);
 			}
-			else if (blockReplacementTable.ContainsKey(block.ID))
+			else if (blockReplacementTable.ContainsKey(block.block.ID))
 			{
-				world.SetBlock(x, y, z, blockReplacementTable[block.ID]);
+				world.SetBlock(x, y, z, blockReplacementTable[block.block.ID]);
 			}
 		}
 	}

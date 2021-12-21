@@ -97,7 +97,7 @@ namespace HMConMC.PostProcessors
 					{
 						if (Vector3.Distance(new Vector3(x, y, z), pos) < radius)
 						{
-							var b = world.GetBlockState(x, y, z);
+							var b = world.GetBlock(x, y, z);
 
 							if (b == null || Blocks.IsAir(b)) continue;
 

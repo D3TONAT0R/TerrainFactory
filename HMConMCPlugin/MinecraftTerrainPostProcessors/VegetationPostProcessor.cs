@@ -99,7 +99,7 @@ namespace HMConMC.PostProcessors {
 
 		private bool PlaceGrass(World world, int x, int y, int z) {
 			var b = world.GetBlock(x, y - 1, z);
-			if(b == null || b != "minecraft:grass_block") return false;
+			if(b == null || b.ID != "minecraft:grass_block") return false;
 			return world.SetBlock(x, y, z, "minecraft:grass");
 		}
 
@@ -114,8 +114,8 @@ namespace HMConMC.PostProcessors {
 			return true;
 		}
 
-		private bool CanGrowPlant(string block) {
-			return block == "minecraft:grass_block" || block == "minecraft:dirt";
+		private bool CanGrowPlant(ProtoBlock block) {
+			return block.ID == "minecraft:grass_block" || block.ID == "minecraft:dirt";
 		}
 	}
 }

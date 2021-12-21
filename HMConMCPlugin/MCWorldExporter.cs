@@ -21,6 +21,7 @@ namespace HMConMC
 
 		public static readonly string defaultBlock = "minecraft:stone";
 
+		public MCUtils.Version desiredVersion;
 		public World world;
 		public byte[,] heightmap;
 
@@ -41,6 +42,14 @@ namespace HMConMC
 		{
 			regionOffsetX = job.exportNumX + job.settings.GetCustomSetting("mcaOffsetX", 0);
 			regionOffsetZ = job.exportNumZ + job.settings.GetCustomSetting("mcaOffsetZ", 0);
+			if(job.settings.HasCustomSetting<string>("version"))
+			{
+				desiredVersion = MCUtils.Version.Parse(job.settings.GetCustomSetting("version", "")); 
+			}
+			else
+			{
+				desiredVersion = MCUtils.Version.DefaultVersion;
+			}
 			int xmin = regionOffsetX * 512;
 			int zmin = regionOffsetZ * 512;
 			var hmapFlipped = job.data.GetDataGridFlipped();
@@ -82,7 +91,7 @@ namespace HMConMC
 
 		private void CreateWorld()
 		{
-			world = new World(regionOffsetX, regionOffsetZ, regionOffsetX + regionNumX - 1, regionOffsetZ + regionNumZ - 1);
+			world = new World(desiredVersion, regionOffsetX, regionOffsetZ, regionOffsetX + regionNumX - 1, regionOffsetZ + regionNumZ - 1);
 			MakeBaseTerrain();
 			DecorateTerrain();
 		}

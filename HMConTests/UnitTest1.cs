@@ -35,7 +35,7 @@ namespace HMConTests {
 			for(int i = 0; i < 4; i++) filePath = Directory.GetParent(filePath).FullName;
 			inputPath = Path.Combine(filePath, "TestFiles", "in");
 			outputPath = Path.Combine(filePath, "TestFiles", "out");
-			string loc = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "HMConApp", "bin", "Debug", "netcoreapp3.1"));
+			string loc = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "HMConApp", "bin", "Debug"));
 			HMConManager.Initialize(loc);
 			if(PluginLoader.NumPluginsLoaded == 0) {
 				throw new FileLoadException($"No plugins were loaded from location '{loc}'.");

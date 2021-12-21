@@ -109,7 +109,7 @@ namespace HMConMC.PostProcessors.Splatmapper
 
 		public override bool Generate(World world, int x, int y, int z)
 		{
-			if (!Blocks.IsPlantSustaining(world.GetBlockState(x, y, z)) || !world.IsAir(x, y + 1, z)) return false;
+			if (!Blocks.IsPlantSustaining(world.GetBlock(x, y, z)) || !world.IsAir(x, y + 1, z)) return false;
 			if (y < yMin || y > yMax) return false;
 
 			if (random.NextDouble() < chance / 128f)
