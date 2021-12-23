@@ -1,4 +1,3 @@
-//using System.Drawing;
 using HMCon;
 using HMCon.Import;
 using MCUtils;

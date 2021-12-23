@@ -11,6 +11,10 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using HMCon.Modification;
+using MCUtils;
+using static MCUtils.NBTContent;
+using System.Collections.Generic;
+using Ionic.Zlib;
 
 namespace HMConTests {
 	public class Tests {
@@ -21,6 +25,7 @@ namespace HMConTests {
 		readonly string resizedASCFileHS = "sample-resized-maps.zh.png";
 		readonly string sampleHeightmapFile = "sample-hm.png";
 		readonly string sampleMCAFile = "sample-mca.16.26.mca";
+		readonly string sampleNBTFile = "sample-nbt.dat";
 		readonly string gradientMCAFile = "gradient-mca";
 
 		string inputPath;
@@ -109,6 +114,46 @@ namespace HMConTests {
 			AssertExport(data, "MCR", sampleMCAFile);
 			AssertExport(data, "IMG_PNG-HS", sampleMCAFile);
 			AssertExport(data, "IMG_PNG-HM", sampleMCAFile);
+		}
+
+		[Test]
+		public void TestNBTHandling()
+		{
+			using (var stream = RegionImporter.CreateGZipDecompressionStream(File.ReadAllBytes(Path.Combine(inputPath, sampleNBTFile))))
+			{
+				var nbt = new NBTContent(stream, false);
+				CheckNBTContent(nbt.contents.GetAsCompound("Data"));
+				//Write and reload the nbt from the new byte array (Tests correct serialization).
+				var byteList = new List<byte>();
+				nbt.WriteToBytes(byteList, false);
+				var stream2 = new MemoryStream(byteList.ToArray());
+				nbt = new NBTContent(stream2, false);
+				CheckNBTContent(nbt.contents.GetAsCompound("Data"));
+			}
+		}
+
+		private void CheckNBTContent(CompoundContainer nbt)
+		{
+			Assert.AreEqual(nbt.Get<byte>("sampleByte"), (byte)8);
+			Assert.AreEqual(nbt.Get<short>("sampleShort"), (short)1616);
+			Assert.AreEqual(nbt.Get<int>("sampleInt1"), 1234);
+			Assert.AreEqual(nbt.Get<int>("sampleInt2"), -5678);
+			Assert.AreEqual(nbt.Get<long>("sampleLong"), 12345678L);
+			Assert.AreEqual(nbt.Get<float>("sampleFloat"), 32.32f);
+			Assert.AreEqual(nbt.Get<double>("sampleDouble"), 64.64d);
+			Assert.AreEqual(nbt.Get<string>("sampleString"), "Lorem ipsum dolor sit amet!");
+			Assert.AreEqual(nbt.Get<byte[]>("sampleByteArray"), new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 });
+			Assert.AreEqual(nbt.Get<int[]>("sampleIntArray"), new int[] { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512 });
+			Assert.AreEqual(nbt.Get<long[]>("sampleLongArray"), new long[] { 1, 20, 300, 4000, 50000 });
+			var comp = nbt.GetAsCompound("sampleCompound");
+			Assert.AreEqual(comp.Get<byte>("byte1"), (byte)5);
+			var nested = comp.GetAsCompound("nestedCompound");
+			Assert.AreEqual(nested.Get<string>("string"), "Lorem ipsum");
+			var list = nbt.GetAsList("sampleList");
+			for (int i = 0; i < 4; i++)
+			{
+				Assert.AreEqual(list.Get<CompoundContainer>(i).Get<string>("string"), "Compound "+i);
+			}
 		}
 
 		[Test]

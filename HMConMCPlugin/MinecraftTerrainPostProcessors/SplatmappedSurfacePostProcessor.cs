@@ -198,7 +198,7 @@ namespace HMConMC.PostProcessors
 					//Run every postprocessor once for every region (rarely used)
 					Parallel.ForEach(exporter.world.regions.Values, (MCUtils.Region reg) =>
 					{
-						post.ProcessRegion(exporter.world, reg, reg.regionPosX, reg.regionPosZ, pass);
+						post.ProcessRegion(exporter.world, reg, reg.regionPos.x, reg.regionPos.z, pass);
 					});
 				}
 				processorIndex++;

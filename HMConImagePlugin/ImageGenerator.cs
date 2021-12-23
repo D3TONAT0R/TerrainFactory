@@ -74,9 +74,9 @@ namespace HMConImage {
 
 		private void CalculateNormals(bool sharpMode) {
 			if(sharpMode) {
-				normals = new Vector3[grid.GetLength(0) - 1, grid.GetLength(1) - 1];
-				for(int x = 0; x < image.Width; x++) {
-					for(int y = 0; y < image.Height; y++) {
+				normals = new Vector3[grid.GetLength(0), grid.GetLength(1)];
+				for(int x = 0; x < grid.GetLength(0) - 1; x++) {
+					for(int y = 0; y < grid.GetLength(1) - 1; y++) {
 						float ll = GetValueAt(x, y);
 						float lr = GetValueAt(x + 1, y);
 						float ul = GetValueAt(x, y + 1);
@@ -134,8 +134,8 @@ namespace HMConImage {
 		}
 
 		private void MakeHillshademap() {
-			image = new Bitmap(grid.GetLength(0), grid.GetLength(1));
-			CalculateNormals(false);
+			CalculateNormals(true);
+			image = new Bitmap(normals.GetLength(0), normals.GetLength(1));
 			for(int x = 0; x < image.Width; x++) {
 				for(int y = 0; y < image.Height; y++) {
 					Vector3 nrm = normals[x, y];
@@ -149,8 +149,8 @@ namespace HMConImage {
 		}
 
 		private float GetValueAt(int x, int y) {
-			x = Clamp(x, 0, image.Width - 1);
-			y = Clamp(y, 0, image.Height - 1);
+			x = Clamp(x, 0, grid.GetLength(0) - 1);
+			y = Clamp(y, 0, grid.GetLength(1) - 1);
 			return grid[x, y];
 		}
 
