@@ -15,6 +15,8 @@ namespace HMCon {
 		public int GridWidth => dataGrid?.GetLength(0) ?? 0;
 		public int GridHeight => dataGrid?.GetLength(1) ?? 0;
 
+		public int GridCellCount => GridWidth * GridHeight;
+
 		public Vector2 lowerCornerPos;
 		public (int x, int y) offsetFromSource = (0, 0);
 

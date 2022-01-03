@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HMCon.Util;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
@@ -6,21 +7,34 @@ using System.Text;
 using static HMCon.ConsoleOutput;
 
 namespace HMCon.Import {
-	public static class ASCImporter {
+	public class ASCImporter : HMConImportHandler {
+
+		public static ASCImporter instance;
 
 		private static HeightData current;
 
-		public static HeightData Import(string filepath) {
+		public override void AddFormatsToList(List<FileFormat> list)
+		{
+			instance = this;
+			list.Add(new FileFormat("ASC", "ASC", "asc", "ESRI ASCII Grid", this));
+		}
+
+		public override HeightData Import(string filepath, FileFormat ff = null, params string[] args) {
 			if(!File.Exists(filepath)) {
-				ConsoleOutput.WriteError("File " + filepath + " does not exist!");
+				WriteError("File " + filepath + " does not exist!");
+			}
+			int sub = 1;
+			if(args != null && args.TryGetArgument("sub", out int arg))
+			{
+				sub = Math.Max(1, arg);
 			}
 			HeightData data;
 			try {
 				string filename = Path.GetFileNameWithoutExtension(filepath);
 				using(FileStream stream = File.OpenRead(filepath)) {
-					current = CreateBaseData(stream, filepath, out int ncols, out int nrows);
+					current = CreateBaseData(stream, filepath, sub, out int ncols, out int nrows);
 					//Read the actual data
-					ReadGridData(stream, ncols, nrows);
+					ReadGridData(stream, ncols, nrows, sub, current.GridCellCount > 200000);
 				}
 				current.isValid = true;
 				
@@ -36,10 +50,11 @@ namespace HMCon.Import {
 		public static void GetDataInfo(string filepath, out float lowest, out float highest, out float average) {
 			try {
 				using(FileStream stream = File.OpenRead(filepath)) {
-					var asc = CreateBaseData(stream, filepath, out int ncols, out int nrows);
+					var asc = CreateBaseData(stream, filepath, 1, out int ncols, out int nrows);
 					//Read the actual data
 					//The cells will not be saved as long as grid is null
-					ReadGridData(stream, ncols, nrows);
+					asc.SetDataGrid(null);
+					ReadGridData(stream, ncols, nrows, 1, false);
 					double sum = 0;
 					for(int i = 0; i < asc.GridWidth * asc.GridHeight; i++) {
 						float value;
@@ -61,38 +76,50 @@ namespace HMCon.Import {
 		}
 
 
-		static HeightData CreateBaseData(FileStream stream, string filename, out int ncols, out int nrows) {
+		static HeightData CreateBaseData(FileStream stream, string filename, int sub, out int ncols, out int nrows) {
 			ncols = ExtractInt(ReadHeaderLine(stream), "ncols");
 			nrows = ExtractInt(ReadHeaderLine(stream), "nrows");
 			WriteLine("Dimensions: " + ncols + "x" + nrows);
-			HeightData d = new HeightData(ncols, nrows, filename);
+			HeightData d = new HeightData((int)Math.Ceiling(ncols / (float)sub), (int)Math.Ceiling(nrows / (float)sub), filename);
 			var xllcorner = ExtractFloat(ReadHeaderLine(stream), "xllcorner");
 			var yllcorner = ExtractFloat(ReadHeaderLine(stream), "yllcorner");
 			d.lowerCornerPos = new Vector2(xllcorner, yllcorner);
-			d.cellSize = ExtractFloat(ReadHeaderLine(stream), "cellsize");
+			d.cellSize = ExtractFloat(ReadHeaderLine(stream), "cellsize") * sub;
 			d.nodata_value = ExtractFloat(ReadHeaderLine(stream), "NODATA_value");
 			return d;
 		}
 
-		static void ReadGridData(FileStream stream, int ncols, int nrows) {
+		static void ReadGridData(FileStream stream, int ncols, int nrows, int sub, bool displayProgressBar) {
 			int length = ncols * nrows;
 			for(int i = 0; i < length; i++) {
-				float value;
-				if(!NextGridValue(stream, out value)) break;
+				if(displayProgressBar && (i % 1000 == 0))
+				{
+					UpdateProgressBar("Loading cells", i / (float)length);
+				}
+				int y = (int)Math.Floor(i / (float)ncols);
+				int x = i % ncols;
+				if(!NextGridValue(stream, out float value)) break;
+				if(x % sub > 0 || y % sub > 0)
+				{
+					//Skip this cell due to import subsampling
+					continue;
+				}
 				if(Math.Abs(value - current.nodata_value) > 0.1f) {
 					if(value < current.lowestValue) current.lowestValue = value;
 					if(value > current.highestValue) current.highestValue = value;
 				}
-				int y = (int)Math.Floor(i / (double)ncols);
-				int x = i % ncols;
 				current.lowPoint = current.lowestValue;
 				current.highPoint = current.highestValue;
-				if(current.HasHeightData) current.SetHeight(x, nrows - y - 1, value);
+				if(current.HasHeightData) current.SetHeight(x / sub, current.GridHeight - (y / sub) - 1, value);
+			}
+			if(displayProgressBar)
+			{
+				ClearProgressBar();
 			}
 		}
 
 		static bool NextGridValue(FileStream stream, out float value) {
-			var d = NextValue(stream);
+			var d = ReadDataRaw(stream);
 			if(d == "") {
 				//Premature EOF
 				WriteError("Premature EOF reached!");
@@ -103,40 +130,60 @@ namespace HMCon.Import {
 			return true;
 		}
 
-		static string NextValue(FileStream stream) {
-			return ReadDataRaw(stream, true);
+		static string ReadLine(FileStream stream)
+		{
+			int b = stream.ReadByte();
+			if (b < 0)
+			{
+				WriteWarning("WARNING: EOF reached!");
+				return "";
+			}
+			StringBuilder sb = new StringBuilder();
+			char c = (char)b;
+			while(c != '\n')
+			{
+				sb.Append(c);
+				b = stream.ReadByte();
+				if(b < 0)
+				{
+					return sb.ToString();
+				}
+				else
+				{
+					c = (char)b;
+				}
+			}
+			return sb.ToString().Replace("\r", "");
 		}
 
-		static string ReadDataRaw(FileStream stream, bool valueOnly) {
-			StringBuilder str = new StringBuilder();
+		static string ReadDataRaw(FileStream stream) {
 			int b = stream.ReadByte();
 			if(b < 0) {
 				WriteWarning("WARNING: EOF reached!");
 				return "";
 			}
-			while(str.Length == 0 && EndString(b, valueOnly)) b = stream.ReadByte();
-			if(!EndString(b, valueOnly)) str.Append((char)b);
-			while(!EndString(b, valueOnly)) {
+			//Skip leading whitespaces
+			while(char.IsWhiteSpace((char)b))
+			{
 				b = stream.ReadByte();
-				if(!EndString(b, valueOnly)) str.Append((char)b);
+				if(b < 0)
+				{
+					WriteWarning("WARNING: EOF reached!");
+					return "";
+				}
+			}
+			StringBuilder str = new StringBuilder();
+			while(b >= 0 && !char.IsWhiteSpace((char)b))
+			{
+				str.Append((char)b);
+				b = stream.ReadByte();
 			}
 			return str.ToString();
 		}
 
-		static string ReadLine(FileStream stream) {
-			return GetCleanedString(ReadDataRaw(stream, false));
-		}
-
 		static string ReadHeaderLine(FileStream stream) {
-			string str = ReadDataRaw(stream, false);
-			return GetCleanedString(str);
-		}
-
-		static string GetCleanedString(string line) {
-			line = line.Trim();
-			line = line.Replace("\r", "");
-			while(line.Contains("  ")) line = line.Replace("  ", " ");
-			return line;
+			string str = ReadLine(stream);
+			return str.Trim();
 		}
 
 		static bool EndString(int b, bool spaces) {
@@ -150,7 +197,7 @@ namespace HMCon.Import {
 		static string ExtractString(string input, string keyname) {
 			input = input.ToLower();
 			input = input.Replace(keyname.ToLower(), "");
-			input = input.Replace(" ", "");
+			input = input.Trim();
 			return input;
 		}
 

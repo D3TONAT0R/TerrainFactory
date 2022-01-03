@@ -54,24 +54,24 @@ namespace HMConTests {
 
 		[Test]
 		public void ExportDefaultHillshadeTest() {
-			HeightData data = ASCImporter.Import(Path.Combine(inputPath, sampleASCFile));
+			HeightData data = ASCImporter.instance.Import(Path.Combine(inputPath, sampleASCFile));
 			AssertExport(data, "IMG_PNG-HS", sampleASCFileHS);
 		}
 
 		[Test]
 		public void TestASCExport() {
-			HeightData data = ASCImporter.Import(Path.Combine(inputPath, sampleASCFile));
+			HeightData data = ASCImporter.instance.Import(Path.Combine(inputPath, sampleASCFile));
 			var sampleLocations = GetSampleLocations(data.GridWidth, data.GridHeight);
 			var sourceSamples = GetHeightSamples(data, sampleLocations);
 			AssertExport(data, "ASC", sampleASCFile);
-			data = ASCImporter.Import(Path.Combine(outputPath, sampleASCFile));
+			data = ASCImporter.instance.Import(Path.Combine(outputPath, sampleASCFile));
 			var exportedSamples = GetHeightSamples(data, sampleLocations);
 			Assert.AreEqual(sourceSamples, exportedSamples);
 		}
 
 		[Test]
 		public void TestCroppedASCExport() {
-			HeightData data = ASCImporter.Import(Path.Combine(inputPath, sampleASCFile));
+			HeightData data = ASCImporter.instance.Import(Path.Combine(inputPath, sampleASCFile));
 			int x1 = 250;
 			int y1 = 1180;
 			int x2 = 850;
@@ -80,7 +80,7 @@ namespace HMConTests {
 			var sourceSamples = GetHeightSamples(data, sampleLocations);
 			data = new AreaSelectionModifier(x1, y1, x2, y2).Modify(data, false);
 			AssertExport(data, "ASC", sampleCroppedASCFile);
-			data = ASCImporter.Import(Path.Combine(outputPath, sampleCroppedASCFile));
+			data = ASCImporter.instance.Import(Path.Combine(outputPath, sampleCroppedASCFile));
 			for(int i = 0; i < sampleLocations.Length; i++) {
 				sampleLocations[i].x -= x1;
 				sampleLocations[i].y -= y1;
