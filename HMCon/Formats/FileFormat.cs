@@ -31,8 +31,12 @@ namespace HMCon {
 			importHandler = handler;
 		}
 
-		public bool IsFormat(string id) {
-			return id.ToUpper() == identifier;
+		public bool IsFormat(params string[] ids) {
+			foreach (var id in ids)
+			{
+				if (id.ToUpper() == identifier) return true;
+			}
+			return false;
 		}
 	}
 }

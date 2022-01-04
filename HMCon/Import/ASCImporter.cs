@@ -37,7 +37,7 @@ namespace HMCon.Import {
 					ReadGridData(stream, ncols, nrows, sub, current.GridCellCount > 200000);
 				}
 				current.isValid = true;
-				
+				WriteLine($"Height Range: low {current.lowestValue}, high {current.highestValue}, range {current.highestValue - current.lowestValue}");
 			} catch(Exception e) {
 				throw new IOException("ASC import failed", e);
 			} finally {
