@@ -12,8 +12,8 @@ namespace HMCon {
 
 		public string filename;
 
-		public int GridWidth => dataGrid?.GetLength(0) ?? 0;
-		public int GridHeight => dataGrid?.GetLength(1) ?? 0;
+		public int GridWidth { get; private set; }
+		public int GridHeight { get; private set; }
 
 		public int GridCellCount => GridWidth * GridHeight;
 
@@ -26,8 +26,19 @@ namespace HMCon {
 
 		//public string fileHeader = "";
 
-		private float[,] dataGrid;
-		public bool HasHeightData => dataGrid != null;
+		private float[,] DataGrid
+		{
+			get => grid;
+			set
+			{
+				grid = value;
+				GridWidth = grid.GetLength(0);
+				GridHeight = grid.GetLength(1);
+			}
+		}
+		private float[,] grid;
+
+		public bool HasHeightData => DataGrid != null;
 
 		public float lowestValue = float.PositiveInfinity;
 		public float highestValue = float.NegativeInfinity;
@@ -46,13 +57,13 @@ namespace HMCon {
 		}
 
 		public HeightData(float[,] data, float cellSize) {
-			dataGrid = data;
+			DataGrid = data;
 			this.cellSize = cellSize;
 		}
 
 		public HeightData(int ncols, int nrows, string sourceFile) {
 			filename = sourceFile;
-			dataGrid = new float[ncols, nrows];
+			DataGrid = new float[ncols, nrows];
 		}
 
 		public HeightData(HeightData original, float[,] newGrid) {
@@ -61,18 +72,18 @@ namespace HMCon {
 			offsetFromSource = original.offsetFromSource;
 			cellSize = original.cellSize;
 			nodata_value = original.nodata_value;
-			dataGrid = newGrid;
+			DataGrid = newGrid;
 			RecalculateValues(false);
 			lowPoint = original.lowPoint;
 			highPoint = original.highPoint;
 		}
 
-		public HeightData(HeightData original) : this(original, (float[,])original.dataGrid.Clone()) {
+		public HeightData(HeightData original) : this(original, (float[,])original.DataGrid.Clone()) {
 
 		}
 
 		public void RecalculateValues(bool updateLowHighPoints) {
-			foreach(float f in dataGrid) {
+			foreach(float f in DataGrid) {
 				if(Math.Abs(f - nodata_value) > 0.1f) {
 					if(f < lowestValue) lowestValue = f;
 					if(f > highestValue) highestValue = f;
@@ -91,11 +102,11 @@ namespace HMCon {
 		#region modification
 
 		public void SetHeight(int x, int y, float value) {
-			dataGrid[x, y] = value;
+			DataGrid[x, y] = value;
 		}
 
 		public void AddHeight(int x, int y, float add) {
-			dataGrid[x, y] += add;
+			DataGrid[x, y] += add;
 		}
 
 		public void Add(HeightData other) {
@@ -128,7 +139,7 @@ namespace HMCon {
 				for(int x = 0; x < GridWidth; x++) {
 					float rx = x / (float)(GridWidth - 1);
 					float ry = y / (float)(GridHeight - 1);
-					dataGrid[x, y] = modificator(x, y, rx, ry, dataGrid[x, y]);
+					DataGrid[x, y] = modificator(x, y, rx, ry, DataGrid[x, y]);
 				}
 			}
 			RecalculateValues(false);
@@ -138,12 +149,12 @@ namespace HMCon {
 			int dimX = newDimX;
 			float ratio = GridWidth / (float)GridHeight;
 			int dimY = (int)(dimX / ratio);
-			dataGrid = GetResizedData(dimX, dimY);
+			DataGrid = GetResizedData(dimX, dimY);
 			float resizeRatio = GridWidth / (float)GridWidth;
 			if(scaleHeight) {
 				for(int x = 0; x < GridWidth; x++) {
 					for(int y = 0; y < GridHeight; y++) {
-						dataGrid[x, y] *= resizeRatio;
+						DataGrid[x, y] *= resizeRatio;
 					}
 				}
 			}
@@ -166,7 +177,7 @@ namespace HMCon {
 		#region getter functions
 
 		public float[,] GetDataGrid() {
-			return dataGrid;
+			return DataGrid;
 		}
 
 		public float[,] GetDataGridFlipped() {
@@ -182,15 +193,27 @@ namespace HMCon {
 		}
 
 		public void SetDataGrid(float[,] newGrid) {
-			dataGrid = newGrid;
+			DataGrid = newGrid;
 		}
 
 		public float GetHeight(int x, int y) {
 			if(x < 0 || y < 0 || x >= GridWidth || y >= GridHeight) {
 				return nodata_value;
 			} else {
-				return dataGrid[x, y];
+				return DataGrid[x, y];
 			}
+		}
+
+		public float GetHeightUnchecked(int x, int y)
+		{
+			return DataGrid[x, y];
+		}
+
+		public float GetHeightBounded(int x, int y)
+		{
+			x = MathUtils.Clamp(x, 0, GridWidth - 1);
+			y = MathUtils.Clamp(y, 0, GridHeight - 1);
+			return DataGrid[x, y];
 		}
 
 		public float GetHeightInterpolated(float x, float y) {
@@ -217,7 +240,7 @@ namespace HMCon {
 			float[,] newdata = new float[bounds.NumCols, bounds.NumRows];
 			for(int x = 0; x < bounds.NumCols; x++) {
 				for(int y = 0; y < bounds.NumRows; y++) {
-					newdata[x, y] = dataGrid[bounds.xMin + x, bounds.yMin + y];
+					newdata[x, y] = DataGrid[bounds.xMin + x, bounds.yMin + y];
 				}
 			}
 			return newdata;

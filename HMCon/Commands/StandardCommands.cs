@@ -10,6 +10,7 @@ namespace HMCon {
 	public class StandardCommands : HMConCommandHandler {
 
 		public override void AddCommands(List<ConsoleCommand> list) {
+			list.Add(new ConsoleCommand("info", "", "Prints general info about the imported height data", PrintInfoCmd));
 			list.Add(new ConsoleCommand("split", "N", "Split files every NxN cells (minimum 32)", HandleSplitCmd));
 			list.Add(new ConsoleCommand("clearmodifiers", "", "Removes all modifiers from the chain", HandleClearModifierCmd));
 		}
@@ -23,6 +24,17 @@ namespace HMCon {
 			list.Add(new ModificationCommand("cellsize", "size", "Changes the data's cell size", HandleCellsizeMod, new CellSizeModifier(1)));
 			list.Add(new ModificationCommand("lowhighpoints", "L H", "Changes the data's low and high points (for heightmap mapping)", HandleLowHighPointMod, new LowHighPointModifier(0, 1)));
 			list.Add(new ModificationCommand("clip", "L H", "Clips height values below or above the thresholds", HandleClipMod, new ClippingModifier(0, 1)));
+		}
+
+		private bool PrintInfoCmd(Job job, string[] args)
+		{
+			var d = job.CurrentData;
+			Console.WriteLine($"Grid Size: {d.GridWidth} x {d.GridHeight}");
+			Console.WriteLine($"Cell Size: {d.cellSize}");
+			Console.WriteLine($"Dimensions: {d.GridWidth * d.cellSize} x {d.GridHeight * d.cellSize}");
+			Console.WriteLine($"Lowest/Highest: {d.lowestValue} / {d.highestValue}");
+			Console.WriteLine($"NODATA: {d.nodata_value}");
+			return true;
 		}
 
 		private bool HandleSplitCmd(Job job, string[] args) {

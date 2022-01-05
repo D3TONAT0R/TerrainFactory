@@ -20,5 +20,10 @@ namespace HMCon {
 		public static float Lerp(float a, float b, float t) {
 			return a + (b - a) * t;
 		}
+
+		public static float InverseLerp(float a, float b, float v)
+		{
+			return (v - a) / (b - a);
+		}
 	}
 }

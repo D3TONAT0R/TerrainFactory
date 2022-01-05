@@ -22,10 +22,8 @@ namespace HMConImage {
 
 			var data = job.ApplyModificationChain(job.CurrentData);
 
-			float[,] d;
-			d = data.GetDataGrid();
-			var exporter = new ImageGenerator(d, data.cellSize, heightmap ? ImageType.Heightmap : ImageType.Hillshade, data.lowPoint, data.highPoint);
-			MakeGrid(exporter.image, data.offsetFromSource);
+			var exporter = new ImageGeneratorMagick(data, heightmap ? ImageType.Heightmap8 : ImageType.Hillshade, data.lowPoint, data.highPoint);
+			MakeGrid(exporter.GetImageAsBitmap(), data.offsetFromSource);
 			var format = ExportUtility.GetFormatFromIdenfifier(heightmap ? "IMG_PNG-HEIGHT" : "IMG_PNG-HILLSHADE");
 			string path = Path.GetTempPath() + Guid.NewGuid().ToString() + ".png";
 			FileStream stream = File.OpenWrite(path);

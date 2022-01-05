@@ -1,9 +1,9 @@
 namespace HMConImage {
 	public enum ImageType {
 
-		Heightmap,
+		Heightmap8,
+		Heightmap16,
 		Normalmap,
 		Hillshade,
-		Heightmap_Banded
 	}
 }

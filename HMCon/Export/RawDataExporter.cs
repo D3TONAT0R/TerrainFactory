@@ -16,16 +16,6 @@ namespace HMCon.Export.Exporters {
 			return true;
 		}
 
-		private float Lerp(float a, float b, float t)
-		{
-			return a + (b - a) * t;
-		}
-
-		private float InverseLerp(float a, float b, float value)
-		{
-			return (value - a) / (b - a);
-		}
-
 		public void WriteFile(FileStream stream, string path, FileFormat filetype) {
 			bool is32bit = filetype.IsFormat("R32");
 			int byteCount = filetype.IsFormat("R32") ? 4 : 2;
@@ -36,7 +26,7 @@ namespace HMCon.Export.Exporters {
 				for (int x = 0; x < data.GridWidth; x++)
 				{
 					float height = data.GetHeight(x, y);
-					float height01 = Math.Min(1, Math.Max(0, InverseLerp(data.lowPoint, data.highPoint, height)));
+					float height01 = Math.Min(1, Math.Max(0, MathUtils.InverseLerp(data.lowPoint, data.highPoint, height)));
 					byte[] bytes;
 					if(is32bit)
 					{

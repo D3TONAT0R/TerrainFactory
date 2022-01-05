@@ -1,7 +1,5 @@
 ﻿using HMCon;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using static HMConImage.ImageExporter;
 
 namespace HMConImage {
 	static class Extensions {
@@ -10,11 +8,11 @@ namespace HMConImage {
 		}
 
 		public static ImageType GetImageType(this FileFormat ff) {
-			if(ff.IsFormat("IMG_PNG-HM")) return ImageType.Heightmap;
-			else if(ff.IsFormat("IMG_PNG-NM")) return ImageType.Normalmap;
-			else if(ff.IsFormat("IMG_PNG-HS")) return ImageType.Hillshade;
-			else if(ff.IsFormat("IMG_PNG-HM-S")) return ImageType.Heightmap_Banded;
-			else return ImageType.Heightmap;
+			if(ff.IsFormat(HeightmapPNG8Bit)) return ImageType.Heightmap8;
+			else if(ff.IsFormat(HeightmapPNG16Bit)) return ImageType.Heightmap16;
+			else if(ff.IsFormat(NormalsPNG)) return ImageType.Normalmap;
+			else if(ff.IsFormat(HillshadePNG)) return ImageType.Hillshade;
+			else return ImageType.Heightmap8;
 		}
 	}
 }
