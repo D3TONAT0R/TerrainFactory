@@ -53,12 +53,14 @@ namespace HMConTests {
 		}
 
 		[Test]
+		[Property("Plugin", "Image")]
 		public void ExportDefaultHillshadeTest() {
 			HeightData data = ASCImporter.instance.Import(Path.Combine(inputPath, sampleASCFile));
-			AssertExport(data, "IMG_PNG-HS", sampleASCFileHS);
+			AssertExport(data, ImageExporter.HillshadePNG, sampleASCFileHS);
 		}
 
 		[Test]
+		[Property("Plugin", "Basic")]
 		public void TestASCExport() {
 			HeightData data = ASCImporter.instance.Import(Path.Combine(inputPath, sampleASCFile));
 			var sampleLocations = GetSampleLocations(data.GridWidth, data.GridHeight);
@@ -70,6 +72,7 @@ namespace HMConTests {
 		}
 
 		[Test]
+		[Property("Plugin", "Basic")]
 		public void TestCroppedASCExport() {
 			HeightData data = ASCImporter.instance.Import(Path.Combine(inputPath, sampleASCFile));
 			int x1 = 250;
@@ -90,11 +93,12 @@ namespace HMConTests {
 		}
 
 		[Test]
+		[Property("Plugin", "Image")]
 		public void TestHeightmapHandling() {
 			HeightData data = ImportManager.ImportFile(Path.Combine(inputPath, sampleHeightmapFile));
 			var sampleLocations = GetSampleLocations(data.GridWidth, data.GridHeight);
 			var sourceSamples = GetHeightSamples(data, sampleLocations);
-			AssertExport(data, "IMG_PNG-HM", sampleHeightmapFile);
+			AssertExport(data, ImageExporter.HeightmapPNG8Bit, sampleHeightmapFile);
 			data = ImportManager.ImportFile(Path.Combine(outputPath, sampleHeightmapFile));
 			var exportedSamples = GetHeightSamples(data, sampleLocations);
 			for(int i = 0; i < sourceSamples.Length; i++) {
@@ -103,6 +107,7 @@ namespace HMConTests {
 		}
 
 		[Test]
+		[Property("Plugin", "Minecraft")]
 		public void TestMCAFileHandling() {
 			HeightData data = ImportManager.ImportFile(Path.Combine(inputPath, sampleMCAFile));
 			data.lowPoint = 0;
@@ -112,11 +117,12 @@ namespace HMConTests {
 			currentJob.exportSettings.SetCustomSetting("mcaOffsetX", 16);
 			currentJob.exportSettings.SetCustomSetting("mcaOffsetZ", 26);
 			AssertExport(data, "MCR", sampleMCAFile);
-			AssertExport(data, "IMG_PNG-HS", sampleMCAFile);
-			AssertExport(data, "IMG_PNG-HM", sampleMCAFile);
+			AssertExport(data, ImageExporter.HillshadePNG, sampleMCAFile);
+			AssertExport(data, ImageExporter.HeightmapPNG8Bit, sampleMCAFile);
 		}
 
 		[Test]
+		[Property("Plugin", "Minecraft")]
 		public void TestNBTHandling()
 		{
 			using (var stream = RegionImporter.CreateGZipDecompressionStream(File.ReadAllBytes(Path.Combine(inputPath, sampleNBTFile))))
@@ -157,6 +163,7 @@ namespace HMConTests {
 		}
 
 		[Test]
+		[Property("Plugin", "Minecraft")]
 		public void TestMCAAccuracy() {
 			var heights = HeightmapImporter.ImportHeightmapRaw(Path.Combine(inputPath, sampleHeightmapFile), 0, 0, 512, 512);
 			HeightData data = new HeightData(512, 512, null) {
@@ -174,11 +181,12 @@ namespace HMConTests {
 			AssertExport(data, "MCR-RAW", mcaname);
 			var reimported = ImportManager.ImportFile(Path.Combine(outputPath, mcaname));
 			var convSamples = GetHeightSamples(reimported, sampleLocations);
-			AssertExport(data, "IMG_PNG-HM", "reconstructed_mca.png");
+			AssertExport(data, ImageExporter.HeightmapPNG8Bit, "reconstructed_mca.png");
 			Assert.AreEqual(sourceSamples, convSamples);
 		}
 
 		[Test]
+		[Property("Plugin", "Basic")]
 		public void TestASCResizing() {
 			HeightData data = ImportManager.ImportFile(Path.Combine(inputPath, sampleASCFile));
 			var sampleLocationsOriginal = GetSampleLocations(data.GridWidth, data.GridHeight);
@@ -188,7 +196,7 @@ namespace HMConTests {
 			resized.Resize(scale, false);
 			HeightData rescaled = new HeightData(data); 
 			rescaled.Resize(scale, true);
-			AssertExport(rescaled, "IMG_PNG-HS", resizedASCFileHS);
+			//AssertExport(rescaled, ImageExporter.HillshadePNG, resizedASCFileHS);
 			var resizedSamples = GetHeightSamples(resized, GetSampleLocations(resized.GridWidth, resized.GridHeight));
 			double delta = 0.4f;
 			for(int i = 0; i < sourceSamples.Length; i++) {
@@ -199,15 +207,17 @@ namespace HMConTests {
 		}
 
 		[Test]
+		[Property("Plugin", "Basic")]
 		public void TestASCAccurateResizing() {
 			HeightData data = ImportManager.ImportFile(Path.Combine(inputPath, sampleASCFile));
 			var sampleLocationsOriginal = GetSampleLocations(data.GridWidth, data.GridHeight);
 			var sourceSamples = GetHeightSamples(data, sampleLocationsOriginal);
 			HeightData resized = new HeightData(data);
 			resized.Resize(data.GridWidth * 2, false);
-			Assert.AreEqual(4000, resized.GridWidth);
-			AssertExport(data, "IMG_PNG-HM", "asc-original");
-			AssertExport(resized, "IMG_PNG-HM", "asc-resized");
+			Assert.AreEqual(data.GridWidth * 2, resized.GridWidth);
+			Assert.AreEqual(data.GridHeight * 2, resized.GridHeight);
+			//AssertExport(data, ImageExporter.HeightmapPNG8Bit, "asc-original");
+			//AssertExport(resized, ImageExporter.HeightmapPNG8Bit, "asc-resized");
 			var resizedLocations = GetSampleLocations(resized.GridWidth, resized.GridHeight);
 			var resizedSamples = GetHeightSamples(resized, resizedLocations);
 			double delta = 0.05f;
@@ -219,6 +229,7 @@ namespace HMConTests {
 		}
 
 		[Test]
+		[Property("Plugin", "Minecraft")]
 		public void TestMCAHeightRounding() {
 			HeightData data = new HeightData(512, 512, null);
 			for(int z = 0; z < 128; z++) {
@@ -246,13 +257,11 @@ namespace HMConTests {
 			}
 
 			AssertExport(data, "ASC", gradientMCAFile + "_asc");
-			AssertExport(data, "IMG_PNG-HM-S", gradientMCAFile + "_pre_hm");
-			AssertExport(data, "IMG_PNG-HS", gradientMCAFile + "_pre_hs");
+			AssertExport(data, ImageExporter.HillshadePNG, gradientMCAFile + "_pre_hs");
 			AssertExport(data, "MCR-RAW", gradientMCAFile);
 
 			data = ImportManager.ImportFile(Path.Combine(outputPath, gradientMCAFile) + ".mca");
-			AssertExport(data, "IMG_PNG-HM-S", gradientMCAFile + "_conv_hm");
-			AssertExport(data, "IMG_PNG-HS", gradientMCAFile + "_conv_hs");
+			AssertExport(data, ImageExporter.HeightmapPNG8Bit, gradientMCAFile + "_conv_hm");
 
 			var mcaSamples = GetHeightSamples(data, GetSampleLocations(512, 512));
 
