@@ -54,7 +54,7 @@ namespace HMConMC.PostProcessors {
 		{
 			random = new Random();
 			grassChance = float.Parse(xml.Element("grass")?.Value ?? "0.25");
-			treesChance = float.Parse(xml.Element("grass")?.Value ?? "1") / 128f;
+			treesChance = float.Parse(xml.Element("trees")?.Value ?? "1") / 128f;
 		}
 
 		protected override void OnProcessSurface(MCUtils.World world, int x, int y, int z, int pass, float mask)

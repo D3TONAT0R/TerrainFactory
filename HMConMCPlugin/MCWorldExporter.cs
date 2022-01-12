@@ -36,7 +36,7 @@ namespace HMConMC
 
 		public Bounds worldBounds;
 
-		public SplatmappedSurfacePostProcessor postProcessor = null;
+		public AbstractWorldDecorator postProcessor = null;
 
 		public MCWorldExporter(ExportJob job)
 		{
@@ -77,6 +77,10 @@ namespace HMConMC
 			if (useSplatmaps)
 			{
 				postProcessor = new SplatmappedSurfacePostProcessor(job.data.filename, 255, regionOffsetX * 512, regionOffsetZ * 512, job.data.GridWidth, job.data.GridHeight);
+			}
+			else if(useDefaultPostProcessors)
+			{
+				postProcessor = new DefaultWorldDecorator();
 			}
 		}
 

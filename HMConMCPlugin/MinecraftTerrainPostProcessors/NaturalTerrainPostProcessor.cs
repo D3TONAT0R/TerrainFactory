@@ -6,7 +6,7 @@ namespace HMConMC.PostProcessors {
 
 		public override Priority OrderPriority => Priority.BeforeDefault;
 
-		public int waterLevel = -1;
+		public int waterLevel = -256;
 		public override PostProcessType PostProcessorType => PostProcessType.Both;
 
 		public NaturalTerrainPostProcessor(string rootPath, XElement xml, int offsetX, int offsetZ, int sizeX, int sizeZ) : base(rootPath, xml, offsetX, offsetZ, sizeX, sizeZ)

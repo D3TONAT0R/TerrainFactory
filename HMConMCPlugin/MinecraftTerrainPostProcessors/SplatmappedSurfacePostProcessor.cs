@@ -13,10 +13,9 @@ using System.Xml.Linq;
 
 namespace HMConMC.PostProcessors
 {
-	public class SplatmappedSurfacePostProcessor
+	public class SplatmappedSurfacePostProcessor : AbstractWorldDecorator
 	{
 
-		public List<AbstractPostProcessor> generators = new List<AbstractPostProcessor>();
 		public Dictionary<string, Schematic> schematics = new Dictionary<string, Schematic>();
 
 		public SplatmappedSurfacePostProcessor(string importedFilePath, int ditherLimit, int offsetX, int offsetZ, int sizeX, int sizeZ)
@@ -157,7 +156,7 @@ namespace HMConMC.PostProcessors
 			}
 		}
 
-		public void DecorateTerrain(MCWorldExporter exporter)
+		public override void DecorateTerrain(MCWorldExporter exporter)
 		{
 
 			int processorIndex = 0;
