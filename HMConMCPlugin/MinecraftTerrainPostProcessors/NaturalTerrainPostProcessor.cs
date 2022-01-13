@@ -16,10 +16,6 @@ namespace HMConMC.PostProcessors {
 
 		protected override void OnProcessBlock(MCUtils.World world, int x, int y, int z, int pass, float mask)
 		{
-			//Make flat bedrock
-			if(y == 0) {
-				if(world.IsDefaultBlock(x, 0, z)) world.SetBlock(x, 0, z, "minecraft:bedrock");
-			}
 			//Fill the terrain with water up to the waterLevel
 			if(y <= waterLevel) {
 				if(world.IsAir(x, y, z)) world.SetBlock(x, y, z, "minecraft:water");

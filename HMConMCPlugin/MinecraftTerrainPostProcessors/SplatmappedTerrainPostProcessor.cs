@@ -9,17 +9,17 @@ using System.Xml.Linq;
 
 namespace HMConMC.PostProcessors.Splatmapper
 {
-	public class SplatmappedGenerator : AbstractPostProcessor
+	public class SplatmappedTerrainPostProcessor : AbstractPostProcessor
 	{
 
 		public byte[,] map;
 		public List<SurfaceLayer> layers = new List<SurfaceLayer>();
 
-		public SplatmappedSurfacePostProcessor postProcessor;
+		public WorldPostProcessingStack postProcessor;
 
 		public override PostProcessType PostProcessorType => PostProcessType.Surface;
 
-		public SplatmappedGenerator(SplatmappedSurfacePostProcessor post, XElement xml, string rootPath, int ditherLimit, int offsetX, int offsetZ, int sizeX, int sizeZ)
+		public SplatmappedTerrainPostProcessor(WorldPostProcessingStack post, XElement xml, string rootPath, int ditherLimit, int offsetX, int offsetZ, int sizeX, int sizeZ)
 			: base(rootPath, xml, offsetX, offsetZ, sizeX, sizeZ)
 		{
 			postProcessor = post;

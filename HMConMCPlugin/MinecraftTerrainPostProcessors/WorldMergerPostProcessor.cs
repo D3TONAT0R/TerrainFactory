@@ -11,7 +11,7 @@ using System.Xml.Linq;
 
 namespace HMConMC.PostProcessors.Splatmapper
 {
-	public class MaskedWorldMerger : AbstractPostProcessor
+	public class WorldMergerPostProcessor : AbstractPostProcessor
 	{
 		int upperLeftCornerRegionX;
 		int upperLeftCornerRegionZ;
@@ -20,7 +20,7 @@ namespace HMConMC.PostProcessors.Splatmapper
 		bool chunkMode = false;
 		float threshold = 0.5f;
 
-		public MaskedWorldMerger(string rootPath, XElement xml, int offsetX, int offsetZ, int sizeX, int sizeZ)
+		public WorldMergerPostProcessor(string rootPath, XElement xml, int offsetX, int offsetZ, int sizeX, int sizeZ)
 			: base(rootPath, xml, offsetX, offsetZ, sizeX, sizeZ)
 		{
 			if (mask == null)

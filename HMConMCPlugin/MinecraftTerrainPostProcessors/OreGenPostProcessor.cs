@@ -5,7 +5,7 @@ using System.Xml.Linq;
 
 namespace HMConMC.PostProcessors.Splatmapper
 {
-	public class OreGenerator : AbstractPostProcessor
+	public class OreGenPostProcessor : AbstractPostProcessor
 	{
 		public class Ore
 		{
@@ -26,7 +26,7 @@ namespace HMConMC.PostProcessors.Splatmapper
 			}
 		}
 
-		public OreGenerator(string rootPath, XElement xml, int offsetX, int offsetZ, int sizeX, int sizeZ) : base(rootPath, xml, offsetX, offsetZ, sizeX, sizeZ)
+		public OreGenPostProcessor(string rootPath, XElement xml, int offsetX, int offsetZ, int sizeX, int sizeZ) : base(rootPath, xml, offsetX, offsetZ, sizeX, sizeZ)
 		{
 			random = new Random();
 			rarityMul = float.Parse(xml.Element("multiplier")?.Value ?? "1");

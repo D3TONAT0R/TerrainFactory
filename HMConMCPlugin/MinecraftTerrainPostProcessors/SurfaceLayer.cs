@@ -196,7 +196,7 @@ namespace HMConMC.PostProcessors.Splatmapper
 			}
 		}
 
-		public bool AddSchematicGenerator(SplatmappedGenerator gen, XElement xml)
+		public bool AddSchematicGenerator(SplatmappedTerrainPostProcessor gen, XElement xml)
 		{
 			var schem = xml.Attribute("schem");
 			var amount = float.Parse(xml.Attribute("amount")?.Value ?? "1.0");

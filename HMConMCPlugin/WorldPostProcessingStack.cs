@@ -2,6 +2,7 @@ using HMCon;
 using HMCon.Import;
 using HMConImage;
 using HMConMC.PostProcessors.Splatmapper;
+using HMConMCPlugin;
 using MCUtils;
 using System;
 using System.Collections.Generic;
@@ -13,35 +14,48 @@ using System.Xml.Linq;
 
 namespace HMConMC.PostProcessors
 {
-	public class SplatmappedSurfacePostProcessor : AbstractWorldDecorator
+	public class WorldPostProcessingStack
 	{
 
 		public Dictionary<string, Schematic> schematics = new Dictionary<string, Schematic>();
 
-		public SplatmappedSurfacePostProcessor(string importedFilePath, int ditherLimit, int offsetX, int offsetZ, int sizeX, int sizeZ)
+		public List<AbstractPostProcessor> generators = new List<AbstractPostProcessor>();
+
+		public static WorldPostProcessingStack CreateFromXML(string importedFilePath, int ditherLimit, int offsetX, int offsetZ, int sizeX, int sizeZ)
 		{
-			var xmlPath = Path.ChangeExtension(importedFilePath, null) + "-splat.xml";
-			LoadSettings(xmlPath, ditherLimit, offsetX, offsetZ, sizeX, sizeZ);
-			ConsoleOutput.WriteLine("Splatmapper loaded successfully");
+			var xmlPath = Path.ChangeExtension(importedFilePath, null) + "-postprocess.xml";
+			var xmlString = File.ReadAllText(xmlPath);
+			return new WorldPostProcessingStack(Path.GetDirectoryName(importedFilePath), xmlString, ditherLimit, offsetX, offsetZ, sizeX, sizeZ);
 		}
 
-		void LoadSettings(string xmlPath, int ditherLimit, int offsetX, int offsetZ, int sizeX, int sizeZ)
+		public static WorldPostProcessingStack CreateDefaultPostProcessor(string importedFilePath, int ditherLimit, int offsetX, int offsetZ, int sizeX, int sizeZ)
 		{
-			string root = Path.GetDirectoryName(xmlPath);
-			XElement xmlRoot = XDocument.Parse(File.ReadAllText(xmlPath)).Root;
+			var xmlString = Resources.postprocess_default;
+			return new WorldPostProcessingStack(Path.GetDirectoryName(importedFilePath), xmlString, ditherLimit, offsetX, offsetZ, sizeX, sizeZ);
+		}
+
+		private WorldPostProcessingStack(string rootPath, string xmlString, int ditherLimit, int offsetX, int offsetZ, int sizeX, int sizeZ)
+		{
+			var xmlRootElement = XDocument.Parse(xmlString).Root;
+			LoadSettings(rootPath, xmlRootElement, ditherLimit, offsetX, offsetZ, sizeX, sizeZ);
+			ConsoleOutput.WriteLine("WorldPostProcessor loaded successfully");
+		}
+
+		void LoadSettings(string rootFolder, XElement xmlRootElement, int ditherLimit, int offsetX, int offsetZ, int sizeX, int sizeZ)
+		{
 			try
 			{
-				foreach (var schematicsContainer in xmlRoot.Descendants("schematics"))
+				foreach (var schematicsContainer in xmlRootElement.Descendants("schematics"))
 				{
 					foreach (var elem in schematicsContainer.Elements())
 					{
-						RegisterStructure(Path.Combine(root, elem.Value), elem.Name.LocalName);
+						RegisterStructure(Path.Combine(rootFolder, elem.Value), elem.Name.LocalName);
 					}
 				}
 
-				foreach (var splatXml in xmlRoot.Element("splatmaps").Elements())
+				foreach (var splatXml in xmlRootElement.Element("postprocess").Elements())
 				{
-					LoadGenerator(splatXml, false, root, ditherLimit, offsetX, offsetZ, sizeX, sizeZ);
+					LoadGenerator(splatXml, false, rootFolder, ditherLimit, offsetX, offsetZ, sizeX, sizeZ);
 				}
 			}
 			catch (Exception e)
@@ -55,19 +69,19 @@ namespace HMConMC.PostProcessors
 		{
 			if (splatXml.Name.LocalName == "splat")
 			{
-				generators.Add(new SplatmappedGenerator(this, splatXml, rootPath, ditherLimit, offsetX, offsetZ, sizeX, sizeZ));
+				generators.Add(new SplatmappedTerrainPostProcessor(this, splatXml, rootPath, ditherLimit, offsetX, offsetZ, sizeX, sizeZ));
 			}
 			else if (splatXml.Name.LocalName == "water")
 			{
-				generators.Add(new WatermappedGenerator(rootPath, splatXml, offsetX, offsetZ, sizeX, sizeZ));
+				generators.Add(new WaterLevelPostProcessor(rootPath, splatXml, offsetX, offsetZ, sizeX, sizeZ));
 			}
 			else if (splatXml.Name.LocalName == "merger")
 			{
-				generators.Add(new MaskedWorldMerger(rootPath, splatXml, offsetX, offsetZ, sizeX, sizeZ));
+				generators.Add(new WorldMergerPostProcessor(rootPath, splatXml, offsetX, offsetZ, sizeX, sizeZ));
 			}
-			else if (splatXml.Name.LocalName == "oregen")
+			else if (splatXml.Name.LocalName == "ores")
 			{
-				generators.Add(new OreGenerator(rootPath, splatXml, offsetX, offsetZ, sizeX, sizeZ));
+				generators.Add(new OreGenPostProcessor(rootPath, splatXml, offsetX, offsetZ, sizeX, sizeZ));
 			}
 			else if (splatXml.Name.LocalName == "deice")
 			{
@@ -156,7 +170,7 @@ namespace HMConMC.PostProcessors
 			}
 		}
 
-		public override void DecorateTerrain(MCWorldExporter exporter)
+		public void DecorateTerrain(MCWorldExporter exporter)
 		{
 
 			int processorIndex = 0;

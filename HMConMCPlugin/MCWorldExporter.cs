@@ -36,7 +36,7 @@ namespace HMConMC
 
 		public Bounds worldBounds;
 
-		public AbstractWorldDecorator postProcessor = null;
+		public WorldPostProcessingStack postProcessor = null;
 
 		public MCWorldExporter(ExportJob job)
 		{
@@ -72,15 +72,15 @@ namespace HMConMC
 			}
 		}
 
-		public MCWorldExporter(ExportJob job, bool useDefaultPostProcessors, bool useSplatmaps) : this(job)
+		public MCWorldExporter(ExportJob job, bool useDefaultPostProcessing, bool customPostProcessing) : this(job)
 		{
-			if (useSplatmaps)
+			if (customPostProcessing)
 			{
-				postProcessor = new SplatmappedSurfacePostProcessor(job.data.filename, 255, regionOffsetX * 512, regionOffsetZ * 512, job.data.GridWidth, job.data.GridHeight);
+				postProcessor = WorldPostProcessingStack.CreateFromXML(job.data.filename, 255, regionOffsetX * 512, regionOffsetZ * 512, job.data.GridWidth, job.data.GridHeight);
 			}
-			else if(useDefaultPostProcessors)
+			else if(useDefaultPostProcessing)
 			{
-				postProcessor = new DefaultWorldDecorator();
+				postProcessor = WorldPostProcessingStack.CreateDefaultPostProcessor(job.data.filename, 255, regionOffsetX * 512, regionOffsetZ * 512, job.data.GridWidth, job.data.GridHeight);
 			}
 		}
 
@@ -88,10 +88,6 @@ namespace HMConMC
 		{
 			return format.Identifier.StartsWith("MCR");
 		}
-
-		//private void GetMCAOffset(Job job, out int offsetX, out int offsetZ) {
-
-		//}
 
 		private void CreateWorld()
 		{

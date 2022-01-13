@@ -8,7 +8,7 @@ using System.Xml.Linq;
 
 namespace HMConMC.PostProcessors.Splatmapper
 {
-	public class WatermappedGenerator : AbstractPostProcessor
+	public class WaterLevelPostProcessor : AbstractPostProcessor
 	{
 
 		short waterLevel = -1;
@@ -17,7 +17,7 @@ namespace HMConMC.PostProcessors.Splatmapper
 
 		public override PostProcessType PostProcessorType => PostProcessType.Surface;
 
-		public WatermappedGenerator(string rootPath, XElement xml, int offsetX, int offsetZ, int sizeX, int sizeZ) : base(rootPath, xml, offsetX, offsetZ, sizeX, sizeZ)
+		public WaterLevelPostProcessor(string rootPath, XElement xml, int offsetX, int offsetZ, int sizeX, int sizeZ) : base(rootPath, xml, offsetX, offsetZ, sizeX, sizeZ)
 		{
 			worldOriginOffsetX = offsetX;
 			worldOriginOffsetZ = offsetZ;

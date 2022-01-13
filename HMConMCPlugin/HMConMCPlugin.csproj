@@ -11,10 +11,40 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove=".gitattributes" />
+    <None Remove=".gitignore" />
+    <None Remove="Resources\postprocess_default.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include=".gitignore" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\NoiseGenerator\NoiseGenerator.csproj" />
     <ProjectReference Include="..\HMConImagePlugin\HMConImagePlugin.csproj" />
     <ProjectReference Include="..\..\MCUtils\MCUtils.csproj" />
     <ProjectReference Include="..\HMCon\HMCon.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include=".gitattributes" />
+    <Resource Include="Resources\postprocess_default.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>
