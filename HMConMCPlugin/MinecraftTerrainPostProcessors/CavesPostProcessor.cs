@@ -1,6 +1,7 @@
 ﻿using HMCon;
 using HMConMC.PostProcessors;
 using MCUtils;
+using NoiseGenerator;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -17,7 +18,7 @@ namespace HMConMC.PostProcessors
 
 		public override Priority OrderPriority => Priority.AfterFirst;
 
-		public float caveChancePerChunk = 0.04f;
+		public float caveChancePerChunk = 0.16f;
 		public int lavaHeight = 8;
 
 		Random random;
@@ -26,9 +27,18 @@ namespace HMConMC.PostProcessors
 		public override int BlockProcessYMin => 8;
 		public override int BlockProcessYMax => 72;
 
+		public bool enablePerlinCaverns = true;
+		public float perlinCavernThreshold = 0.4f;
+		private PerlinGenerator perlinGen;
+
+		private BlockState lava = new BlockState(BlockList.Find("lava"));
+
 		public CavesPostProcessor(string rootPath, XElement xml, int offsetX, int offsetZ, int sizeX, int sizeZ) : base(rootPath, xml, offsetX, offsetZ, sizeX, sizeZ)
 		{
 			random = new Random();
+			perlinGen = new PerlinGenerator(new Vector3(0.05f, 0.1f, 0.05f), -1);
+			perlinGen.fractalIterations.Value = 3;
+			perlinGen.fractalPersistence = 0.15f;
 		}
 
 		protected override void OnProcessBlock(World world, int x, int y, int z, int pass, float mask)
@@ -41,6 +51,20 @@ namespace HMConMC.PostProcessors
 			if (Chance(caveChancePerChunk * avgBlocksPerChunkRate * yChanceScale))
 			{
 				GenerateCave(world, new Vector3(x, y, z), 0);
+			}
+
+			if(enablePerlinCaverns && y < 30)
+			{
+				//TODO: WIP, to be replaced with configurable / maskable XML system
+				float perlin = perlinGen.GetPerlinAtCoord(x, y, z);
+				
+				//Most "air" at y14, cavern dies out somewhere around 25-30
+				float hw = (float)Math.Cos((x - 14f) * 3.14f / 16f) / 2f + 0.5f;
+
+				if(perlin * hw < perlinCavernThreshold)
+				{
+					world.SetBlock(x, y, z, BlockState.Air);
+				}
 			}
 		}
 
@@ -56,7 +80,7 @@ namespace HMConMC.PostProcessors
 			bool breakSurface = Chance(0.4f);
 			if (delta > 0.25f && iteration < 3)
 			{
-				branchingChance = size * 0.005f;
+				branchingChance = size * 0.01f;
 			}
 			while (life > 0)
 			{
@@ -112,11 +136,11 @@ namespace HMConMC.PostProcessors
 								hasCarved = true;
 								if (y <= lavaHeight)
 								{
-									world.SetBlock(x, y, z, "minecraft:lava");
+									world.SetBlock(x, y, z, lava);
 								}
 								else
 								{
-									world.SetBlock(x, y, z, "minecraft:air");
+									world.SetBlock(x, y, z, BlockState.Air);
 								}
 							}
 						}

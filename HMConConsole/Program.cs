@@ -333,6 +333,7 @@ namespace HMConConsole
 							catch (Exception e)
 							{
 								WriteWarning(e.Message);
+								WriteWarning($"Usage: {c.command} {c.argsHint}");
 							}
 							return null;
 						}

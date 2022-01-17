@@ -1,10 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <root>
   <postprocess>
-    <naturalize />
-    <vegetation />
+    <bedrock />
+    <naturalize>
+      <waterlevel>62</waterlevel>
+    </naturalize>
     <caves />
     <ores />
-    <bedrock />
+    <vegetation />
   </postprocess>
 </root>

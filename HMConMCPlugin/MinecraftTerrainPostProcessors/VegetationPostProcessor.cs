@@ -53,8 +53,8 @@ namespace HMConMC.PostProcessors {
 		public VegetationPostProcessor(string rootPath, XElement xml, int offsetX, int offsetZ, int sizeX, int sizeZ) : base(rootPath, xml, offsetX, offsetZ, sizeX, sizeZ)
 		{
 			random = new Random();
-			grassChance = float.Parse(xml.Element("grass")?.Value ?? "0.25");
-			treesChance = float.Parse(xml.Element("trees")?.Value ?? "1") / 128f;
+			grassChance = float.Parse(xml.Element("grass")?.Value ?? "0.2");
+			treesChance = float.Parse(xml.Element("trees")?.Value ?? "0.3") / 128f;
 		}
 
 		protected override void OnProcessSurface(MCUtils.World world, int x, int y, int z, int pass, float mask)

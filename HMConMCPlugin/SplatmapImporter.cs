@@ -58,9 +58,25 @@ namespace HMConMC
 			return bitMask;
 		}
 
+		public static float[][,] GetSplatMask(string path, int offsetX, int offsetZ, int sizeX, int sizeZ)
+		{
+			float[][,] masks = new float[4][,];
+			var byteBuffer = GetBitmapBytes(path, out int w, out int h, out int d);
+			masks[0] = GetMask(byteBuffer, w, h, d, ColorChannel.Red, offsetX, offsetZ, sizeX, sizeZ);
+			masks[1] = GetMask(byteBuffer, w, h, d, ColorChannel.Green, offsetX, offsetZ, sizeX, sizeZ);
+			masks[2] = GetMask(byteBuffer, w, h, d, ColorChannel.Blue, offsetX, offsetZ, sizeX, sizeZ);
+			masks[3] = GetMask(byteBuffer, w, h, d, ColorChannel.Alpha, offsetX, offsetZ, sizeX, sizeZ);
+			return masks;
+		}
+
 		public static float[,] GetMask(string path, ColorChannel channel, int offsetX, int offsetZ, int sizeX, int sizeZ)
 		{
 			var byteBuffer = GetBitmapBytes(path, out int width, out int height, out int depth);
+			return GetMask(byteBuffer, width, height, depth, channel, offsetX, offsetZ, sizeX, sizeZ);
+		}
+
+		private static float[,] GetMask(byte[] byteBuffer, int width, int height, int depth, ColorChannel channel, int offsetX, int offsetZ, int sizeX, int sizeZ)
+		{
 			float[,] mask = new float[sizeX, sizeZ];
 			Parallel.For(0, sizeX, x =>
 			{

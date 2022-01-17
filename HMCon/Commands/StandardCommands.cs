@@ -19,6 +19,7 @@ namespace HMCon {
 			list.Add(new ModificationCommand("subsample", "N", "Subsamples the data by factor N", HandleSubsampleMod, new SubsamplingModifier(2)));
 			list.Add(new ModificationCommand("selection", "x1 y1 x2 y2", "Selects the specified area for export", HandleSelectionMod, new AreaSelectionModifier(null)));
 			list.Add(new ModificationCommand("scale", "mul <pivot>", "Scales the height values with optional scaling pivot", HandleHeightScaleMod, new HeightScaleModifier(1)));
+			list.Add(new ModificationCommand("remap", "old-H1 new-H1 old-H2 new-H2", "Remaps the given heights to match the new heights", HandleRemapMod, new HeightRemapModifier(0, 1, 0, 1)));
 			list.Add(new ModificationCommand("heightrange", "min max", "Modifies the height range (low- and high points)", HandleHeightRangeMod, new LowHighScaleModifier(null, null, 0, 1)));
 			list.Add(new ModificationCommand("resize", "sizeX", "Resizes the data grid to match the target width", HandleResizeMod, new ResizingModifier(0, true)));
 			list.Add(new ModificationCommand("cellsize", "size", "Changes the data's cell size", HandleCellsizeMod, new CellSizeModifier(1)));
@@ -89,6 +90,10 @@ namespace HMCon {
 				WriteLine("Height rescaled successfully");
 				return new HeightScaleModifier(scale);
 			}
+		}
+
+		private Modifier HandleRemapMod(Job job, string[] args) {
+			return new HeightRemapModifier(ParseArg<float>(args, 0), ParseArg<float>(args, 1), ParseArg<float>(args, 2), ParseArg<float>(args, 3));
 		}
 
 		private Modifier HandleHeightRangeMod(Job job, string[] args) {

@@ -89,9 +89,10 @@ namespace HMConMC
 			return format.Identifier.StartsWith("MCR");
 		}
 
-		private void CreateWorld()
+		private void CreateWorld(string worldName)
 		{
 			world = new World(desiredVersion, regionOffsetX, regionOffsetZ, regionOffsetX + regionNumX - 1, regionOffsetZ + regionNumZ - 1);
+			world.worldName = worldName;
 			MakeBaseTerrain();
 			DecorateTerrain();
 		}
@@ -128,7 +129,8 @@ namespace HMConMC
 
 		public void WriteFile(FileStream stream, string path, FileFormat filetype)
 		{
-			CreateWorld();
+			string name = Path.GetFileName(path);
+			CreateWorld(name);
 			if (filetype.IsFormat("MCR") || filetype.IsFormat("MCR-RAW"))
 			{
 				world.WriteRegionFile(stream, regionOffsetX, regionOffsetZ);

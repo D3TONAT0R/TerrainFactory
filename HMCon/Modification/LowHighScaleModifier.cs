@@ -30,7 +30,7 @@ namespace HMCon.Modification {
 			float newRange = newHigh - newLow;
 
 			for(int y = 0; y < data.GridHeight; y++) {
-				for(int x = 0; x < data.GridWidth; y++) {
+				for(int x = 0; x < data.GridWidth; x++) {
 					var value = data.GetHeight(x, y);
 					double h = (value - lowPoint) / oldRange;
 					h *= newRange;

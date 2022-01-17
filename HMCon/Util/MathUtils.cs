@@ -25,5 +25,11 @@ namespace HMCon {
 		{
 			return (v - a) / (b - a);
 		}
+
+		public static float Remap(float value, float oldA, float oldB, float newA, float newB)
+		{
+			float t = InverseLerp(oldA, oldB, value);
+			return Lerp(newA, newB, t);
+		}
 	}
 }

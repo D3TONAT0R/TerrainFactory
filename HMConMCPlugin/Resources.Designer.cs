@@ -63,7 +63,13 @@ namespace HMConMCPlugin {
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
         ///&lt;root&gt;
-        ///  
+        ///  &lt;postprocess&gt;
+        ///    &lt;naturalize /&gt;
+        ///    &lt;vegetation /&gt;
+        ///    &lt;caves /&gt;
+        ///    &lt;ores /&gt;
+        ///    &lt;bedrock /&gt;
+        ///  &lt;/postprocess&gt;
         ///&lt;/root&gt;.
         /// </summary>
         internal static string postprocess_default {

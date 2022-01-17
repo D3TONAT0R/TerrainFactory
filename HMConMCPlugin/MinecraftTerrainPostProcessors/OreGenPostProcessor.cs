@@ -1,5 +1,7 @@
-﻿using System;
+﻿using MCUtils;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Xml.Linq;
 
@@ -7,22 +9,25 @@ namespace HMConMC.PostProcessors.Splatmapper
 {
 	public class OreGenPostProcessor : AbstractPostProcessor
 	{
-		public class Ore
+
+		public class Layer
 		{
+			public List<OreGenerator> ores = new List<OreGenerator>();
 
-			public string block;
-			public int veinSizeMax;
-			public float spawnsPerBlock;
-			public int heightMin;
-			public int heightMax;
-
-			public Ore(string block, int veinSize, float rarity, int yMin, int yMax)
+			public void ProcessBlockColumn(World world, Random random, int x, int z, float mask, float rarityMul)
 			{
-				this.block = "minecraft:" + block;
-				veinSizeMax = veinSize;
-				spawnsPerBlock = rarity;
-				heightMin = yMin;
-				heightMax = yMax;
+				foreach(var ore in ores)
+				{
+					if (Chance(random, ore.spawnsPerColumn * rarityMul * mask))
+					{
+						ore.Generate(world, random, x, z);
+					}
+				}
+			}
+
+			private bool Chance(Random random, float prob)
+			{
+				return random.NextDouble() <= prob;
 			}
 		}
 
@@ -30,45 +35,111 @@ namespace HMConMC.PostProcessors.Splatmapper
 		{
 			random = new Random();
 			rarityMul = float.Parse(xml.Element("multiplier")?.Value ?? "1");
+			var map = xml.Element("map");
+			if (map != null)
+			{
+				string mapFileName = Path.Combine(rootPath, xml.Attribute("file").Value);
+				splatMask = SplatmapImporter.GetSplatMask(mapFileName, offsetX, offsetZ, sizeX, sizeZ);
+				foreach(var elem in map.Elements())
+				{
+					string name = elem.Name.LocalName.ToLower();
+					if(name == "r" || name == "red")
+					{
+						RegisterLayer(0, elem);
+					}
+					else if(name == "g" || name == "green")
+					{
+						RegisterLayer(1, elem);
+					}
+					else if(name == "b" || name == "blue")
+					{
+						RegisterLayer(2, elem);
+					}
+					else if(name == "a" || name == "alpha")
+					{
+						RegisterLayer(3, elem);
+					}
+					else if(name == "n" || name == "none")
+					{
+						RegisterLayer(-1, elem);
+					}
+					else
+					{
+						throw new ArgumentException("Unknown channel name: " + name);
+					}
+				}
+			}
+			else
+			{
+				Console.WriteLine("Generating ores with default settings.");
+				var defaultLayer = new Layer();
+				defaultLayer.ores.AddRange(defaultVanillaOres);
+				layers.Add(-1, defaultLayer);
+			}
 		}
 
-		public Random random;
-		public static readonly Ore[] ores = new Ore[] {
-			new Ore("iron_ore", 9, 1f/1500, 2, 66),
-			new Ore("coal_ore", 11, 1f/800, 10, 120),
-			new Ore("gold_ore", 8, 1f/3000, 2, 32)
+		private void RegisterLayer(int maskChannelIndex, XElement elem)
+		{
+			Layer layer;
+			if (layers.ContainsKey(maskChannelIndex))
+			{
+				layer = layers[maskChannelIndex];
+			}
+			else
+			{
+				layer = new Layer();
+				layers.Add(maskChannelIndex, layer);
+			}
+			foreach (var oreElem in elem.Elements())
+			{
+				var elemName = oreElem.Name.LocalName.ToLower();
+				if (elemName == "gen")
+				{
+					layer.ores.Add(OreGenerator.ParseFromXML(oreElem));
+				}
+				else if(elemName == "default")
+				{
+					layer.ores.AddRange(defaultVanillaOres);
+				}
+				else
+				{
+					throw new ArgumentException("Unexpected element name: " + elemName);
+				}
+			}
+		}
+
+		public static readonly List<OreGenerator> defaultVanillaOres = new List<OreGenerator>()
+		{
+			new OreGenerator("iron_ore", 9, 12f, 2, 66),
+			new OreGenerator("coal_ore", 32, 15f, 16, 120),
+			new OreGenerator("gold_ore", 8, 1.2f, 2, 32),
+			new OreGenerator("diamond_ore", 8, 0.4f, 2, 24),
+			new OreGenerator("redstone_ore", 10, 3.5f, 4, 36),
+			new OreGenerator("lapis_ore", 9, 0.8f, 4, 28)
 		};
+
+		public Dictionary<int, Layer> layers = new Dictionary<int, Layer>();
+		public float[][,] splatMask;
 		public float rarityMul = 1;
 
-		//public override Priority OrderPriority => Priority.Default;
+		private Random random;
 
-		public override PostProcessType PostProcessorType => PostProcessType.Block;
+		public override PostProcessType PostProcessorType => PostProcessType.Surface;
 
-		public override int BlockProcessYMin => 1;
-		public override int BlockProcessYMax => 128;
-
-		protected override void OnProcessBlock(MCUtils.World world, int x, int y, int z, int pass, float mask)
+		protected override void OnProcessSurface(World world, int x, int y, int z, int pass, float mask)
 		{
-			foreach (Ore o in ores)
+			if (y < 4) return;
+			foreach(var l in layers)
 			{
-				if (random.NextDouble() * rarityMul < o.spawnsPerBlock) SpawnOre(world, o, x, y, z);
+				if(l.Key > -1)
+				{
+					mask *= splatMask[l.Key][x,z];
+				}
+				if(mask > 0.001f)
+				{
+					l.Value.ProcessBlockColumn(world, random, x, z, mask, rarityMul);
+				}
 			}
-		}
-
-		private void SpawnOre(MCUtils.World world, Ore ore, int x, int y, int z)
-		{
-			for (int i = 0; i < ore.veinSizeMax; i++)
-			{
-				int x1 = x + RandomRange(-1, 1);
-				int y1 = y + RandomRange(-1, 1);
-				int z1 = z + RandomRange(-1, 1);
-				if (world.IsDefaultBlock(x1, y1, z1)) world.SetBlock(x1, y1, z1, ore.block);
-			}
-		}
-
-		private int RandomRange(int min, int max)
-		{
-			return random.Next(min, max + 1);
 		}
 	}
 }
