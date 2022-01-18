@@ -18,17 +18,17 @@ namespace HMConMC.PostProcessors
 
 		public override Priority OrderPriority => Priority.AfterFirst;
 
-		public float caveChancePerChunk = 0.16f;
+		public float caveChancePerChunk = 0.2f;
 		public int lavaHeight = 8;
 
 		Random random;
 
 		public override PostProcessType PostProcessorType => PostProcessType.Block;
 		public override int BlockProcessYMin => 8;
-		public override int BlockProcessYMax => 72;
+		public override int BlockProcessYMax => 92;
 
 		public bool enablePerlinCaverns = true;
-		public float perlinCavernThreshold = 0.4f;
+		public float perlinCavernThreshold = 0.58f;
 		private PerlinGenerator perlinGen;
 
 		private BlockState lava = new BlockState(BlockList.Find("lava"));
@@ -36,17 +36,16 @@ namespace HMConMC.PostProcessors
 		public CavesPostProcessor(string rootPath, XElement xml, int offsetX, int offsetZ, int sizeX, int sizeZ) : base(rootPath, xml, offsetX, offsetZ, sizeX, sizeZ)
 		{
 			random = new Random();
-			perlinGen = new PerlinGenerator(new Vector3(0.05f, 0.1f, 0.05f), -1);
+			perlinGen = new PerlinGenerator(new Vector3(0.06f, 0.10f, 0.06f), -1);
 			perlinGen.fractalIterations.Value = 3;
 			perlinGen.fractalPersistence = 0.15f;
 		}
 
 		protected override void OnProcessBlock(World world, int x, int y, int z, int pass, float mask)
 		{
-			if (y < 5) return;
-
 			//Increase number of caves underground and decrease them on the surface
-			float yChanceScale = 2f * (1 - (y - BlockProcessYMin) / (float)(BlockProcessYMax - BlockProcessYMin));
+			float yChanceScale = 1.3f * (1 - (y - BlockProcessYMin) / (float)(BlockProcessYMax - BlockProcessYMin));
+			yChanceScale = Math.Min(1f, yChanceScale * yChanceScale);
 
 			if (Chance(caveChancePerChunk * avgBlocksPerChunkRate * yChanceScale))
 			{
@@ -59,11 +58,11 @@ namespace HMConMC.PostProcessors
 				float perlin = perlinGen.GetPerlinAtCoord(x, y, z);
 				
 				//Most "air" at y14, cavern dies out somewhere around 25-30
-				float hw = (float)Math.Cos((x - 14f) * 3.14f / 16f) / 2f + 0.5f;
+				float hw = (float)Math.Cos((y - 14f) * 3.14f / 26f) / 2f + 0.5f;
 
-				if(perlin * hw < perlinCavernThreshold)
+				if(perlin * hw > perlinCavernThreshold)
 				{
-					world.SetBlock(x, y, z, BlockState.Air);
+					CarveBlock(world, x, y, z, true);
 				}
 			}
 		}
@@ -121,33 +120,39 @@ namespace HMConMC.PostProcessors
 					{
 						if (Vector3.Distance(new Vector3(x, y, z), pos) < radius)
 						{
-							var b = world.GetBlock(x, y, z);
-
-							if (b == null || Blocks.IsAir(b)) continue;
-
-							//Can the cave break the surface?
-							if(b.CompareMultiple(Blocks.terrainSurfaceBlocks) && !breakSurface)
-							{
-								continue;
-							}
-
-							if (b != null && !b.CompareMultiple("minecraft:bedrock") && !Blocks.IsLiquid(b))
-							{
-								hasCarved = true;
-								if (y <= lavaHeight)
-								{
-									world.SetBlock(x, y, z, lava);
-								}
-								else
-								{
-									world.SetBlock(x, y, z, BlockState.Air);
-								}
-							}
+							hasCarved |= CarveBlock(world, x, y, z, breakSurface);
 						}
 					}
 				}
 			}
 			return hasCarved;
+		}
+
+		private bool CarveBlock(World world, int x, int y, int z, bool allowSurfaceBreak)
+		{
+			var b = world.GetBlock(x, y, z);
+
+			if (b == null || Blocks.IsAir(b)) return false;
+
+			//Can the cave break the surface?
+			if (b.CompareMultiple(Blocks.terrainSurfaceBlocks) && !allowSurfaceBreak)
+			{
+				return false;
+			}
+
+			if (b != null && !b.CompareMultiple("minecraft:bedrock") && !Blocks.IsLiquid(b))
+			{
+				if (y <= lavaHeight)
+				{
+					world.SetBlock(x, y, z, lava);
+				}
+				else
+				{
+					world.SetBlock(x, y, z, BlockState.Air);
+				}
+				return true;
+			}
+			return false;
 		}
 
 		private float RandomRange(float min, float max)

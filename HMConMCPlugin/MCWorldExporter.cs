@@ -102,7 +102,7 @@ namespace HMConMC
 			int progress = 0;
 			int iterations = (int)Math.Ceiling(heightmapLengthX / 16f);
 			Parallel.For(0, iterations, (int cx) => {
-					for (int bx = 0; bx < Math.Min(16, heightmapLengthX - cx * 16); bx++)
+				for (int bx = 0; bx < Math.Min(16, heightmapLengthX - cx * 16); bx++)
 					{
 						int x = cx * 16 + bx;
 						for (int z = 0; z < heightmapLengthZ; z++)
@@ -129,7 +129,7 @@ namespace HMConMC
 
 		public void WriteFile(FileStream stream, string path, FileFormat filetype)
 		{
-			string name = Path.GetFileName(path);
+			string name = Path.GetFileNameWithoutExtension(path);
 			CreateWorld(name);
 			if (filetype.IsFormat("MCR") || filetype.IsFormat("MCR-RAW"))
 			{
