@@ -1,12 +1,12 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading.Tasks;
 
-
-namespace HMConMC
+namespace HMConMC.PostProcessors
 {
 	public enum ColorChannel
 	{
@@ -16,12 +16,48 @@ namespace HMConMC
 		Alpha
 	}
 
-	public static class SplatmapImporter
+	public class Weightmap<T>
 	{
 
-		public static Random random = new Random();
+		private static Random random = new Random();
 
-		public static byte[,] GetFixedSplatmap(string path, Color[] mappings, int ditherLimit, int offsetX, int offsetZ, int sizeX, int sizeZ)
+		private T[][,] channels;
+
+		private Weightmap(int channelCount)
+		{
+			channels = new T[channelCount][,];
+		}
+
+		public T GetValue(int x, int y, int channel = 0)
+		{
+			return channels[channel][x, y];
+		}
+
+		public void SetValue(int x, int y, int channel, T value)
+		{
+			channels[channel][x, y] = value;
+		}
+
+		public static Weightmap<float> CreateSingleChannelMap(string path, ColorChannel channel, int offsetX, int offsetZ, int sizeX, int sizeZ)
+		{
+			var map = new Weightmap<float>(1);
+			var byteBuffer = GetBitmapBytes(path, out int w, out int h, out int d);
+			map.channels[0] = GetMask(byteBuffer, w, h, d, channel, offsetX, offsetZ, sizeX, sizeZ);
+			return map;
+		}
+
+		public static Weightmap<float> CreateRGBAMap(string path, int offsetX, int offsetZ, int sizeX, int sizeZ)
+		{
+			var map = new Weightmap<float>(4);
+			var byteBuffer = GetBitmapBytes(path, out int w, out int h, out int d);
+			map.channels[0] = GetMask(byteBuffer, w, h, d, ColorChannel.Red, offsetX, offsetZ, sizeX, sizeZ);
+			map.channels[1] = GetMask(byteBuffer, w, h, d, ColorChannel.Green, offsetX, offsetZ, sizeX, sizeZ);
+			map.channels[2] = GetMask(byteBuffer, w, h, d, ColorChannel.Blue, offsetX, offsetZ, sizeX, sizeZ);
+			map.channels[3] = GetMask(byteBuffer, w, h, d, ColorChannel.Alpha, offsetX, offsetZ, sizeX, sizeZ);
+			return map;
+		}
+
+		public static Weightmap<byte> GetFixedWeightmap(string path, Color[] mappings, int ditherLimit, int offsetX, int offsetZ, int sizeX, int sizeZ)
 		{
 			var byteBuffer = GetBitmapBytes(path, out int width, out int height, out int depth);
 			byte[,] map = new byte[sizeX, sizeZ];
@@ -42,10 +78,12 @@ namespace HMConMC
 					map[x, y] = mapping;
 				}
 			});
-			return map;
+			var weightmap = new Weightmap<byte>(1);
+			weightmap.channels[0] = map;
+			return weightmap;
 		}
 
-		public static bool[,] GetBitMask(float[,] mask, float threshold)
+		public static Weightmap<bool> GetBitMask(float[,] mask, float threshold)
 		{
 			bool[,] bitMask = new bool[mask.GetLength(0), mask.GetLength(1)];
 			for (int x = 0; x < mask.GetLength(0); x++)
@@ -55,24 +93,9 @@ namespace HMConMC
 					bitMask[x, y] = mask[x, y] >= threshold;
 				}
 			}
-			return bitMask;
-		}
-
-		public static float[][,] GetSplatMask(string path, int offsetX, int offsetZ, int sizeX, int sizeZ)
-		{
-			float[][,] masks = new float[4][,];
-			var byteBuffer = GetBitmapBytes(path, out int w, out int h, out int d);
-			masks[0] = GetMask(byteBuffer, w, h, d, ColorChannel.Red, offsetX, offsetZ, sizeX, sizeZ);
-			masks[1] = GetMask(byteBuffer, w, h, d, ColorChannel.Green, offsetX, offsetZ, sizeX, sizeZ);
-			masks[2] = GetMask(byteBuffer, w, h, d, ColorChannel.Blue, offsetX, offsetZ, sizeX, sizeZ);
-			masks[3] = GetMask(byteBuffer, w, h, d, ColorChannel.Alpha, offsetX, offsetZ, sizeX, sizeZ);
-			return masks;
-		}
-
-		public static float[,] GetMask(string path, ColorChannel channel, int offsetX, int offsetZ, int sizeX, int sizeZ)
-		{
-			var byteBuffer = GetBitmapBytes(path, out int width, out int height, out int depth);
-			return GetMask(byteBuffer, width, height, depth, channel, offsetX, offsetZ, sizeX, sizeZ);
+			var weightmap = new Weightmap<bool>(1);
+			weightmap.channels[0] = bitMask;
+			return weightmap;
 		}
 
 		private static float[,] GetMask(byte[] byteBuffer, int width, int height, int depth, ColorChannel channel, int offsetX, int offsetZ, int sizeX, int sizeZ)

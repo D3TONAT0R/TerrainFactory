@@ -1,4 +1,6 @@
 using MCUtils;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml.Linq;
 
@@ -27,6 +29,8 @@ namespace HMConMC.PostProcessors
 	public abstract class AbstractPostProcessor
 	{
 
+		protected static Random random = new Random();
+
 		public virtual Priority OrderPriority => Priority.Default;
 
 		public abstract PostProcessType PostProcessorType { get; }
@@ -39,7 +43,7 @@ namespace HMConMC.PostProcessors
 		protected int worldOriginOffsetX;
 		protected int worldOriginOffsetZ;
 
-		public float[,] mask = null;
+		public Weightmap<float> mask = null;
 
 		public AbstractPostProcessor(string rootPath, XElement xml, int offsetX, int offsetZ, int sizeX, int sizeZ)
 		{
@@ -64,21 +68,62 @@ namespace HMConMC.PostProcessors
 					case "alpha": channel = ColorChannel.Alpha; break;
 					default: channel = ColorChannel.Red; break;
 				}
-				mask = SplatmapImporter.GetMask(maskPath, channel, 0, 0, sizeX, sizeZ);
+				mask = Weightmap<float>.CreateSingleChannelMap(maskPath, channel, 0, 0, sizeX, sizeZ);
 			}
 		}
 
-		public AbstractPostProcessor(string maskPath, ColorChannel channel, int offsetX, int offsetZ, int sizeX, int sizeZ)
+		protected Weightmap<float> LoadWeightmapAndLayers(string rootPath, XElement xml, int offsetX, int offsetZ, int sizeX, int sizeZ, Dictionary<int, Layer> layers, Func<XElement, Layer> createLayerAction)
 		{
-			if (maskPath != null)
+			if (layers == null) layers = new Dictionary<int, Layer>();
+			var map = xml.Element("weightmap");
+			if (map != null)
 			{
-
+				string mapFileName = Path.Combine(rootPath, xml.Attribute("file").Value);
+				var weightmap = Weightmap<float>.CreateRGBAMap(mapFileName, offsetX, offsetZ, sizeX, sizeZ);
+				foreach (var elem in map.Elements())
+				{
+					string name = elem.Name.LocalName.ToLower();
+					if (name == "r" || name == "red")
+					{
+						RegisterLayer(0, layers, createLayerAction, elem);
+					}
+					else if (name == "g" || name == "green")
+					{
+						RegisterLayer(1, layers, createLayerAction, elem);
+					}
+					else if (name == "b" || name == "blue")
+					{
+						RegisterLayer(2, layers, createLayerAction, elem);
+					}
+					else if (name == "a" || name == "alpha")
+					{
+						RegisterLayer(3, layers, createLayerAction, elem);
+					}
+					else if (name == "n" || name == "none")
+					{
+						RegisterLayer(-1, layers, createLayerAction, elem);
+					}
+					else
+					{
+						throw new ArgumentException("Unknown channel name: " + name);
+					}
+				}
+				return weightmap;
 			}
+			else
+			{
+				return null;
+			}
+		}
+
+		private void RegisterLayer(int maskChannelIndex, Dictionary<int, Layer> layers, Func<XElement, Layer> createLayerAction, XElement elem)
+		{
+			layers.Add(maskChannelIndex, createLayerAction(elem));
 		}
 
 		public void ProcessBlock(World world, int x, int y, int z, int pass)
 		{
-			float maskValue = mask != null ? mask[x - worldOriginOffsetX, z - worldOriginOffsetZ] : 1;
+			float maskValue = mask != null ? mask.GetValue(x - worldOriginOffsetX, z - worldOriginOffsetZ) : 1;
 			if (maskValue > 0)
 			{
 				OnProcessBlock(world, x, y, z, pass, maskValue);
@@ -87,10 +132,25 @@ namespace HMConMC.PostProcessors
 
 		public void ProcessSurface(World world, int x, int y, int z, int pass)
 		{
-			float maskValue = mask != null ? mask[x - worldOriginOffsetX, z - worldOriginOffsetZ] : 1;
+			float maskValue = mask != null ? mask.GetValue(x - worldOriginOffsetX, z - worldOriginOffsetZ) : 1;
 			if (maskValue > 0)
 			{
 				OnProcessSurface(world, x, y, z, pass, maskValue);
+			}
+		}
+
+		protected void ProcessSplatmapLayersSurface(Dictionary<int, Layer> layers, Weightmap<float> weightmap, World world, int x, int y, int z, int pass, float mask)
+		{
+			foreach (var l in layers)
+			{
+				if (l.Key > -1)
+				{
+					mask *= weightmap.GetValue(x, z, l.Key);
+				}
+				if (mask > 0.001f)
+				{
+					l.Value.ProcessBlockColumn(world, random, x, y, z, mask);
+				}
 			}
 		}
 
@@ -109,7 +169,7 @@ namespace HMConMC.PostProcessors
 
 		}
 
-		public virtual void OnFinish(MCUtils.World world)
+		public virtual void OnFinish(World world)
 		{
 
 		}

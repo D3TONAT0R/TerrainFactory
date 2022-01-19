@@ -12,7 +12,7 @@ namespace HMConMC.PostProcessors.Splatmapper
 	public class SplatmappedTerrainPostProcessor : AbstractPostProcessor
 	{
 
-		public byte[,] map;
+		public Weightmap<byte> map;
 		public List<SurfaceLayer> layers = new List<SurfaceLayer>();
 
 		public WorldPostProcessingStack postProcessor;
@@ -58,7 +58,7 @@ namespace HMConMC.PostProcessors.Splatmapper
 				mappedColors[i] = layers[i].layerColor;
 			}
 
-			map = SplatmapImporter.GetFixedSplatmap(mapFileName, mappedColors, ditherLimit, 0, 0, sizeX, sizeZ);
+			map = Weightmap<byte>.GetFixedWeightmap(mapFileName, mappedColors, ditherLimit, 0, 0, sizeX, sizeZ);
 		}
 
 
@@ -83,7 +83,7 @@ namespace HMConMC.PostProcessors.Splatmapper
 
 		protected override void OnProcessSurface (World w, int x, int y, int z, int pass, float mask)
 		{
-			byte i = map[x - worldOriginOffsetX, z - worldOriginOffsetZ];
+			byte i = map.GetValue(x - worldOriginOffsetX, z - worldOriginOffsetZ);
 			if (i < 255)
 			{
 				layers[i].RunGenerator(w, x, y, z);

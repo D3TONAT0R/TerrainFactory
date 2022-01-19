@@ -74,7 +74,7 @@ namespace HMConMC.PostProcessors.Splatmapper
 			{
 				for (int y1 = 0; y1 < height; y1++)
 				{
-					subMask[x1, y1] = mask[x + x1, y + y1] >= threshold;
+					subMask[x1, y1] = mask.GetValue(x + x1, y + y1) >= threshold;
 				}
 			}
 			return subMask;
