@@ -78,7 +78,7 @@ namespace HMConMC.PostProcessors
 			var map = xml.Element("weightmap");
 			if (map != null)
 			{
-				string mapFileName = Path.Combine(rootPath, xml.Attribute("file").Value);
+				string mapFileName = Path.Combine(rootPath, map.Attribute("file").Value);
 				var weightmap = Weightmap<float>.CreateRGBAMap(mapFileName, offsetX, offsetZ, sizeX, sizeZ);
 				foreach (var elem in map.Elements())
 				{

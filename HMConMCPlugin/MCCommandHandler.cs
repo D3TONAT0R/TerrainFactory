@@ -24,15 +24,19 @@ namespace HMConMC {
 
 		private bool HandlePostProcessingCmd(Job job, string[] args) {
 
-			if(args.Length > 0)
+			if (args.Length > 0)
 			{
 				bool b = job.exportSettings.GetCustomSetting("mcpostprocess", false);
 				if (!b) job.exportSettings.SetCustomSetting("mcpostprocess", true);
 				string file = args[0];
+				job.exportSettings.SetCustomSetting("mcpostfile", file);
 				ConsoleOutput.WriteLine($"MC World Post Processing enabled (using '{file}.xml').");
 			}
-			bool b2 = job.exportSettings.ToggleCustomBoolSetting("mcpostprocess");
-			ConsoleOutput.WriteLine("MC World Post Processing " + (b2 ? "enabled" : "disabled"));
+			else
+			{
+				bool b2 = job.exportSettings.ToggleCustomBoolSetting("mcpostprocess");
+				ConsoleOutput.WriteLine("MC World Post Processing " + (b2 ? "enabled" : "disabled"));
+			}
 			return true;
 		}
 	}

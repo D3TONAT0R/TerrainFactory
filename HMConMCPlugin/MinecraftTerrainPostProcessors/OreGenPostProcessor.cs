@@ -71,7 +71,7 @@ namespace HMConMC.PostProcessors.Splatmapper
 				var elemName = oreElem.Name.LocalName.ToLower();
 				if (elemName == "gen")
 				{
-					layer.ores.Add(OreGenerator.ParseFromXML(oreElem));
+					layer.ores.Add(new OreGenerator(oreElem));
 				}
 				else if(elemName == "default")
 				{

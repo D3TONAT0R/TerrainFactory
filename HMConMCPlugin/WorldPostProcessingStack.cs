@@ -21,10 +21,9 @@ namespace HMConMC.PostProcessors
 
 		public List<AbstractPostProcessor> generators = new List<AbstractPostProcessor>();
 
-		public static WorldPostProcessingStack CreateFromXML(string importedFilePath, int ditherLimit, int offsetX, int offsetZ, int sizeX, int sizeZ)
+		public static WorldPostProcessingStack CreateFromXML(string importedFilePath, string xmlFilePath, int ditherLimit, int offsetX, int offsetZ, int sizeX, int sizeZ)
 		{
-			var xmlPath = Path.ChangeExtension(importedFilePath, null) + "-postprocess.xml";
-			var xmlString = File.ReadAllText(xmlPath);
+			var xmlString = File.ReadAllText(xmlFilePath);
 			return new WorldPostProcessingStack(Path.GetDirectoryName(importedFilePath), xmlString, ditherLimit, offsetX, offsetZ, sizeX, sizeZ);
 		}
 

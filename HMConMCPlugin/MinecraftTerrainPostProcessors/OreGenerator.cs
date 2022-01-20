@@ -1,4 +1,5 @@
-﻿using MCUtils;
+﻿using HMCon.Util;
+using MCUtils;
 using System;
 using System.Xml.Linq;
 
@@ -8,10 +9,10 @@ namespace HMConMC.PostProcessors
 	{
 
 		public BlockState block;
-		public int veinSizeMax;
-		public float spawnsPerColumn;
-		public int heightMin;
-		public int heightMax;
+		public int veinSizeMax = 10;
+		public float spawnsPerColumn = 4;
+		public int heightMin = 1;
+		public int heightMax = 32;
 
 		public OreGenerator(string block, int veinSize, float rarityPerChunk, int yMin, int yMax)
 		{
@@ -22,14 +23,13 @@ namespace HMConMC.PostProcessors
 			heightMax = yMax;
 		}
 
-		public static OreGenerator ParseFromXML(XElement elem)
+		public OreGenerator (XElement elem)
 		{
-			string block = elem.Attribute("block").Value;
-			int veinSize = int.Parse(elem.Attribute("size").Value);
-			float rarity = float.Parse(elem.Attribute("rarity").Value);
-			int yMin = int.Parse(elem.Attribute("y-min")?.Value ?? "1");
-			int yMax = int.Parse(elem.Attribute("y-max")?.Value ?? "32");
-			return new OreGenerator(block, veinSize, rarity, yMin, yMax);
+			block = new BlockState(BlockList.Find(elem.Element("block").Value));
+			elem.TryParseInt("size", ref veinSizeMax);
+			elem.TryParseFloat("rarity", ref spawnsPerColumn);
+			elem.TryParseInt("y-min", ref heightMin);
+			elem.TryParseInt("y-max", ref heightMax);
 		}
 
 		public void Generate(MCUtils.World world, Random random, int x, int z)

@@ -296,7 +296,7 @@ namespace HMConMC.PostProcessors
 
 			public override void ProcessBlockColumn(World world, int x, int topY, int z, float mask, Random random)
 			{
-				if (Chance(amount * 0.01f))
+				if (Chance(amount * 0.08f))
 				{
 					int y = random.Next(yMin, yMax);
 					if (y > topY) return;
@@ -308,8 +308,8 @@ namespace HMConMC.PostProcessors
 			{
 				if(CanGenerateSpring(world, x, y, z))
 				{
-					//TODO: how to make it flow?
 					world.SetBlock(x, y, z, block);
+					world.MarkForTickUpdate(x, y, z);
 				}
 			}
 

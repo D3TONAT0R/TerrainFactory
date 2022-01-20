@@ -76,7 +76,14 @@ namespace HMConMC
 		{
 			if (customPostProcessing)
 			{
-				postProcessor = WorldPostProcessingStack.CreateFromXML(job.data.filename, 255, regionOffsetX * 512, regionOffsetZ * 512, job.data.GridWidth, job.data.GridHeight);
+				string xmlPath;
+				if (job.settings.HasCustomSetting<string>("mcpostfile")) {
+					xmlPath = Path.Combine(Path.GetDirectoryName(job.data.filename), job.settings.GetCustomSetting("mcpostfile", ""));
+					if (Path.GetExtension(xmlPath).Length == 0) xmlPath += ".xml";
+				} else {
+					xmlPath = Path.ChangeExtension(job.data.filename, null) + "-postprocess.xml";
+				}
+				postProcessor = WorldPostProcessingStack.CreateFromXML(job.data.filename, xmlPath, 255, regionOffsetX * 512, regionOffsetZ * 512, job.data.GridWidth, job.data.GridHeight);
 			}
 			else if(useDefaultPostProcessing)
 			{
