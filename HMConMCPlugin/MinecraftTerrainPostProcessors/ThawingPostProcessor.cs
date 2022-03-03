@@ -7,7 +7,7 @@ using System.Xml.Linq;
 
 namespace HMConMC.PostProcessors
 {
-	class DeIcingPostProcessor : AbstractPostProcessor
+	class ThawingPostProcessor : AbstractPostProcessor
 	{
 		public static Dictionary<BiomeID, BiomeID> biomeDeIcingTable = new Dictionary<BiomeID, BiomeID>()
 		{
@@ -35,7 +35,7 @@ namespace HMConMC.PostProcessors
 
 		public override PostProcessType PostProcessorType => PostProcessType.Both;
 
-		public DeIcingPostProcessor(string rootPath, XElement xml, int offsetX, int offsetZ, int sizeX, int sizeZ) : base(rootPath, xml, offsetX, offsetZ, sizeX, sizeZ)
+		public ThawingPostProcessor(string rootPath, XElement xml, int offsetX, int offsetZ, int sizeX, int sizeZ) : base(rootPath, xml, offsetX, offsetZ, sizeX, sizeZ)
 		{
 
 		}

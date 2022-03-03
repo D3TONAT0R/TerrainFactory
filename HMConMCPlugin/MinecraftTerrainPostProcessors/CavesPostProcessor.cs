@@ -2,7 +2,6 @@
 using HMCon.Util;
 using HMConMC.PostProcessors;
 using MCUtils;
-using NoiseGenerator;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -130,7 +129,7 @@ namespace HMConMC.PostProcessors
 
 			public override void ProcessBlockColumn(World world, int x, int topY, int z, float mask, Random random)
 			{
-				if (Chance(amount * 0.14f * invChunkArea * (topY * 0.016f)))
+				if (Chance(amount * 0.15f * invChunkArea * (topY * 0.016f) * mask))
 				{
 					var r = random.NextDouble();
 					if (distibution == Distibution.FavorBottom)
@@ -216,7 +215,7 @@ namespace HMConMC.PostProcessors
 
 		public class CavernCarver : Carver
 		{
-			private PerlinGenerator perlinGen;
+			private NoiseGenerator.PerlinGenerator perlinGen;
 
 			public int yMin = 4;
 			public int yMax = 32;
@@ -242,7 +241,7 @@ namespace HMConMC.PostProcessors
 				{
 					center = (int)MathUtils.Lerp(yMin, yMax, 0.3f);
 				}
-				perlinGen = new PerlinGenerator(new Vector3(0.06f / scaleXZ, 0.10f / scaleY, 0.06f / scaleXZ), -1);
+				perlinGen = new NoiseGenerator.PerlinGenerator(new Vector3(0.06f / scaleXZ, 0.10f / scaleY, 0.06f / scaleXZ), -1);
 				perlinGen.fractalIterations.Value = 3;
 				perlinGen.fractalPersistence = 0.15f * noiseScale;
 			}
@@ -264,7 +263,7 @@ namespace HMConMC.PostProcessors
 						hw = Math.Sqrt(Math.Cos((y - center) * 3.14f / (center - yMax) * 0.5f));
 					}
 
-					if (perlin * hw > threshold)
+					if (perlin * hw * mask > threshold)
 					{
 						CarveBlock(world, x, y, z, true);
 					}
@@ -296,7 +295,7 @@ namespace HMConMC.PostProcessors
 
 			public override void ProcessBlockColumn(World world, int x, int topY, int z, float mask, Random random)
 			{
-				if (Chance(amount * 0.08f))
+				if (Chance(amount * 0.08f * mask))
 				{
 					int y = random.Next(yMin, yMax);
 					if (y > topY) return;
@@ -316,15 +315,15 @@ namespace HMConMC.PostProcessors
 			private bool CanGenerateSpring(World world, int x, int y, int z)
 			{
 				if (!world.IsDefaultBlock(x, y, z)) return false;
-				int closedSides = 0;
-				if (world.IsDefaultBlock(x - 1, y, z)) closedSides++;
-				if (world.IsDefaultBlock(x + 1, y, z)) closedSides++;
-				if (world.IsDefaultBlock(x, y, z - 1)) closedSides++;
-				if (world.IsDefaultBlock(x, y, z + 1)) closedSides++;
-				if(closedSides == 3)
+				int openSides = 0;
+				if (world.IsAirNotNull(x - 1, y, z)) openSides++;
+				if (world.IsAirNotNull(x + 1, y, z)) openSides++;
+				if (world.IsAirNotNull(x, y, z - 1)) openSides++;
+				if (world.IsAirNotNull(x, y, z + 1)) openSides++;
+				if(openSides >= 1 && openSides <= 2)
 				{
 					//Check for top and bottom
-					if (world.IsDefaultBlock(x, y + 1, z) && world.IsDefaultBlock(x, y - 1, z))
+					if (!world.IsAir(x, y + 1, z) && !world.IsAir(x, y - 1, z))
 					{
 						return true;
 					}

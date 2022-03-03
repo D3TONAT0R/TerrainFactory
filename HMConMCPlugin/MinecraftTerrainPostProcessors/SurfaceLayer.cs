@@ -1,4 +1,5 @@
 ﻿using HMCon;
+using HMCon.Util;
 using HMConMC.PostProcessors.Splatmapper;
 using MCUtils;
 using NoiseGenerator;
@@ -68,8 +69,8 @@ namespace HMConMC.PostProcessors.Splatmapper
 
 		public PerlinSurfaceLayerGenerator(IEnumerable<string> blockLayer, float scale, float threshold) : base(blockLayer)
 		{
-			scale *= 2.5f;
-			perlinGen = new PerlinGenerator(1f / scale);
+			scale *= 2.6f;
+			perlinGen = new PerlinGenerator(1f / scale, true);
 			perlinThreshold = threshold;
 		}
 
@@ -92,24 +93,27 @@ namespace HMConMC.PostProcessors.Splatmapper
 		private float chance;
 		private Schematic schematic;
 		private string block;
+		private bool isPlant;
 
 		private Random random = new Random();
 
-		public SchematicInstanceGenerator(Schematic schem, float chance)
+		public SchematicInstanceGenerator(Schematic schem, float chance, bool doPlantCheck)
 		{
 			this.chance = chance;
 			schematic = schem;
+			isPlant = doPlantCheck;
 		}
 
-		public SchematicInstanceGenerator(string blockID, float chance)
+		public SchematicInstanceGenerator(string blockID, float chance, bool doPlantCheck)
 		{
 			this.chance = chance;
 			block = blockID;
+			isPlant = doPlantCheck;
 		}
 
 		public override bool Generate(World world, int x, int y, int z)
 		{
-			if (!Blocks.IsPlantSustaining(world.GetBlock(x, y, z)) || !world.IsAir(x, y + 1, z)) return false;
+			if (isPlant && (!Blocks.IsPlantSustaining(world.GetBlock(x, y, z)) || !world.IsAir(x, y + 1, z))) return false;
 			if (y < yMin || y > yMax) return false;
 
 			if (random.NextDouble() < chance / 128f)
@@ -176,6 +180,7 @@ namespace HMConMC.PostProcessors.Splatmapper
 				float threshold = float.Parse(xml.Attribute("threshold")?.Value ?? "0.5");
 				gen = new PerlinSurfaceLayerGenerator(blocks, scale, threshold);
 			}
+
 			if (gen != null)
 			{
 				if(xml.Attribute("y-min") != null)
@@ -199,10 +204,13 @@ namespace HMConMC.PostProcessors.Splatmapper
 		public bool AddSchematicGenerator(SplatmappedTerrainPostProcessor gen, XElement xml)
 		{
 			var schem = xml.Attribute("schem");
-			var amount = float.Parse(xml.Attribute("amount")?.Value ?? "1.0");
+			var amount = 1f;
+			xml.TryParseFloatAttribute("amount", ref amount);
+			bool plantCheck = true;
+			xml.TryParseBoolAttribute("plant-check", ref plantCheck);
 			if (schem != null)
 			{
-				generators.Add(new SchematicInstanceGenerator(gen.postProcessor.schematics[schem.Value], amount));
+				generators.Add(new SchematicInstanceGenerator(gen.postProcessor.schematics[schem.Value], amount, plantCheck));
 				return true;
 			}
 			else
@@ -210,7 +218,7 @@ namespace HMConMC.PostProcessors.Splatmapper
 				var block = xml.Attribute("block");
 				if (block != null)
 				{
-					generators.Add(new SchematicInstanceGenerator(block.Value, amount));
+					generators.Add(new SchematicInstanceGenerator(block.Value, amount, plantCheck));
 					return true;
 				}
 				else

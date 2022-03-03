@@ -66,47 +66,52 @@ namespace HMConMC.PostProcessors
 
 		void LoadGenerator(XElement splatXml, bool fromInclude, string rootPath, int ditherLimit, int offsetX, int offsetZ, int sizeX, int sizeZ)
 		{
-			if (splatXml.Name.LocalName == "splat")
+			var name = splatXml.Name.LocalName.ToLower();
+			if (name == "splat")
 			{
 				generators.Add(new SplatmappedTerrainPostProcessor(this, splatXml, rootPath, ditherLimit, offsetX, offsetZ, sizeX, sizeZ));
 			}
-			else if (splatXml.Name.LocalName == "water")
+			else if (name == "water")
 			{
 				generators.Add(new WaterLevelPostProcessor(rootPath, splatXml, offsetX, offsetZ, sizeX, sizeZ));
 			}
-			else if (splatXml.Name.LocalName == "merger")
+			else if (name == "merger")
 			{
 				generators.Add(new WorldMergerPostProcessor(rootPath, splatXml, offsetX, offsetZ, sizeX, sizeZ));
 			}
-			else if (splatXml.Name.LocalName == "ores")
+			else if (name == "ores")
 			{
 				generators.Add(new OreGenPostProcessor(rootPath, splatXml, offsetX, offsetZ, sizeX, sizeZ));
 			}
-			else if (splatXml.Name.LocalName == "deice")
+			else if (name == "snow")
 			{
-				generators.Add(new DeIcingPostProcessor(rootPath, splatXml, offsetX, offsetZ, sizeX, sizeZ));
+				generators.Add(new SnowPostProcessor(rootPath, splatXml, offsetX, offsetZ, sizeX, sizeZ));
 			}
-			else if (splatXml.Name.LocalName == "naturalize")
+			else if (name == "deice")
+			{
+				generators.Add(new ThawingPostProcessor(rootPath, splatXml, offsetX, offsetZ, sizeX, sizeZ));
+			}
+			else if (name == "naturalize")
 			{
 				generators.Add(new NaturalTerrainPostProcessor(rootPath, splatXml, offsetX, offsetZ, sizeX, sizeZ));
 			}
-			else if (splatXml.Name.LocalName == "vegetation")
+			else if (name == "vegetation")
 			{
 				generators.Add(new VegetationPostProcessor(rootPath, splatXml, offsetX, offsetZ, sizeX, sizeZ));
 			}
-			else if (splatXml.Name.LocalName == "torches")
+			else if (name == "torches")
 			{
 				generators.Add(new RandomTorchPostProcessor(rootPath, splatXml, offsetX, offsetZ, sizeX, sizeZ));
 			}
-			else if (splatXml.Name.LocalName == "caves")
+			else if (name == "caves")
 			{
 				generators.Add(new CavesPostProcessor(rootPath, splatXml, offsetX, offsetZ, sizeX, sizeZ));
 			}
-			else if (splatXml.Name.LocalName == "bedrock")
+			else if (name == "bedrock")
 			{
 				generators.Add(new BedrockPostProcessor(rootPath, splatXml, offsetX, offsetZ, sizeX, sizeZ));
 			}
-			else if (splatXml.Name.LocalName == "include")
+			else if (name == "include")
 			{
 				if (fromInclude)
 				{

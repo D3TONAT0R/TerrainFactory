@@ -11,7 +11,7 @@ namespace HMConMC.PostProcessors.Splatmapper
 	public class WaterLevelPostProcessor : AbstractPostProcessor
 	{
 
-		short waterLevel = -1;
+		int waterLevel = 62;
 		public string waterBlock = "minecraft:water";
 		byte[,] waterSurfaceMap;
 
@@ -27,15 +27,19 @@ namespace HMConMC.PostProcessors.Splatmapper
 				string path = Path.Combine(rootPath, xml.Element("file").Value);
 				waterSurfaceMap = ArrayConverter.Flip(HeightmapImporter.ImportHeightmapRaw(path, 0, 0, sizeX, sizeZ));
 			}
-			if (xml.Element("waterlevel") != null) waterLevel = short.Parse(xml.Element("waterlevel").Value);
+			xml.TryParseInt("waterlevel", ref waterLevel);
 			if (xml.Element("waterblock") != null) waterBlock = xml.Element("waterblock").Value;
 			ConsoleOutput.WriteLine("Water mapping enabled");
 		}
 
 		protected override void OnProcessSurface(World world, int x, int y, int z, int pass, float mask)
 		{
-			short start = Math.Max(waterSurfaceMap?[x - worldOriginOffsetX, z - worldOriginOffsetZ] ?? (short)-1, waterLevel);
-			for (short y2 = start; y2 > y; y2--)
+			int start = waterLevel;
+			if (waterSurfaceMap != null)
+			{
+				start = Math.Max(waterSurfaceMap?[x - worldOriginOffsetX, z - worldOriginOffsetZ] ?? (short)-1, waterLevel);
+			}
+			for (int y2 = start; y2 > y; y2--)
 			{
 				if (world.IsAir(x, y2, z))
 				{

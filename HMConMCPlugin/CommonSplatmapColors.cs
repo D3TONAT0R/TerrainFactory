@@ -18,13 +18,21 @@ public class CommonSplatmapColors {
 
 	public static Color NameToColor(string s) {
 		switch(s.ToLower()) {
+			case "w":
 			case "white": return white;
+			case "k":
 			case "black": return black;
+			case "r":
 			case "red": return red;
+			case "g":
 			case "green": return green;
+			case "b":
 			case "blue": return blue;
+			case "y":
 			case "yellow": return yellow;
+			case "c":
 			case "cyan": return cyan;
+			case "m":
 			case "magenta": return magenta;
 			default: ConsoleOutput.WriteWarning("Unknown splat color: " + s); return black;
 		}
