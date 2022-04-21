@@ -16,6 +16,8 @@ namespace HMCon.Export {
 			list.Add(new FileFormat("PTS_XYZ", "xyz", "xyz", "ASCII-XYZ points", this));
 			list.Add(new FileFormat("R16", "r16", "r16", "16 Bit raw data", this));
 			list.Add(new FileFormat("R32", "r32", "r32", "32 Bit raw data", this));
+			list.Add(new FileFormat("DXF", "dxf", "dxf", "AutoCAD DXF labeled point grid", this));
+			list.Add(new FileFormat("DXF_3D", "dxf", "dxf3d", "AutoCAD DXF 3D point grid", this)); //TODO: Add support for 3D DXF
 		}
 
 		public override bool Export(ExportJob job) {
@@ -25,6 +27,8 @@ namespace HMCon.Export {
 				return WriteFilePointData(job);
 			} else if(job.format.IsFormat("R16", "R32")) {
 				return WriteFileRaw(job);
+			} else if (job.format.IsFormat("DXF")) {
+				return WriteFileDxf(job);
 			} else {
 				return false;
 			}
@@ -79,6 +83,19 @@ namespace HMCon.Export {
 				return false;
 			}
 		}
+
+		public static bool WriteFileDxf(ExportJob job)
+		{
+			try
+			{
+				IExporter exporter;
+				exporter = new VectorDrawingExporter(job);
+				ExportUtility.WriteFile(exporter, job.FilePath, job.format);
+				return true;
+			}
+			catch (Exception e)
+			{
+				WriteError("Failed to create vector drawing file!");
 				WriteLine(e.ToString());
 				return false;
 			}
