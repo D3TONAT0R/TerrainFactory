@@ -10,6 +10,8 @@ namespace HMCon.Export {
 	class StandardExporter : HMConExportHandler {
 
 		public override void AddFormatsToList(List<FileFormat> list) {
+			list.Add(new FileFormat("HMC_CMDS", "cmds", "cmds", "HMCon command stack", this));
+			list.Add(new FileFormat("GEO_META", "meta", "txt", "Geo metadata", this));
 			list.Add(new FileFormat("ASC", "asc", "asc", "ESRI ASCII grid (same as input)", this));
 			list.Add(new FileFormat("PTS_XYZ", "xyz", "xyz", "ASCII-XYZ points", this));
 			list.Add(new FileFormat("R16", "r16", "r16", "16 Bit raw data", this));
@@ -17,11 +19,28 @@ namespace HMCon.Export {
 		}
 
 		public override bool Export(ExportJob job) {
-			if(job.format.IsPointFormat()) {
+			if(job.format.IsFormat("HMC_CMD", "GEO_META")) {
+				return WriteFileMeta(job);
+			} else if(job.format.IsPointFormat()) {
 				return WriteFilePointData(job);
 			} else if(job.format.IsFormat("R16", "R32")) {
 				return WriteFileRaw(job);
 			} else {
+				return false;
+			}
+		}
+
+		public static bool WriteFileMeta(ExportJob job)
+		{
+			try
+			{
+				ExportUtility.WriteFile(new MetadataExporter(job), job.FilePath, job.format);
+				return true;
+			}
+			catch (Exception e)
+			{
+				WriteError("Failed to create Meta data file!");
+				WriteLine(e.ToString());
 				return false;
 			}
 		}
@@ -55,9 +74,21 @@ namespace HMCon.Export {
 			}
 			catch (Exception e)
 			{
-				WriteError("Failed to create Point data file!");
+				WriteError("Failed to create raw data file!");
 				WriteLine(e.ToString());
 				return false;
+			}
+		}
+				WriteLine(e.ToString());
+				return false;
+			}
+		}
+
+		public override void EditFileName(ExportJob exportJob, FileNameBuilder nameBuilder)
+		{
+			if(exportJob.format.IsFormat("GEO_META"))
+			{
+				nameBuilder.suffix = "geodata";
 			}
 		}
 

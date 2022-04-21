@@ -12,6 +12,7 @@ namespace HMCon.Modification {
 		}
 
 		public ModificationCommand sourceCommand;
+		public string sourceCommandString;
 
 		public virtual string Name => GetType().Name;
 

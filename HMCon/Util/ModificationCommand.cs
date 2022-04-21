@@ -20,8 +20,17 @@ namespace HMCon.Util {
 		}
 
 		public new Modifier ExecuteCommand(Job job, string[] args) {
-			
-			return handler(job, args);
+			var mod = handler(job, args);
+			//TODO: needs major refactoring for this to work
+			/*
+			string cmdString = mod.sourceCommand.command;
+			foreach(var arg in args)
+			{
+				cmdString += " " + arg;
+			}
+			mod.sourceCommandString = cmdString;
+			*/
+			return mod;
 		}
 
 		public Modifier CreateModifier()
