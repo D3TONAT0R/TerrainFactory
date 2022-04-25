@@ -5,14 +5,9 @@ using System.Collections.Generic;
 using System.IO;
 
 namespace HMConMC {
-	public class MinecraftRegionImporter : HMConImportHandler {
+	public static class MinecraftRegionImporter {
 
-		public override void AddFormatsToList(List<FileFormat> list) {
-			list.Add(new FileFormat("MCA", "MCA", "mca", "Minecraft anvil region format", this));
-			list.Add(new FileFormat("MCR", "MCR", "mcr", "Minecraft (old) region format", this));
-		}
-
-		public override HeightData Import(string importPath, FileFormat ff, params string[] args) {
+		public static HeightData Import(string importPath, params string[] args) {
 			return ImportHeightmap(importPath, HeightmapType.TerrainBlocksNoLiquid);
 		}
 

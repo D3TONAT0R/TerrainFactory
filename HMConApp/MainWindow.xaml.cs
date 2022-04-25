@@ -1,5 +1,6 @@
 ﻿using HMCon;
 using HMCon.Export;
+using HMCon.Formats;
 using HMCon.Modification;
 using HMCon.Util;
 using HMConApp.Controls;
@@ -58,7 +59,7 @@ namespace HMConApp
 				modificatorDropDown.Items.Add(cbi);
 			}
 
-			foreach (var ff in ExportUtility.supportedFormats)
+			foreach (var ff in FileFormatManager.GetSupportedFormats())
 			{
 				var toggle = new CheckBox()
 				{

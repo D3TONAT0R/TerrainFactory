@@ -1,4 +1,5 @@
 ﻿using HMCon.Export;
+using HMCon.Formats;
 using HMCon.Import;
 using System;
 using System.Collections.Generic;
@@ -30,25 +31,26 @@ namespace HMCon
 							var plugin = (HMConPlugin)Activator.CreateInstance(t);
 							string info = "";
 
-							var i = plugin.GetImportHandler();
-							if (i != null)
+							bool hasImporter = false;
+							bool hasExporter = false;
+							List<FileFormat> formats = new List<FileFormat>();
+							plugin.RegisterFormats(formats);
+							foreach(var f in formats)
 							{
-								ImportManager.RegisterHandler(i);
-								info += info.Length > 0 ? "+I" : "I";
+								FileFormatManager.RegisterFormat(f);
+								hasImporter |= f.HasImporter;
+								hasExporter |= f.HasExporter;
 							}
-							var e = plugin.GetExportHandler();
-							if (e != null)
-							{
-								ExportUtility.RegisterHandler(e);
-								info += info.Length > 0 ? "+E" : "E";
-							}
+							if (hasImporter && hasExporter) info = "I+E";
+							else if (hasImporter) info = "I";
+							else if (hasExporter) info = "E";
+
 							var c = plugin.GetCommandHandler();
 							if (c != null)
 							{
 								CommandHandler.commandHandlers.Add(c);
 								info += info.Length > 0 ? "+C" : "C";
 							}
-
 
 							var attribute = t.GetCustomAttribute<PluginInfoAttribute>();
 							string pluginID;

@@ -1,5 +1,6 @@
 ﻿using HMCon;
 using HMCon.Export;
+using HMCon.Formats;
 using HMCon.Util;
 using ImageMagick;
 using System;
@@ -13,50 +14,8 @@ using System.Text;
 
 namespace HMConImage
 {
-	public class ImageExporter : HMConExportHandler
+	public static class ImageExporter
 	{
-
-		const string FormatPrefix = "IMG_";
-		const string PNGPrefix = "PNG_";
-
-		public const string HeightmapPNG8Bit = FormatPrefix + PNGPrefix + "HM";
-		public const string HeightmapPNG16Bit = FormatPrefix + PNGPrefix + "HM-16";
-		public const string NormalsPNG = FormatPrefix + PNGPrefix + "NM";
-		public const string HillshadePNG = FormatPrefix + PNGPrefix + "HS";
-
-		public override void AddFormatsToList(List<FileFormat> list)
-		{
-			list.Add(new FileFormat(HeightmapPNG8Bit, "png-hm", "png", "Heightmap", this));
-			list.Add(new FileFormat(HeightmapPNG16Bit, "png-hm-16", "png", "Heightmap (16 Bit)", this));
-			list.Add(new FileFormat(NormalsPNG, "png-nm", "png", "Normalmap", this));
-			list.Add(new FileFormat(HillshadePNG, "png-hs", "png", "Hillshade", this));
-		}
-
-		public override bool Export(ExportJob job)
-		{
-			return WriteFileImage(job.data, job.FilePath, job.format);
-		}
-
-		public override void EditFileName(ExportJob job, FileNameBuilder nameBuilder)
-		{
-			if (job.format.IsFormat(HeightmapPNG8Bit)) nameBuilder.suffix = "height";
-			if (job.format.IsFormat(HeightmapPNG16Bit)) nameBuilder.suffix = "height16";
-			else if (job.format.IsFormat(NormalsPNG)) nameBuilder.suffix = "normal";
-			else if (job.format.IsFormat(HillshadePNG)) nameBuilder.suffix = "hillshade";
-		}
-
-		public override bool AreExportSettingsValid(ExportSettings options, FileFormat format, HeightData data)
-		{
-			return true;
-		}
-
-		bool WriteFileImage(HeightData source, string filename, FileFormat ff)
-		{
-			IExporter exporter;
-			exporter = new ImageGeneratorMagick(source, ff.GetImageType(), source.lowPoint, source.highPoint);
-			ExportUtility.WriteFile(exporter, filename, ff);
-			return true;
-		}
 
 		public static Bitmap GenerateCompositeMap(HeightData data, Bitmap baseMap, float heightmapIntensity, float hillshadeIntensity)
 		{

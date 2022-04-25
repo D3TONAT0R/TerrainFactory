@@ -1,5 +1,6 @@
 ﻿using HMCon;
 using HMCon.Export;
+using HMCon.Formats;
 using HMCon.Import;
 using HMCon.Util;
 using System;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace HMConImage
 {
-	public class HeightmapImporter : HMConImportHandler
+	public static class HeightmapImporter
 	{
 
 		const string progString = "Importing heightmap";
@@ -27,16 +28,7 @@ namespace HMConImage
 			CombinedBrightness
 		}
 
-		public override void AddFormatsToList(List<FileFormat> list)
-		{
-			list.Add(new FileFormat("IMG-PNG", "PNG", "png", "PNG Image", this));
-			list.Add(new FileFormat("IMG-JPG", "JPG", "jpg", "JPG Image", this));
-			list.Add(new FileFormat("IMG-JPG", "JPG", "jpeg", "JPG Image", this));
-			list.Add(new FileFormat("IMG-TIF", "TIF", "tif", "TIF Image", this));
-			list.Add(new FileFormat("IMG-BMP", "BMP", "bmp", "BMP Image", this));
-		}
-
-		public override HeightData Import(string importPath, FileFormat ff, params string[] args)
+		public static HeightData Import(string importPath, params string[] args)
 		{
 			ColorChannel? channel = null;
 			if (args.TryGetArgument("channel", out string v))
@@ -58,7 +50,7 @@ namespace HMConImage
 			}
 		}
 
-		public HeightData ImportHeightmap(string filepath, float low, float high, ColorChannel channel = ColorChannel.CombinedBrightness)
+		public static HeightData ImportHeightmap(string filepath, float low, float high, ColorChannel channel = ColorChannel.CombinedBrightness)
 		{
 			return ImportHeightmap(filepath,
 				(HeightData d, int x, int y, Color c) =>
@@ -74,7 +66,7 @@ namespace HMConImage
 			);
 		}
 
-		public HeightData ImportHeightmap256(string filepath, ColorChannel channel = ColorChannel.CombinedBrightness)
+		public static HeightData ImportHeightmap256(string filepath, ColorChannel channel = ColorChannel.CombinedBrightness)
 		{
 			return ImportHeightmap(filepath,
 				(HeightData d, int x, int y, Color c) =>
@@ -90,7 +82,7 @@ namespace HMConImage
 			);
 		}
 
-		private HeightData ImportHeightmap(string filepath, Action<HeightData, int, int, Color> iterator, Action<HeightData> finalizer)
+		private static HeightData ImportHeightmap(string filepath, Action<HeightData, int, int, Color> iterator, Action<HeightData> finalizer)
 		{
 			ConsoleOutput.UpdateProgressBar(progString, 0);
 			FileStream stream = File.Open(filepath, FileMode.Open);
@@ -133,7 +125,7 @@ namespace HMConImage
 			return heightData;
 		}
 
-		Color GetPixel(byte[] byteBuffer, int x, int y, int width, int height, int depth)
+		static Color GetPixel(byte[] byteBuffer, int x, int y, int width, int height, int depth)
 		{
 			int by = height - y - 1;
 			int pos = (by * width + x) * depth;

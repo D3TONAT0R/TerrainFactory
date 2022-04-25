@@ -1,35 +1,41 @@
-﻿using HMCon.Formats;
-using HMCon.Util;
+﻿using HMCon.Export;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace HMCon.Export.Exporters {
-	public class RawDataExporter {
+namespace HMCon.Formats
+{
+	public class Raw16Format : FileFormat
+	{
+		public override string Identifier => "R16";
+		public override string ReadableName => "16 Bit Raw Data";
+		public override string CommandKey => "r16";
+		public override string Description => ReadableName;
+		public override string Extension => "r16";
+		public override FileSupportFlags SupportedActions => FileSupportFlags.Export;
 
-		private HeightData data;
-
-		public RawDataExporter(HeightData source) {
-			data = source;
-		}
-
-		public bool NeedsFileStream(FileFormat format) {
+		protected override bool ExportFile(string path, ExportJob job)
+		{
+			using (var stream = BeginWriteStream(path))
+			{
+				WriteBytes(stream, job.data, 2);
+			}
 			return true;
 		}
 
-		public void WriteFile(FileStream stream, string path, FileFormat filetype) {
-			bool is32bit = filetype.IsFormat("R32");
-			int byteCount = filetype.IsFormat("R32") ? 4 : 2;
+		protected void WriteBytes(FileStream stream, HeightData data, int byteCount)
+		{
 			int convert = 1 << (byteCount * 8);
 			//Decode with 1f / convert;
-			for (int y = data.GridHeight-1; y >= 0; y--)
+			for (int y = data.GridHeight - 1; y >= 0; y--)
 			{
 				for (int x = 0; x < data.GridWidth; x++)
 				{
 					float height = data.GetHeight(x, y);
 					float height01 = Math.Min(1, Math.Max(0, MathUtils.InverseLerp(data.lowPoint, data.highPoint, height)));
 					byte[] bytes;
-					if(is32bit)
+					if (byteCount > 2)
 					{
 						int h = (int)Math.Round(height01 * convert);
 						bytes = BitConverter.GetBytes(h);
@@ -39,7 +45,7 @@ namespace HMCon.Export.Exporters {
 						short h = (short)Math.Round(height01 * convert);
 						bytes = BitConverter.GetBytes(h);
 					}
-					stream.Write(bytes, 0, bytes.Length);
+					stream.Write(bytes, 0, byteCount);
 				}
 			}
 		}

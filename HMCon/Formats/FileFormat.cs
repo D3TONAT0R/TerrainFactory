@@ -1,42 +1,146 @@
 using HMCon.Export;
 using HMCon.Import;
+using HMCon.Util;
+using System;
+using System.IO;
+using System.Text;
 
-namespace HMCon {
+namespace HMCon.Formats
+{
 
-	public class FileFormat {
-		public string Identifier {
-			get { return identifier; }
-			set { identifier = value.ToUpper(); }
+	public abstract class FileFormat
+	{
+		[Flags]
+		public enum FileSupportFlags
+		{
+			None = 0b00,
+			Import = 0b01,
+			Export = 0b10,
+			ImportAndExport = 0b11
 		}
 
-		private string identifier;
-		public string InputKey { get; private set; }
-		public string Description { get; private set; }
-		public string Extension { get; private set; }
-		public HMConImportHandler importHandler;
-		public HMConExportHandler exportHandler;
+		/// <summary>
+		/// A short, uppercase, unique identifier for this format.
+		/// </summary>
+		public abstract string Identifier { get; }
+		/// <summary>
+		/// A human-readable name for this format.
+		/// </summary>
+		public abstract string ReadableName { get; }
+		/// <summary>
+		/// Input string for selecting this format when entering commands.
+		/// </summary>
+		public abstract string CommandKey { get; }
+		/// <summary>
+		/// A short description about this format.
+		/// </summary>
+		public abstract string Description { get; }
+		/// <summary>
+		/// The target file's extension, without the '.' dot.
+		/// </summary>
+		public abstract string Extension { get; }
 
-		private FileFormat(string id, string input, string ext, string desc) {
-			Identifier = id.ToUpper();
-			InputKey = input.ToLower();
-			Description = desc;
-			Extension = ext;
+		public abstract FileSupportFlags SupportedActions { get; }
+		public bool HasImporter => SupportedActions.HasFlag(FileSupportFlags.Import);
+		public bool HasExporter => SupportedActions.HasFlag(FileSupportFlags.Export);
+
+		public static FileFormat GetFromIdentifier(string identifier)
+		{
+			return FileFormatManager.GetFormatFromIdentifier(identifier);
 		}
 
-		public FileFormat(string id, string input, string ext, string desc, HMConExportHandler handler) : this(id, input, ext, desc) {
-			exportHandler = handler;
+		public static FileFormat GetFromCommandInput(string key)
+		{
+			return FileFormatManager.GetFormatFromCommandKey(key);
 		}
 
-		public FileFormat(string id, string input, string ext, string desc, HMConImportHandler handler) : this(id, input, ext, desc) {
-			importHandler = handler;
+		public static FileFormat GetFromFileName(string filename)
+		{
+			return FileFormatManager.GetFormatByFileName(filename);
 		}
 
-		public bool IsFormat(params string[] ids) {
+		public static FileFormat GetFromExtension(string ext)
+		{
+			return FileFormatManager.GetFormatByExtension(ext);
+		}
+
+		public static FileFormat GetFromType(Type type)
+		{
+			return FileFormatManager.GetFormatFromType(type);
+		}
+
+		public bool IsFormat(params string[] ids)
+		{
 			foreach (var id in ids)
 			{
-				if (id.ToUpper() == identifier) return true;
+				if (id.ToUpper() == Identifier) return true;
 			}
 			return false;
+		}
+
+		public HeightData Import(string importPath, params string[] args)
+		{
+			if (HasImporter)
+			{
+				return ImportFile(importPath, args);
+			}
+			else
+			{
+				throw new NotSupportedException($"The format '{Identifier}' does not support importing.");
+			}
+		}
+
+		public bool Export(string path, ExportJob job)
+		{
+			if(HasExporter)
+			{
+				return ExportFile(path, job);
+			}
+			else
+			{
+				throw new NotSupportedException($"The format '{Identifier}' does not support exporting.");
+			}
+		}
+
+		protected virtual HeightData ImportFile(string importPath, params string[] args)
+		{
+			throw new NotImplementedException("Import functionality is not implemented.");
+		}
+
+		protected virtual bool ExportFile(string path, ExportJob job)
+		{
+			throw new NotImplementedException("Export functionality is not implemented.");
+		}
+
+		/// <summary>
+		/// Modifies the target file name prior to exporting.
+		/// </summary>
+		public virtual void ModifyFileName(ExportJob exportJob, FileNameBuilder nameBuilder)
+		{
+
+		}
+
+		/// <summary>
+		/// Modifies the entire export job's file naming pattern.
+		/// </summary>
+		public virtual void ModifyJobNamingPattern(ExportJob exportJob, FileNameBuilder namingPattern)
+		{
+
+		}
+
+		public virtual bool ValidateSettings(ExportSettings settings, HeightData data)
+		{
+			return true;
+		}
+
+		protected FileStream BeginWriteStream(string path)
+		{
+			return new FileStream(path, FileMode.Create);
+		}
+
+		protected FileStream BeginReadStream(string path)
+		{
+			return new FileStream(path, FileMode.Open);
 		}
 	}
 }

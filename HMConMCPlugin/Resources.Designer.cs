@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace HMConMCPlugin {
+namespace HMConMC {
     using System;
     
     

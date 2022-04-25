@@ -1,10 +1,11 @@
-﻿using HMCon.Util;
+﻿using HMCon.Formats;
+using HMCon.Util;
 using System;
 using System.IO;
 using System.Text;
 
 namespace HMCon.Export.Exporters {
-	public class PointDataExporter : IExporter {
+	public class PointDataExporter {
 
 		private HeightData data;
 

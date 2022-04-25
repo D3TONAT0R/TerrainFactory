@@ -1,4 +1,5 @@
 ﻿using HMCon.Export;
+using HMCon.Formats;
 using HMCon.Import;
 using System;
 using static HMCon.ConsoleOutput;
@@ -16,13 +17,12 @@ namespace HMCon {
 
 		public static void Initialize(string pluginPath) {
 			ConsoleOutput.Initialize();
-			ImportManager.RegisterHandler(new ASCImporter());
-			ExportUtility.RegisterHandler(new StandardExporter());
+			FileFormatManager.RegisterStandardFormats();
 			CommandHandler.commandHandlers.Add(new StandardCommands());
 			if(!string.IsNullOrEmpty(pluginPath)) {
 				PluginLoader.LoadPlugins(pluginPath);
 			} else {
-				WriteLine("Plugin loading has been disabled");
+				WriteLine("Plugin loading has been disabled.");
 			}
 			CommandHandler.Initialize();
 			isInitialized = true;

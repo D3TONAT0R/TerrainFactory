@@ -1,3 +1,4 @@
+using HMCon.Formats;
 using HMCon.Modification;
 using HMCon.Util;
 using System;
@@ -13,16 +14,11 @@ namespace HMCon.Export {
 
 		private readonly Dictionary<string, object> customSettings = new Dictionary<string, object>();
 
-		//Format specific settings
-		/*public int mcaOffsetX = 0;
-		public int mcaOffsetZ = 0;
-		public bool useSplatmaps;*/
-
 		public void SetOutputFormats(string[] inputs, bool append) {
 			if(!append) outputFormats.Clear();
 			foreach(string input in inputs) {
 				if(string.IsNullOrWhiteSpace(input)) continue;
-				var ff = ExportUtility.GetFormatFromInput(input);
+				var ff = FileFormat.GetFromCommandInput(input);
 				if(ff != null) {
 					outputFormats.Add(ff);
 				} else {

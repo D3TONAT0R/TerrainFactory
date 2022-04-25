@@ -1,5 +1,6 @@
 ﻿using HMCon;
 using HMCon.Export;
+using HMCon.Formats;
 using ImageMagick;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ using System.Numerics;
 using System.Text;
 
 namespace HMConImage {
-	class ImageGeneratorMagick : IExporter {
+	class ImageGeneratorMagick {
 
 		private MagickImage image;
 
@@ -41,12 +42,8 @@ namespace HMConImage {
 			return image.ToBitmap(ImageFormat.Png);
 		}
 
-		public bool NeedsFileStream(FileFormat format) {
-			return true;
-		}
-
-		public void WriteFile(FileStream stream, string path, FileFormat format) {
-			image.Write(stream);
+		public void WriteFile(string filename, MagickFormat format) {
+			image.Write(filename, format);
 		}
 
 		private void MakeHeightmap(bool is16bit) {

@@ -1,10 +1,10 @@
 
 using HMCon;
 using HMCon.Export;
+using HMCon.Formats;
 using HMCon.Util;
 using HMConImage;
 using HMConMC.PostProcessors;
-using HMConMCPlugin;
 using Ionic.Zlib;
 using MCUtils;
 using System;
@@ -16,7 +16,7 @@ using static MCUtils.NBTContent;
 
 namespace HMConMC
 {
-	public class MCWorldExporter : IExporter
+	public class MCWorldExporter
 	{
 
 		public static readonly string defaultBlock = "minecraft:stone";
@@ -91,11 +91,6 @@ namespace HMConMC
 			}
 		}
 
-		public bool NeedsFileStream(FileFormat format)
-		{
-			return format.Identifier.StartsWith("MCR");
-		}
-
 		private void CreateWorld(string worldName)
 		{
 			world = new World(desiredVersion, regionOffsetX, regionOffsetZ, regionOffsetX + regionNumX - 1, regionOffsetZ + regionNumZ - 1);
@@ -134,7 +129,7 @@ namespace HMConMC
 			}
 		}
 
-		public void WriteFile(FileStream stream, string path, FileFormat filetype)
+		public void WriteFile(string path, FileStream stream, FileFormat filetype)
 		{
 			string name = Path.GetFileNameWithoutExtension(path);
 			CreateWorld(name);
@@ -150,13 +145,13 @@ namespace HMConMC
 				using (var mapStream = new FileStream(mapPath, FileMode.Create))
 				{
 					var mapExporter = new OverviewmapExporter(this, true);
-					mapExporter.WriteFile(mapStream, mapPath, null);
+					mapExporter.WriteFile(mapStream, mapPath);
 				}
 				mapPath = Path.Combine(path, "overviewmap_no-water.png");
 				using (var mapStream = new FileStream(mapPath, FileMode.Create))
 				{
 					var mapExporter = new OverviewmapExporter(this, true, HeightmapType.SolidBlocksNoLiquid);
-					mapExporter.WriteFile(mapStream, mapPath, null);
+					mapExporter.WriteFile(mapStream, mapPath);
 				}
 				world.WriteWorldSave(path, regionOffsetX * 512 + 50, regionOffsetZ * 512 + 50);
 			}

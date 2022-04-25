@@ -5,21 +5,22 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using HMCon.Formats;
 
 namespace HMCon3D {
-	public class Assimp3DExporter : IExporter {
+	internal class Assimp3DExporter {
 
 		private Scene scene;
 
-		public Assimp3DExporter(List<(List<Vector3> verts, List<int> tris, List<Vector2> uvs)> meshInfo) {
+		public Assimp3DExporter(ModelData model) {
 			try {
-				bool makeChildNodes = meshInfo.Count > 1;
+				bool makeChildNodes = model.meshes.Count > 1;
 				scene = new Scene();
-				for(int i = 0; i < meshInfo.Count; i++) {
-					var tuple = meshInfo[i];
+				for(int i = 0; i < model.meshes.Count; i++) {
+					var mesh = model.meshes[i];
 					Mesh m = new Mesh();
-					foreach(Vector3 v in tuple.verts) m.Vertices.Add(new Vector3D(v.X, v.Y, v.Z));
-					m.SetIndices(tuple.tris.ToArray(), 3);
+					foreach(Vector3 v in mesh.vertices) m.Vertices.Add(new Vector3D(v.X, v.Y, v.Z));
+					m.SetIndices(mesh.tris.ToArray(), 3);
 					int index = scene.Meshes.Count;
 					scene.Meshes.Add(m);
 					if(makeChildNodes) {
@@ -37,11 +38,7 @@ namespace HMCon3D {
 			}
 		}
 
-		public bool NeedsFileStream(FileFormat format) {
-			return true;
-		}
-
-		public void WriteFile(FileStream stream, string path, FileFormat ff) {
+		public void WriteFile(FileStream stream, FileFormat ff) {
 			AssimpContext context = new AssimpContext();
 			var blob = context.ExportToBlob(scene, ff.Extension);
 			stream.Write(blob.Data, 0, blob.Data.Length);

@@ -7,22 +7,9 @@ using System.Text;
 using static HMCon.ConsoleOutput;
 
 namespace HMCon.Import {
-	public class ASCImporter : HMConImportHandler {
+	public class ASCImporter {
 
-		public static ASCImporter instance;
-
-		private static HeightData current;
-
-		public override void AddFormatsToList(List<FileFormat> list)
-		{
-			instance = this;
-			list.Add(new FileFormat("ASC", "ASC", "asc", "ESRI ASCII Grid", this));
-		}
-
-		public override HeightData Import(string filepath, FileFormat ff = null, params string[] args) {
-			if(!File.Exists(filepath)) {
-				WriteError("File " + filepath + " does not exist!");
-			}
+		public static HeightData Import(string filepath, params string[] args) {
 			int sub = 1;
 			if(args != null && args.TryGetArgument("sub", out int arg))
 			{
@@ -32,17 +19,14 @@ namespace HMCon.Import {
 			try {
 				string filename = Path.GetFileNameWithoutExtension(filepath);
 				using(FileStream stream = File.OpenRead(filepath)) {
-					current = CreateBaseData(stream, filepath, sub, out int ncols, out int nrows);
+					data = CreateBaseData(stream, filepath, sub, out int ncols, out int nrows);
 					//Read the actual data
-					ReadGridData(stream, ncols, nrows, sub, current.GridCellCount > 200000);
+					ReadGridData(stream, data, ncols, nrows, sub, data.GridCellCount > 200000);
 				}
-				current.isValid = true;
-				WriteLine($"Height Range: low {current.lowestValue}, high {current.highestValue}, range {current.highestValue - current.lowestValue}");
+				data.isValid = true;
+				WriteLine($"Height Range: low {data.lowestValue}, high {data.highestValue}, range {data.highestValue - data.lowestValue}");
 			} catch(Exception e) {
 				throw new IOException("ASC import failed", e);
-			} finally {
-				data = current;
-				current = null;
 			}
 			return data;
 		}
@@ -54,7 +38,7 @@ namespace HMCon.Import {
 					//Read the actual data
 					//The cells will not be saved as long as grid is null
 					asc.SetDataGrid(null);
-					ReadGridData(stream, ncols, nrows, 1, false);
+					ReadGridData(stream, asc, ncols, nrows, 1, false);
 					double sum = 0;
 					for(int i = 0; i < asc.GridWidth * asc.GridHeight; i++) {
 						float value;
@@ -89,7 +73,7 @@ namespace HMCon.Import {
 			return d;
 		}
 
-		static void ReadGridData(FileStream stream, int ncols, int nrows, int sub, bool displayProgressBar) {
+		static void ReadGridData(FileStream stream, HeightData data, int ncols, int nrows, int sub, bool displayProgressBar) {
 			int length = ncols * nrows;
 			for(int i = 0; i < length; i++) {
 				if(displayProgressBar && (i % 1000 == 0))
@@ -104,13 +88,13 @@ namespace HMCon.Import {
 					//Skip this cell due to import subsampling
 					continue;
 				}
-				if(Math.Abs(value - current.nodata_value) > 0.1f) {
-					if(value < current.lowestValue) current.lowestValue = value;
-					if(value > current.highestValue) current.highestValue = value;
+				if(Math.Abs(value - data.nodata_value) > 0.1f) {
+					if(value < data.lowestValue) data.lowestValue = value;
+					if(value > data.highestValue) data.highestValue = value;
 				}
-				current.lowPoint = current.lowestValue;
-				current.highPoint = current.highestValue;
-				if(current.HasHeightData) current.SetHeight(x / sub, current.GridHeight - (y / sub) - 1, value);
+				data.lowPoint = data.lowestValue;
+				data.highPoint = data.highestValue;
+				if(data.HasHeightData) data.SetHeight(x / sub, data.GridHeight - (y / sub) - 1, value);
 			}
 			if(displayProgressBar)
 			{

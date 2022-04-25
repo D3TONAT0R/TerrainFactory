@@ -2,7 +2,6 @@ using HMCon;
 using HMCon.Import;
 using HMConImage;
 using HMConMC.PostProcessors.Splatmapper;
-using HMConMCPlugin;
 using MCUtils;
 using System;
 using System.Collections.Generic;

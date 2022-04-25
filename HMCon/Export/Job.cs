@@ -1,4 +1,5 @@
-﻿using HMCon.Import;
+﻿using HMCon.Formats;
+using HMCon.Import;
 using HMCon.Modification;
 using HMCon.Util;
 using System;
@@ -47,6 +48,7 @@ namespace HMCon.Export {
 				string ext = Path.GetExtension(f).ToLower().Replace(".", "");
 				HeightData d;
 				try {
+					var format = 
 					d = ImportManager.ImportFile(InputFileList[CurrentFileIndex], importArgs);
 					if(d != null) {
 						//CurrentExportJobInfo.importedFilePath = f;
@@ -92,7 +94,7 @@ namespace HMCon.Export {
 				NextFile();
 			}
 			if(!ExportUtility.ValidateExportSettings(exportSettings, CurrentData)) {
-				throw new InvalidOperationException("Current export settings are invalid for at least one of the selected formats");
+				throw new InvalidOperationException("Current export settings are invalid for at least one of the selected formats.");
 			}
 
 			ApplyModificationChain();
@@ -129,7 +131,7 @@ namespace HMCon.Export {
 								if(splitter.NumChunks > 1) {
 									exportJob.nameBuilder.gridNum = (x, z);
 								}
-								format.exportHandler.EditFileName(exportJob, exportJob.nameBuilder);
+								format.ModifyFileName(exportJob, exportJob.nameBuilder);
 								string fullpath = exportJob.nameBuilder.GetFullPath();
 
 								WriteLine($"Creating file {fullpath} ...");

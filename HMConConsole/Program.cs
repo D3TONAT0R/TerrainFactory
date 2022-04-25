@@ -1,5 +1,6 @@
 ﻿using HMCon;
 using HMCon.Export;
+using HMCon.Formats;
 using HMCon.Import;
 using System;
 using System.Collections.Generic;
@@ -156,9 +157,13 @@ namespace HMConConsole
 						WriteLine("Starting batch in directory " + inputPath + " ...");
 						foreach (string f in Directory.GetFiles(inputPath, "*", SearchOption.AllDirectories))
 						{
-							if (ImportManager.SupportsFileType(f))
+							if (ImportManager.CanImport(f))
 							{
 								files.Add(f);
+							}
+							else
+							{
+								WriteWarning($"Skipping file 'f', unknown or unsupported file type.");
 							}
 						}
 						WriteLine(files.Count + " files have been added to the batch queue");
@@ -237,9 +242,9 @@ namespace HMConConsole
 			WriteLine("* = Required setting");
 			WriteLine("Export options:");
 			WriteListEntry("format N..", "Export to the specified format(s)", 0, true);
-			foreach (var f in ExportUtility.supportedFormats)
+			foreach (var f in FileFormatManager.GetSupportedFormats())
 			{
-				WriteListEntry(f.InputKey, f.Description, 1, false);
+				WriteListEntry(f.CommandKey, f.Description, 1, false);
 			}
 			foreach (var c in CommandHandler.ConsoleCommands)
 			{

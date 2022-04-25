@@ -1,6 +1,8 @@
 using HMCon;
 using HMCon.Export;
 using HMCon.Export.Exporters;
+using HMCon.Formats;
+using HMConImage.Formats;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -23,11 +25,11 @@ namespace HMConImage {
 			var data = job.ApplyModificationChain(job.CurrentData);
 
 			var exporter = new ImageGeneratorMagick(data, heightmap ? ImageType.Heightmap8 : ImageType.Hillshade, data.lowPoint, data.highPoint);
-			MakeGrid(exporter.GetImageAsBitmap(), data.offsetFromSource);
-			var format = ExportUtility.GetFormatFromIdenfifier(heightmap ? "IMG_PNG-HEIGHT" : "IMG_PNG-HILLSHADE");
+			//TODO: Make grid on magick image
+			//MakeGrid(exporter.GetImageAsBitmap(), data.offsetFromSource);
 			string path = Path.GetTempPath() + Guid.NewGuid().ToString() + ".png";
 			FileStream stream = File.OpenWrite(path);
-			exporter.WriteFile(stream, path, format);
+			exporter.WriteFile(path, ImageMagick.MagickFormat.Png24);
 			stream.Close();
 			var p = new Process {
 				StartInfo = new ProcessStartInfo(path) {

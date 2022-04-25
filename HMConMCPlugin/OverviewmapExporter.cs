@@ -1,5 +1,4 @@
 ﻿using HMConImage;
-using HMConMC;
 using HMCon;
 using HMCon.Export;
 using MCUtils;
@@ -8,8 +7,8 @@ using System.Drawing.Imaging;
 using System.IO;
 using HMCon.Util;
 
-namespace HMConMCPlugin {
-	public class OverviewmapExporter : IExporter {
+namespace HMConMC {
+	public class OverviewmapExporter {
 
 		Bitmap map;
 
@@ -43,11 +42,7 @@ namespace HMConMCPlugin {
 			return ImageExporter.GenerateCompositeMap(data, surface, 0.3f, 0.3f);
 		}
 
-		public bool NeedsFileStream(FileFormat format) {
-			return true;
-		}
-
-		public void WriteFile(FileStream stream, string path, FileFormat filetype) {
+		public void WriteFile(FileStream stream, string path) {
 			map.Save(stream, ImageFormat.Png);
 		}
 	}
