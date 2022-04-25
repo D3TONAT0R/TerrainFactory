@@ -1,31 +1,40 @@
-# HMCon (HeightMap Converter)
-A small utility program for convertig ESRI ASCII-GRID files to various formats
 
-This program is still in it's alpha and may not work with all files.
+#  HMCon (HeightMap Converter)
 
-Notable Features (so far):
+  
 
-  - Subsampling of the original data (reduce resolution)
-  - Splitting data into multiple files
-  - Isolating a selected area of the data for export
-  - Rescaling the elevation data and cell width
-  - Generate a preview to quickly examine the output and determine grid coordinates for selection
+A moddable elevation data conversion tool.
 
-Supported file types:
+  
 
-  - Import
-    - ESRI ASCII-GRID (.asc)
-    - Any image as a heightmap (.png/.jpg/.tif/.bmp/...)
-    - Minecraft region files (.mca)
+Provides a console application that can convert elevation data from various file types into various formats.
+Every file that can be imported can be exported as any other format that is supported (see below).
 
-  - Export to
-    - ASC
-    - XYZ point data
-    - 3DS model
-    - FBX model
-    - PNG (Heightmaps, Normalmaps and Hillshade)
-    - Minecraft region files, including customized biome and surface generation
+### Supported File Formats / Types:
 
-Upcoming:
-  - Simple global operations for all points on the grid (add/substract/etc)
-  - Modifying the values in the header of an ASC file
+|Format|Import|Export|
+|--|--|--|
+|ESRI ASCII Grid|:heavy_check_mark:|:heavy_check_mark:|
+|ASCII XYZ|:x:|:heavy_check_mark:|
+|AutoCAD DXF (2D & 3D)|:x:|:heavy_check_mark:|
+|8 Bit PNG Heightmaps <sup>1</sup>|:heavy_check_mark:|:heavy_check_mark:|
+|16 Bit PNG Heightmaps <sup>1</sup>|:heavy_check_mark:|:heavy_check_mark:|
+|8 Bit JPG Heightmaps <sup>1</sup>|:heavy_check_mark:|:heavy_check_mark:|
+|8 Bit TIFHeightmaps <sup>1</sup>|:heavy_check_mark:|:heavy_check_mark:|
+|PNG Normal Maps <sup>1</sup>|:x:|:heavy_check_mark:|
+|PNG Hillshade Maps <sup>1</sup>|:x:|:heavy_check_mark:|
+|3DS 3D Models <sup>2</sup>|:x:|(WIP)|
+|FBX 3D Models <sup>2</sup>|:x:|(WIP)|
+|Minecraft Region File <sup>3</sup>|:heavy_check_mark:|:heavy_check_mark:|
+|Minecraft World File <sup>3</sup>|:x:|:heavy_check_mark:|
+
+<sub>1 - Requires HMConImage Plugin</sub>
+<sub>2 - Requires HMCon3D Plugin</sub>
+<sub>3 - Requires HMConMC Plugin</sub>
+  
+
+### Notable Features (so far):
+- TO DO
+
+### Releases
+- TO DO
