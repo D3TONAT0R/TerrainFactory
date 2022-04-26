@@ -7,7 +7,7 @@ using System.Text;
 
 namespace HMConMC
 {
-	public class MCRawRegionFormat : FileFormat
+	public class MCRawRegionFormat : MCRegionFormat
 	{
 		public override string Identifier => "MCR_RAW";
 		public override string ReadableName => "Minecraft Region (stone only)";

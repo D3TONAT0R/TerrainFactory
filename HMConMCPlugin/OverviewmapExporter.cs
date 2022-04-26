@@ -17,7 +17,7 @@ namespace HMConMC {
 				throw new System.ArgumentException("The file '" + regionPath + "' is not a .mca file");
 			}
 			var data = MinecraftRegionImporter.ImportHeightmap(regionPath, HeightmapType.SolidBlocks);
-			map = RegionImporter.GetSurfaceMap(regionPath, HeightmapType.SolidBlocks, mcMapStyle);
+			map = RegionLoader.GetSurfaceMap(regionPath, HeightmapType.SolidBlocks, mcMapStyle);
 			if (!mcMapStyle)
 			{
 				map = GenerateShadedMap(data, map);

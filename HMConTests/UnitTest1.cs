@@ -15,6 +15,9 @@ using MCUtils;
 using static MCUtils.NBTContent;
 using System.Collections.Generic;
 using Ionic.Zlib;
+using HMCon.Formats;
+using HMConImage.Formats;
+using HMConMC;
 
 namespace HMConTests {
 	public class Tests {
@@ -53,28 +56,28 @@ namespace HMConTests {
 		}
 
 		[Test]
-		[Property("Plugin", "Image")]
+		[Property("Module", "Image")]
 		public void ExportDefaultHillshadeTest() {
-			HeightData data = ASCImporter.instance.Import(Path.Combine(inputPath, sampleASCFile));
-			AssertExport(data, ImageExporter.HillshadePNG, sampleASCFileHS);
+			HeightData data = ASCImporter.Import(Path.Combine(inputPath, sampleASCFile));
+			AssertExport<HillshadePNGFormat>(data, sampleASCFileHS);
 		}
 
 		[Test]
-		[Property("Plugin", "Basic")]
+		[Property("Module", "Basic")]
 		public void TestASCExport() {
-			HeightData data = ASCImporter.instance.Import(Path.Combine(inputPath, sampleASCFile));
+			HeightData data = ASCImporter.Import(Path.Combine(inputPath, sampleASCFile));
 			var sampleLocations = GetSampleLocations(data.GridWidth, data.GridHeight);
 			var sourceSamples = GetHeightSamples(data, sampleLocations);
-			AssertExport(data, "ASC", sampleASCFile);
-			data = ASCImporter.instance.Import(Path.Combine(outputPath, sampleASCFile));
+			AssertExport<AsciiGridFormat>(data, sampleASCFile);
+			data = ASCImporter.Import(Path.Combine(outputPath, sampleASCFile));
 			var exportedSamples = GetHeightSamples(data, sampleLocations);
 			Assert.AreEqual(sourceSamples, exportedSamples);
 		}
 
 		[Test]
-		[Property("Plugin", "Basic")]
+		[Property("Module", "Basic")]
 		public void TestCroppedASCExport() {
-			HeightData data = ASCImporter.instance.Import(Path.Combine(inputPath, sampleASCFile));
+			HeightData data = ASCImporter.Import(Path.Combine(inputPath, sampleASCFile));
 			int x1 = 250;
 			int y1 = 1180;
 			int x2 = 850;
@@ -82,8 +85,8 @@ namespace HMConTests {
 			var sampleLocations = GetSampleLocations(x1, y1, x2, y2);
 			var sourceSamples = GetHeightSamples(data, sampleLocations);
 			data = new AreaSelectionModifier(x1, y1, x2, y2).Modify(data, false);
-			AssertExport(data, "ASC", sampleCroppedASCFile);
-			data = ASCImporter.instance.Import(Path.Combine(outputPath, sampleCroppedASCFile));
+			AssertExport<AsciiGridFormat>(data, sampleCroppedASCFile);
+			data = ASCImporter.Import(Path.Combine(outputPath, sampleCroppedASCFile));
 			for(int i = 0; i < sampleLocations.Length; i++) {
 				sampleLocations[i].x -= x1;
 				sampleLocations[i].y -= y1;
@@ -93,12 +96,12 @@ namespace HMConTests {
 		}
 
 		[Test]
-		[Property("Plugin", "Image")]
+		[Property("Module", "Image")]
 		public void TestHeightmapHandling() {
 			HeightData data = ImportManager.ImportFile(Path.Combine(inputPath, sampleHeightmapFile));
 			var sampleLocations = GetSampleLocations(data.GridWidth, data.GridHeight);
 			var sourceSamples = GetHeightSamples(data, sampleLocations);
-			AssertExport(data, ImageExporter.HeightmapPNG8Bit, sampleHeightmapFile);
+			AssertExport<HeightmapPNG8Format>(data, sampleHeightmapFile);
 			data = ImportManager.ImportFile(Path.Combine(outputPath, sampleHeightmapFile));
 			var exportedSamples = GetHeightSamples(data, sampleLocations);
 			for(int i = 0; i < sourceSamples.Length; i++) {
@@ -107,7 +110,7 @@ namespace HMConTests {
 		}
 
 		[Test]
-		[Property("Plugin", "Minecraft")]
+		[Property("Module", "Minecraft")]
 		public void TestMCAFileHandling() {
 			HeightData data = ImportManager.ImportFile(Path.Combine(inputPath, sampleMCAFile));
 			data.lowPoint = 0;
@@ -116,24 +119,24 @@ namespace HMConTests {
 			//var sourceSamples = GetHeightSamples(data, sampleLocations);
 			currentJob.exportSettings.SetCustomSetting("mcaOffsetX", 16);
 			currentJob.exportSettings.SetCustomSetting("mcaOffsetZ", 26);
-			AssertExport(data, "MCR", sampleMCAFile);
-			AssertExport(data, ImageExporter.HillshadePNG, sampleMCAFile);
-			AssertExport(data, ImageExporter.HeightmapPNG8Bit, sampleMCAFile);
+			AssertExport<MCRegionFormat>(data, sampleMCAFile);
+			AssertExport<HillshadePNGFormat>(data, sampleMCAFile);
+			AssertExport<HeightmapPNG8Format>(data, sampleMCAFile);
 		}
 
 		[Test]
-		[Property("Plugin", "Minecraft")]
+		[Property("Module", "Minecraft")]
 		public void TestNBTHandling()
 		{
-			using (var stream = RegionImporter.CreateGZipDecompressionStream(File.ReadAllBytes(Path.Combine(inputPath, sampleNBTFile))))
+			using (var stream = RegionLoader.CreateGZipDecompressionStream(File.ReadAllBytes(Path.Combine(inputPath, sampleNBTFile))))
 			{
-				var nbt = new NBTContent(stream, false);
+				var nbt = new NBTContent(stream);
 				CheckNBTContent(nbt.contents.GetAsCompound("Data"));
 				//Write and reload the nbt from the new byte array (Tests correct serialization).
 				var byteList = new List<byte>();
 				nbt.WriteToBytes(byteList, false);
 				var stream2 = new MemoryStream(byteList.ToArray());
-				nbt = new NBTContent(stream2, false);
+				nbt = new NBTContent(stream2);
 				CheckNBTContent(nbt.contents.GetAsCompound("Data"));
 			}
 		}
@@ -163,7 +166,7 @@ namespace HMConTests {
 		}
 
 		[Test]
-		[Property("Plugin", "Minecraft")]
+		[Property("Module", "Minecraft")]
 		public void TestMCAAccuracy() {
 			var heights = HeightmapImporter.ImportHeightmapRaw(Path.Combine(inputPath, sampleHeightmapFile), 0, 0, 512, 512);
 			HeightData data = new HeightData(512, 512, null) {
@@ -178,15 +181,15 @@ namespace HMConTests {
 			var sampleLocations = GetSampleLocations(data.GridWidth, data.GridHeight);
 			var sourceSamples = GetHeightSamples(data, sampleLocations);
 			string mcaname = "accuracy-test-r.0.0.mca";
-			AssertExport(data, "MCR-RAW", mcaname);
+			AssertExport<MCRawRegionFormat>(data, mcaname);
 			var reimported = ImportManager.ImportFile(Path.Combine(outputPath, mcaname));
 			var convSamples = GetHeightSamples(reimported, sampleLocations);
-			AssertExport(data, ImageExporter.HeightmapPNG8Bit, "reconstructed_mca.png");
+			AssertExport<HeightmapPNG8Format>(data, "reconstructed_mca.png");
 			Assert.AreEqual(sourceSamples, convSamples);
 		}
 
 		[Test]
-		[Property("Plugin", "Basic")]
+		[Property("Module", "Basic")]
 		public void TestASCResizing() {
 			HeightData data = ImportManager.ImportFile(Path.Combine(inputPath, sampleASCFile));
 			var sampleLocationsOriginal = GetSampleLocations(data.GridWidth, data.GridHeight);
@@ -207,7 +210,7 @@ namespace HMConTests {
 		}
 
 		[Test]
-		[Property("Plugin", "Basic")]
+		[Property("Module", "Basic")]
 		public void TestASCAccurateResizing() {
 			HeightData data = ImportManager.ImportFile(Path.Combine(inputPath, sampleASCFile));
 			var sampleLocationsOriginal = GetSampleLocations(data.GridWidth, data.GridHeight);
@@ -229,7 +232,7 @@ namespace HMConTests {
 		}
 
 		[Test]
-		[Property("Plugin", "Minecraft")]
+		[Property("Module", "Minecraft")]
 		public void TestMCAHeightRounding() {
 			HeightData data = new HeightData(512, 512, null);
 			for(int z = 0; z < 128; z++) {
@@ -256,24 +259,25 @@ namespace HMConTests {
 				samples[i] = (float)Math.Round(samples[i], MidpointRounding.AwayFromZero);
 			}
 
-			AssertExport(data, "ASC", gradientMCAFile + "_asc");
-			AssertExport(data, ImageExporter.HillshadePNG, gradientMCAFile + "_pre_hs");
-			AssertExport(data, "MCR-RAW", gradientMCAFile);
+			AssertExport<AsciiGridFormat>(data, gradientMCAFile + "_asc");
+			AssertExport<HillshadePNGFormat>(data, gradientMCAFile + "_pre_hs");
+			AssertExport<MCRawRegionFormat>(data, gradientMCAFile);
 
 			data = ImportManager.ImportFile(Path.Combine(outputPath, gradientMCAFile) + ".mca");
-			AssertExport(data, ImageExporter.HeightmapPNG8Bit, gradientMCAFile + "_conv_hm");
+			AssertExport<HeightmapPNG8Format>(data, gradientMCAFile + "_conv_hm");
 
 			var mcaSamples = GetHeightSamples(data, GetSampleLocations(512, 512));
 
 			Assert.AreEqual(samples, mcaSamples);
 		}
 
-		void AssertExport(HeightData data, string filetype, string path) {
-			var format = ExportUtility.GetFormatFromIdenfifier(filetype);
+		void AssertExport<T>(HeightData data, string path) where T : FileFormat {
+			var format = FileFormat.GetFromType(typeof(T));
 			path = Path.ChangeExtension(Path.Combine(outputPath, path), format.Extension);
 			var job = new ExportJob(data, format, new ExportSettings(), outputPath, path);
 			job.Export();
-			Assert.IsTrue(File.Exists(path), "Written file not found");
+			Assert.IsTrue(File.Exists(path), "Written file not found.");
+			Assert.IsTrue(new FileInfo(path).Length > 1024, "Written file is 0 bytes large.");
 		}
 
 		(int x, int y)[] GetSampleLocations(int maxX, int maxY) {

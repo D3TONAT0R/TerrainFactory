@@ -12,7 +12,7 @@ namespace HMConMC {
 		}
 
 		public static HeightData ImportHeightmap(string filepath, HeightmapType type) {
-			ushort[,] hms = RegionImporter.GetHeightmap(filepath, type);
+			short[,] hms = RegionLoader.GetHeightmap(filepath, type);
 			HeightData asc = new HeightData(512, 512, filepath);
 			for(int x = 0; x < 512; x++) {
 				for(int z = 0; z < 512; z++) {

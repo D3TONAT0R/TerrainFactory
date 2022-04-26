@@ -27,10 +27,10 @@ namespace HMCon.Export {
 			}
 		}
 
-		public bool ContainsFormat(params string[] ids) {
+		public bool ContainsFormat(params Type[] formatTypes) {
 			foreach(var f in outputFormats) {
-				foreach(var id in ids) {
-					if(f.Identifier == id.ToUpper()) return true;
+				foreach(var t in formatTypes) {
+					if(f.GetType() == t) return true;
 				}
 			}
 			return false;

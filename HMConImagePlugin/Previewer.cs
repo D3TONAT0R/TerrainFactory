@@ -1,6 +1,5 @@
 using HMCon;
 using HMCon.Export;
-using HMCon.Export.Exporters;
 using HMCon.Formats;
 using HMConImage.Formats;
 using System;

@@ -133,11 +133,11 @@ namespace HMConMC
 		{
 			string name = Path.GetFileNameWithoutExtension(path);
 			CreateWorld(name);
-			if (filetype.IsFormat("MCR") || filetype.IsFormat("MCR-RAW"))
+			if (filetype is MCRegionFormat)
 			{
 				world.WriteRegionFile(stream, regionOffsetX, regionOffsetZ);
 			}
-			else
+			else if(filetype is MCWorldFormat)
 			{
 				path = Path.Combine(Path.GetDirectoryName(path), Path.GetFileNameWithoutExtension(path));
 				Directory.CreateDirectory(path);
@@ -154,6 +154,10 @@ namespace HMConMC
 					mapExporter.WriteFile(mapStream, mapPath);
 				}
 				world.WriteWorldSave(path, regionOffsetX * 512 + 50, regionOffsetZ * 512 + 50);
+			}
+			else
+			{
+				throw new InvalidOperationException("Unsupported format: " + filetype.Identifier);
 			}
 		}
 

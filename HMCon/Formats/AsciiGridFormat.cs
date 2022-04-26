@@ -27,12 +27,12 @@ namespace HMCon.Formats
 			int decimals = job.settings.GetCustomSetting("decimals", 2);
 
 			StringBuilder fileContents = new StringBuilder();
-			fileContents.AppendLine($"ncols        {job.data.GridWidth}\n");
-			fileContents.AppendLine($"nrows        {job.data.GridHeight}\n");
-			fileContents.AppendLine($"xllcorner    {job.data.lowerCornerPos.X}\n");
-			fileContents.AppendLine($"yllcorner    {job.data.lowerCornerPos.Y}\n");
-			fileContents.AppendLine($"cellsize     {job.data.cellSize}\n");
-			fileContents.AppendLine($"NODATA_value {job.data.nodata_value}\n");
+			fileContents.AppendLine($"ncols        {job.data.GridWidth}");
+			fileContents.AppendLine($"nrows        {job.data.GridHeight}");
+			fileContents.AppendLine($"xllcorner    {job.data.lowerCornerPos.X}");
+			fileContents.AppendLine($"yllcorner    {job.data.lowerCornerPos.Y}");
+			fileContents.AppendLine($"cellsize     {job.data.cellSize}");
+			fileContents.AppendLine($"NODATA_value {job.data.nodata_value}");
 			var grid = job.data.GetDataGrid();
 
 			string format = "";

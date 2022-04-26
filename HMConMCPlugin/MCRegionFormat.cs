@@ -23,6 +23,15 @@ namespace HMConMC
 			return MinecraftRegionImporter.ImportHeightmap(importPath, MCUtils.HeightmapType.TerrainBlocksNoLiquid);
 		}
 
+		protected override bool ExportFile(string path, ExportJob job)
+		{
+			using (var stream = BeginWriteStream(path))
+			{
+				new MCWorldExporter(job, false, true).WriteFile(path, stream, this);
+			}
+			return true;
+		}
+
 		public override void ModifyFileName(ExportJob job, FileNameBuilder nameBuilder)
 		{
 			nameBuilder.gridNum = (job.exportNumX + job.settings.GetCustomSetting("mcaOffsetX", 0), job.exportNumZ + job.settings.GetCustomSetting("mcaOffsetZ", 0));

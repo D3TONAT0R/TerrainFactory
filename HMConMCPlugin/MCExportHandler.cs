@@ -19,15 +19,17 @@ namespace HMConMC {
 		}
 		*/
 
+		/*
 		public void EditFileName(ExportJob job, FileNameBuilder nameBuilder) {
 			if(job.settings.ContainsFormat("MCR")) {
 				nameBuilder.gridNum = (job.exportNumX + job.settings.GetCustomSetting("mcaOffsetX", 0), job.exportNumZ + job.settings.GetCustomSetting("mcaOffsetZ", 0));
 				nameBuilder.gridNumFormat = "r.{0}.{1}";
 			}
-			if(job.format.Identifier == "MCW") {
+			if(job.format is MCWorldFormat) {
 				nameBuilder.gridNumFormat = "";
 			}
-			if(job.format.IsFormat("IMG_MCR")) nameBuilder.suffix = "overview";
+			//if(job.format.IsFormat("IMG_MCR")) nameBuilder.suffix = "overview";
 		}
+		*/
 	}
 }

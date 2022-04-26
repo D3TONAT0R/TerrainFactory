@@ -69,6 +69,7 @@ namespace HMCon.Formats
 			return FileFormatManager.GetFormatFromType(type);
 		}
 
+		[Obsolete("Use direct type comparison instead. (e.g: if(format is AsciiGridFormat)", true)]
 		public bool IsFormat(params string[] ids)
 		{
 			foreach (var id in ids)
