@@ -41,15 +41,9 @@ Provides a console application that can convert elevation data from various file
 ### How to use:
 
 - Download the latest release (TO DO)
-
 - (Optional) Add modules by placing the DLL files next to the executable.
-
 - Run the .exe and type (or drag and drop into the console window if your OS supports it) the path of the file you want to import.
-
 - (Optional) Modify the data using the various `modify ...` commands.
-
 - Define one or more target formats with the `format ...` command.
-
 - Type `export` then type the file path where you want to save the file(s).
-
 - That's all there is to it!
