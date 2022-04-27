@@ -15,7 +15,7 @@ Provides a console application that can convert elevation data from various file
 | 8 Bit PNG Heightmaps <sup>1</sup>  | :heavy_check_mark: | :heavy_check_mark: |
 | 16 Bit PNG Heightmaps <sup>1</sup> | :heavy_check_mark: | :heavy_check_mark: |
 | 8 Bit JPG Heightmaps <sup>1</sup>  | :heavy_check_mark: | :heavy_check_mark: |
-| 8 Bit TIFHeightmaps <sup>1</sup>   | :heavy_check_mark: | :heavy_check_mark: |
+| 8 Bit TIF Heightmaps <sup>1</sup>   | :heavy_check_mark: | :heavy_check_mark: |
 | PNG Normal Maps <sup>1</sup>       | :x:                | :heavy_check_mark: |
 | PNG Hillshade Maps <sup>1</sup>    | :x:                | :heavy_check_mark: |
 | 3DS 3D Models <sup>2</sup>         | :x:                | (WIP)              |
