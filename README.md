@@ -23,9 +23,9 @@ Provides a console application that can convert elevation data from various file
 | Minecraft Region File <sup>3</sup> | :heavy_check_mark: | :heavy_check_mark: |
 | Minecraft World File <sup>3</sup>  | :x:                | :heavy_check_mark: |
 
-<sub>1 - Requires HMConImage Module</sub>
-<sub>2 - Requires HMCon3D Module</sub>
-<sub>3 - Requires HMConMC Module</sub>
+<sub>1 - Requires HMConImage Module</sub><br/>
+<sub>2 - Requires HMCon3D Module</sub><br/>
+<sub>3 - Requires HMConMC Module</sub><br/>
 
 ### Notable Features (so far)
 
