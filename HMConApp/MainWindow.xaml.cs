@@ -157,7 +157,7 @@ namespace HMConApp
 			var ff = (FileFormat)((CheckBox)sender).Tag;
 			for (int i = 0; i < job.exportSettings.outputFormats.Count; i++)
 			{
-				if (job.exportSettings.outputFormats[i].IsFormat(ff.Identifier))
+				if (job.exportSettings.outputFormats[i].GetType() == ff.GetType())
 				{
 					job.exportSettings.outputFormats.RemoveAt(i);
 					return;

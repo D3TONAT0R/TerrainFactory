@@ -50,7 +50,7 @@ namespace HMConMC.PostProcessors.Splatmapper
 			var filename = Path.Combine(otherRegionFolder, otherRegionName);
 			if (File.Exists(filename))
 			{
-				var otherRegion = RegionImporter.OpenRegionFile(filename);
+				var otherRegion = RegionLoader.LoadRegion(filename);
 				var merger = new RegionMerger(otherRegion, reg, fraction);
 				var mergedRegion = merger.Merge();
 				for (int x = 0; x < 32; x++)
