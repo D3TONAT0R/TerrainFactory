@@ -27,18 +27,18 @@ Provides a console application that can convert elevation data from various file
 <sub>2 - Requires HMCon3D Module</sub><br/>
 <sub>3 - Requires HMConMC Module</sub><br/>
 
-### Notable Features (so far)
+### Features
 
 - Convert any importable format into any other supported format.
 - Basic commands for modifying the imported elevation data, such as cropping, resizing, or subsampling operations.
 - Sequentially export to multiple formats at once.
 - Generate hillshade maps for a visual representation of the terrain data.
-- Specifically designed with CAD / 3D Modelling / Game Development in mind.
 - Create labeled point grids as 2-Dimensional DXF files for CAD applications.
 - Pregenerate entire playable Minecraft worlds with customizable world gen instructions and weightmaps for biome / feature distribution control.
 - Modular Plug-In system for additional file format support or adding custom commands.
+- Specifically designed with CAD / 3D Modelling / Game Development in mind.
 
-### How to use:
+### How to use
 
 - Download the latest release (TO DO)
 - (Optional) Add modules by placing the DLL files next to the executable.
