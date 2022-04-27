@@ -27,9 +27,7 @@ namespace HMConImage {
 			//TODO: Make grid on magick image
 			//MakeGrid(exporter.GetImageAsBitmap(), data.offsetFromSource);
 			string path = Path.GetTempPath() + Guid.NewGuid().ToString() + ".png";
-			FileStream stream = File.OpenWrite(path);
 			exporter.WriteFile(path, ImageMagick.MagickFormat.Png24);
-			stream.Close();
 			var p = new Process {
 				StartInfo = new ProcessStartInfo(path) {
 					UseShellExecute = true

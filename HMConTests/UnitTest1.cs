@@ -84,7 +84,7 @@ namespace HMConTests {
 			int y2 = 1920;
 			var sampleLocations = GetSampleLocations(x1, y1, x2, y2);
 			var sourceSamples = GetHeightSamples(data, sampleLocations);
-			data = new AreaSelectionModifier(x1, y1, x2, y2).Modify(data, false);
+			data = new BoundedAreaSelectionModifier(x1, y1, x2, y2).Modify(data, false);
 			AssertExport<AsciiGridFormat>(data, sampleCroppedASCFile);
 			data = ASCImporter.Import(Path.Combine(outputPath, sampleCroppedASCFile));
 			for(int i = 0; i < sampleLocations.Length; i++) {

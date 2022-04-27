@@ -4,16 +4,16 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace HMCon.Modification {
-	public class AreaSelectionModifier : Modifier {
+	public class BoundedAreaSelectionModifier : Modifier {
 
 		[DrawInInspector("Bounds")]
 		public Bounds bounds;
 
-		public AreaSelectionModifier(int x1, int y1, int x2, int y2) : this(new Bounds(x1, y1, x2, y2)) {
+		public BoundedAreaSelectionModifier(int x1, int y1, int x2, int y2) : this(new Bounds(x1, y1, x2, y2)) {
 
 		}
 
-		public AreaSelectionModifier(Bounds? b) {
+		public BoundedAreaSelectionModifier(Bounds? b) {
 			if(b == null)
 			{
 				bounds = new Bounds(0, 0, 0, 0);

@@ -7,10 +7,6 @@ using System.IO;
 namespace HMConMC {
 	public static class MinecraftRegionImporter {
 
-		public static HeightData Import(string importPath, params string[] args) {
-			return ImportHeightmap(importPath, HeightmapType.TerrainBlocksNoLiquid);
-		}
-
 		public static HeightData ImportHeightmap(string filepath, HeightmapType type) {
 			short[,] hms = RegionLoader.GetHeightmap(filepath, type);
 			HeightData asc = new HeightData(512, 512, filepath);

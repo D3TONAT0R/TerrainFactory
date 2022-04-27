@@ -72,7 +72,7 @@ namespace HMConMC
 			}
 		}
 
-		public MCWorldExporter(ExportJob job, bool useDefaultPostProcessing, bool customPostProcessing) : this(job)
+		public MCWorldExporter(ExportJob job, bool customPostProcessing, bool useDefaultPostProcessing) : this(job)
 		{
 			if (customPostProcessing)
 			{
@@ -81,13 +81,28 @@ namespace HMConMC
 					xmlPath = Path.Combine(Path.GetDirectoryName(job.data.filename), job.settings.GetCustomSetting("mcpostfile", ""));
 					if (Path.GetExtension(xmlPath).Length == 0) xmlPath += ".xml";
 				} else {
-					xmlPath = Path.ChangeExtension(job.data.filename, null) + "-postprocess.xml";
+					xmlPath = Path.ChangeExtension(job.FilePath, null) + "-postprocess.xml";
 				}
-				postProcessor = WorldPostProcessingStack.CreateFromXML(job.data.filename, xmlPath, 255, regionOffsetX * 512, regionOffsetZ * 512, job.data.GridWidth, job.data.GridHeight);
+				try
+				{
+					postProcessor = WorldPostProcessingStack.CreateFromXML(job.FilePath, xmlPath, 255, regionOffsetX * 512, regionOffsetZ * 512, job.data.GridWidth, job.data.GridHeight);
+				}
+				catch(Exception e)
+				{
+					if(useDefaultPostProcessing)
+					{
+						ConsoleOutput.WriteWarning("Failed to create post processing stack from xml, falling back to default post processing stack. " + e.Message);
+						postProcessor = WorldPostProcessingStack.CreateDefaultPostProcessor(job.FilePath, 255, regionOffsetX * 512, regionOffsetZ * 512, job.data.GridWidth, job.data.GridHeight);
+					}
+					else
+					{
+						ConsoleOutput.WriteError("Failed to create post processing stack from xml, the terrain will not be decorated. " + e.Message);
+					}
+				}
 			}
 			else if(useDefaultPostProcessing)
 			{
-				postProcessor = WorldPostProcessingStack.CreateDefaultPostProcessor(job.data.filename, 255, regionOffsetX * 512, regionOffsetZ * 512, job.data.GridWidth, job.data.GridHeight);
+				postProcessor = WorldPostProcessingStack.CreateDefaultPostProcessor(job.FilePath, 255, regionOffsetX * 512, regionOffsetZ * 512, job.data.GridWidth, job.data.GridHeight);
 			}
 		}
 

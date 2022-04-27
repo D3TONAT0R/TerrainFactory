@@ -1,4 +1,5 @@
 ﻿using HMCon.Export;
+using HMCon.Modification;
 using System;
 
 namespace HMCon.Util {
@@ -27,6 +28,10 @@ namespace HMCon.Util {
 				throw new ArgumentException("Not enough arguments for command");
 			}
 			try {
+				if(typeof(T) == typeof(Coordinate))
+				{
+					return (T)Convert.ChangeType(Coordinate.Parse(args[i]), typeof(T));
+				}
 				return (T)Convert.ChangeType(args[i], typeof(T));
 			}
 			catch(Exception e) {

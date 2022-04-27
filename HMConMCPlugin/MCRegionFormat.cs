@@ -27,7 +27,7 @@ namespace HMConMC
 		{
 			using (var stream = BeginWriteStream(path))
 			{
-				new MCWorldExporter(job, false, true).WriteFile(path, stream, this);
+				new MCWorldExporter(job, true, true).WriteFile(path, stream, this);
 			}
 			return true;
 		}

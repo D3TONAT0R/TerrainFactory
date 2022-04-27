@@ -17,7 +17,8 @@ namespace HMCon {
 
 		public override void AddModifiers(List<ModificationCommand> list) {
 			list.Add(new ModificationCommand("subsample", "N", "Subsamples the data by factor N", HandleSubsampleMod, new SubsamplingModifier(2)));
-			list.Add(new ModificationCommand("selection", "x1 y1 x2 y2", "Selects the specified area for export", HandleSelectionMod, new AreaSelectionModifier(null)));
+			list.Add(new ModificationCommand("areaselect", "x1 y1 x2 y2", "Selects an area defined by lower and upper bounds", HandleAreaSelectionMod, new BoundedAreaSelectionModifier(null)));
+			list.Add(new ModificationCommand("radselect", "$cx $cy size", "Selects an area defined by a center point and area size", HandleCenteredSelectionMod, new CenteredAreaSelectionModifier()));
 			list.Add(new ModificationCommand("scale", "mul <pivot>", "Scales the height values with optional scaling pivot", HandleHeightScaleMod, new HeightScaleModifier(1)));
 			list.Add(new ModificationCommand("remap", "old-H1 new-H1 old-H2 new-H2", "Remaps the given heights to match the new heights", HandleRemapMod, new HeightRemapModifier(0, 1, 0, 1)));
 			list.Add(new ModificationCommand("heightrange", "min max", "Modifies the height range (low- and high points)", HandleHeightRangeMod, new LowHighScaleModifier(null, null, 0, 1)));
@@ -62,10 +63,10 @@ namespace HMCon {
 			}
 		}
 
-		private Modifier HandleSelectionMod(Job job, string[] args) {
+		private Modifier HandleAreaSelectionMod(Job job, string[] args) {
 			if(args.Length == 0) {
 				WriteLine("Selection reset");
-				return new AreaSelectionModifier(null);
+				return new BoundedAreaSelectionModifier(null);
 			}
 			int x1 = ParseArg<int>(args, 0);
 			int y1 = ParseArg<int>(args, 1);
@@ -74,11 +75,25 @@ namespace HMCon {
 			Bounds bounds = new Bounds(x1, y1, x2, y2);
 			if(bounds.IsValid(job.CurrentData)) {
 				WriteLine($"Selection set ({bounds.CellCount} cells total)");
-				return new AreaSelectionModifier(bounds);
+				return new BoundedAreaSelectionModifier(bounds);
 			} else {
 				WriteWarning("The specified input is invalid");
 			}
 			return null;
+		}
+
+		private Modifier HandleCenteredSelectionMod(Job job, string[] args)
+		{
+			if (args.Length == 0)
+			{
+				WriteLine("Selection reset");
+				return new CenteredAreaSelectionModifier();
+			}
+			var cx = ParseArg<Coordinate>(args, 0);
+			var cy = ParseArg<Coordinate>(args, 1);
+			var size = ParseArg<float>(args, 2);
+			WriteLine($"Selection set (center: ({cx},{cy}) size: {size})");
+			return new CenteredAreaSelectionModifier(cx, cy, size);
 		}
 
 		private Modifier HandleHeightScaleMod(Job job, string[] args) {

@@ -19,6 +19,7 @@ namespace HMCon3D {
 		public override void RegisterFormats(List<FileFormat> registry)
 		{
 			registry.Add(new Autodesk3DSFormat());
+			registry.Add(new FBXFormat());
 		}
 	}
 }
