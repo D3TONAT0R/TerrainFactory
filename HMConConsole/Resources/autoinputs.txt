@@ -1,7 +1,0 @@
-{user}\Dropbox\Iceland Replacement Project\output\heightmap.png -bytes
-mcasplatmapper
-mcaoffset 14 26
-//modify selection 512 512 1023 1023
-format mcw
-export
-{user}\Dropbox\Iceland Replacement Project\output\world_export_test_{datetimeshort}
