@@ -82,23 +82,43 @@ namespace HMConImage {
 			}
 		}
 
-		private void MakeHillshademap()
+		private void MakeHillshademap(float intensity = 0.8f)
+		{
+			MakeHillshademap(60, 40, intensity);
+		}
+
+		private void MakeHillshademap(float sunYawDegrees, float sunPitchDegrees, float intensity)
 		{
 			var normals = NormalMapper.CalculateNormals(data, true);
 			image = CreateImage();
 			var pixels = image.GetPixels();
+
+			Vector3 sunNormal = RotationToNormal(sunYawDegrees, sunPitchDegrees);
 			for (int x = 0; x < image.Width; x++)
 			{
 				for (int y = 0; y < image.Height; y++)
 				{
 					Vector3 nrm = normals[x, y];
-					float strength = 1.5f;
-					float light = 0.5f + nrm.X / 2f * 0.8f * strength;
-					light += 0.5f + nrm.Y / 2f * 1.2f * strength;
-					light /= 1.4f;
-					pixels.SetPixel(x, image.Height - y - 1, CreateColorGrayscale(light));
+					float illum = -Vector3.Dot(nrm, sunNormal);
+					illum = Math.Max(0, Math.Min(1, illum * 0.5f * intensity + 0.5f));
+					pixels.SetPixel(x, image.Height - y - 1, CreateColorGrayscale(illum));
 				}
 			}
+		}
+
+		public const float Deg2Rad = (float)Math.PI / 180f;
+		public const float Rad2Deg = 180f / (float)Math.PI;
+
+		private Vector3 RotationToNormal(float yawDegrees, float pitchDegrees)
+		{
+			float pitchRad = Deg2Rad * -pitchDegrees;
+			float yawRad = Deg2Rad * (yawDegrees + 90f);
+
+			var dy = (float)Math.Sin(pitchRad);
+			var dx = (float)Math.Sin(yawRad) * (float)Math.Cos(pitchRad);
+			var dz = (float)Math.Cos(yawRad) * (float)Math.Cos(pitchRad);
+
+			return new Vector3(dx, dy, dz);
 		}
 
 		private MagickImage CreateImage(int width, int height, MagickFormat format = MagickFormat.Png24)
