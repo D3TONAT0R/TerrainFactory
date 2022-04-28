@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace HMCon {
-	public class PluginInfoAttribute : Attribute {
+	public class ModuleInfoAttribute : Attribute {
 
 		public string Name {
 			get; private set;
@@ -12,9 +12,9 @@ namespace HMCon {
 			get; private set;
 		}
 
-		public PluginInfoAttribute(string ID, string pluginName) {
+		public ModuleInfoAttribute(string ID, string moduleName) {
 			this.ID = ID;
-			Name = pluginName;
+			Name = moduleName;
 		}
 	}
 }

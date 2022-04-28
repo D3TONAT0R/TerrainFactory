@@ -11,7 +11,7 @@ namespace HMCon {
 	/// <summary>
 	/// Base class for adding different file formats that can be imported or exported.
 	/// </summary>
-	public abstract class HMConPlugin {
+	public abstract class HMConModule {
 
 		public abstract HMConCommandHandler GetCommandHandler();
 

@@ -15,14 +15,14 @@ namespace HMCon {
 		public static bool autoInputActive = false;
 #endif
 
-		public static void Initialize(string pluginPath) {
+		public static void Initialize(string moduleDLLPath) {
 			ConsoleOutput.Initialize();
 			FileFormatManager.RegisterStandardFormats();
 			CommandHandler.commandHandlers.Add(new StandardCommands());
-			if(!string.IsNullOrEmpty(pluginPath)) {
-				PluginLoader.LoadPlugins(pluginPath);
+			if(!string.IsNullOrEmpty(moduleDLLPath)) {
+				ModuleLoader.LoadModules(moduleDLLPath);
 			} else {
-				WriteLine("Plugin loading has been disabled.");
+				WriteLine("Module loading has been disabled.");
 			}
 			CommandHandler.Initialize();
 			isInitialized = true;
