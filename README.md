@@ -1,6 +1,4 @@
-```
-![Logo](/images/logo_base.png)
-```
+[Logo](images/logo_base.png)
 
 # HeightMap Converter (HMCon) Console Application
 
