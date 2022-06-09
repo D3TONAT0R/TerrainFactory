@@ -93,13 +93,15 @@ namespace HMCon.Export {
 			if(CurrentData == null) {
 				NextFile();
 			}
-			if(!ExportUtility.ValidateExportSettings(exportSettings, CurrentData)) {
-				throw new InvalidOperationException("Current export settings are invalid for at least one of the selected formats.");
-			}
 
 			ApplyModificationChain();
 
-			if(batchMode) {
+			if (!ExportUtility.ValidateExportSettings(exportSettings, CurrentData))
+			{
+				throw new InvalidOperationException("Current export settings are invalid for at least one of the selected formats.");
+			}
+
+			if (batchMode) {
 				string fullPath = Path.Combine(outputPath, Path.GetFileName(InputFileList[CurrentFileIndex]));
 				ExportFile(CurrentData, fullPath);
 				while(HasNextFile) {
