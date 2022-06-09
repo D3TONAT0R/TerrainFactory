@@ -27,9 +27,9 @@ Provides a console application that can convert elevation data from various file
 | Minecraft Region File <sup>3</sup> | :heavy_check_mark: | :heavy_check_mark: |
 | Minecraft World File <sup>3</sup>  | :x:                | :heavy_check_mark: |
 
-<sub>1 - Requires HMConImage Module</sub><br/>
-<sub>2 - Requires HMCon3D Module</sub><br/>
-<sub>3 - Requires HMConMC Module</sub><br/>
+<sub>1 - [Requires HMConImage Module](#heightmap-converter---image-module)</sub><br/>
+<sub>2 - [Requires HMCon3D Module](#heightmap-converter---3d-module)</sub><br/>
+<sub>3 - [Requires HMConMC Module](#heightmap-converter---minecraft-module)</sub><br/>
 
 ### Features
 
@@ -51,3 +51,33 @@ Provides a console application that can convert elevation data from various file
 - Define one or more target formats with the `format ...` command.
 - Type `export` then type the file path where you want to save the file(s).
 - That's all there is to it!
+
+---
+
+<p align="center">
+  <img width="200" alt="Logo" src="images/logo_img.png">
+</p>
+
+# HeightMap Converter - Image Module
+
+to do
+
+---
+
+<p align="center">
+  <img width="200" alt="Logo" src="images/logo_3d.png">
+</p>
+
+# HeightMap Converter - 3D Module
+
+to do
+
+---
+
+<p align="center">
+  <img width="200" alt="Logo" src="images/logo_mc.png">
+</p>
+
+# HeightMap Converter - Minecraft Module
+
+to do
