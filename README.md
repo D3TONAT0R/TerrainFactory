@@ -1,4 +1,6 @@
-<img title="" src="images/logo_base.png" alt="Logo" width="200" data-align="center">
+<p align="center">
+  <img width="200" alt="Logo" src="images/logo_base.png">
+</p>
 
 # HeightMap Converter (HMCon) Console Application
 
