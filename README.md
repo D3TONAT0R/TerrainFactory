@@ -1,4 +1,4 @@
-[Logo](images/logo_base.png)
+<img title="" src="images/logo_base.png" alt="Logo" width="200" data-align="center">
 
 # HeightMap Converter (HMCon) Console Application
 
