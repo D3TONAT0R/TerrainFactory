@@ -35,9 +35,15 @@ namespace HMCon.Export
 			nameBuilder = new FileNameBuilder(targetDirectory, filename, fileFormat);
 		}
 
-		public void Export()
+		public ExportJob(HeightData heightData, FileFormat fileFormat, ExportSettings exportSettings, string targetFilePathAndName)
+		 : this(heightData, fileFormat, exportSettings, Path.GetDirectoryName(targetFilePathAndName), Path.GetFileName(targetFilePathAndName))
 		{
-			format.Export(FilePath, this);
+
+		}
+
+		public bool Export()
+		{
+			return format.Export(FilePath, this);
 		}
 	}
 }

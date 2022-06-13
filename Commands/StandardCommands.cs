@@ -47,8 +47,8 @@ namespace HMCon {
 		}
 
 		private bool HandleClearModifierCmd(Job job, string[] args) {
-			int l = job.exportSettings.modificationChain.Count;
-			job.exportSettings.modificationChain.Clear();
+			int l = job.modificationChain.chain.Count;
+			job.modificationChain.chain.Clear();
 			WriteLine($"Removed {l} modifiers from the chain");
 			return true;
 		}

@@ -7,8 +7,7 @@ using System.Collections.Generic;
 namespace HMCon.Export {
 	public class ExportSettings {
 
-		public List<Modifier> modificationChain = new List<Modifier>();
-
+		//TODO: move to Job class? Redundant when using ExportManager.ExportAs()
 		public List<FileFormat> outputFormats = new List<FileFormat>();
 		public int fileSplitDims = -1;
 
@@ -68,21 +67,6 @@ namespace HMCon.Export {
 				return (T)customSettings[key];
 			} else {
 				return defaultValue;
-			}
-		}
-
-		public void AddModifierToChain(Modifier modifier, bool replaceSameType = true) {
-			if(!replaceSameType) {
-				modificationChain.Add(modifier);
-			} else {
-				for(int i = 0; i < modificationChain.Count; i++) {
-					if(modificationChain[i].GetType() == modifier.GetType()) {
-						modificationChain[i] = modifier;
-						return;
-					}
-				}
-				//A modifier of the same type was not found, append it instead
-				modificationChain.Add(modifier);
 			}
 		}
 	}

@@ -20,6 +20,7 @@ namespace HMCon.Export {
 		public List<string> InputFileList { get; private set; } = new List<string>();
 		public string[] importArgs = new string[0];
 
+		public ModificationChain modificationChain = new ModificationChain();
 		public ExportSettings exportSettings = new ExportSettings();
 
 		public int exportNumX;
@@ -67,21 +68,16 @@ namespace HMCon.Export {
 			}
 		}
 
-		public HeightData ApplyModificationChain(HeightData inputData) {
-			HeightData data = new HeightData(inputData) {
-				wasModified = true
-			};
-			for(int i = 0; i < exportSettings.modificationChain.Count; i++) {
-				data = exportSettings.modificationChain[i].Modify(data, true);
-			}
-			return data;
+		public HeightData ApplyModificationChain(HeightData inputData)
+		{
+			return modificationChain.Apply(inputData);
 		}
 
 		public void ApplyModificationChain() {
 			if(CurrentData == null) {
 				throw new NullReferenceException("CurrentData is null");
 			}
-			UpdateProgressBar($"Applying {exportSettings.modificationChain.Count} modifiers...", -1);
+			UpdateProgressBar($"Applying {modificationChain.chain.Count} modifiers...", -1);
 			CurrentData = ApplyModificationChain(CurrentData);
 			UpdateProgressBar("", -1);
 		}
@@ -96,7 +92,7 @@ namespace HMCon.Export {
 
 			ApplyModificationChain();
 
-			if (!ExportUtility.ValidateExportSettings(exportSettings, CurrentData))
+			if (!ExportManager.ValidateExportSettings(exportSettings, CurrentData))
 			{
 				throw new InvalidOperationException("Current export settings are invalid for at least one of the selected formats.");
 			}
