@@ -22,6 +22,8 @@ namespace HMCon
 
 		static Timer progressBarUpdateTimer;
 
+		public static event Action<string> ErrorOccurred;
+
 		internal static void Initialize()
 		{
 			if (GetConsoleWindow() != null)
@@ -99,9 +101,7 @@ namespace HMCon
 		{
 			Console.ForegroundColor = ConsoleColor.DarkRed;
 			WriteConsoleLine(str);
-#if DEBUG
-			HMConManager.autoInputActive = false; //Stop any upcoming automated inputs
-#endif
+			ErrorOccurred?.Invoke(str);
 		}
 
 		static object locker = new object();
@@ -144,17 +144,16 @@ namespace HMCon
 				else if (GetConsoleWindow() != IntPtr.Zero)
 				{
 					Console.CursorVisible = false;
-					int lastLength = 0;
-					if (progressString != null)
+					Console.ForegroundColor = ConsoleColor.DarkGray;
+					if (!string.IsNullOrEmpty(progressString))
 					{
-						lastLength = progressString.Length;
+						Console.SetCursorPosition(0, Console.CursorTop - 1);
+						Console.Write(" ".PadRight(progressString.Length + 1, ' '));
 						Console.SetCursorPosition(0, Console.CursorTop);
 					}
 					progressString = str;
 					if (progress >= 0) progressString += " " + GetProgressBar(progress) + " " + (int)Math.Round(progress * 100) + "%";
-					if (lastLength > 0) progressString = progressString.PadRight(lastLength, ' ');
-					Console.ForegroundColor = ConsoleColor.DarkGray;
-					Console.Write(progressString);
+					Console.WriteLine(progressString);
 					Console.ResetColor();
 				}
 			}

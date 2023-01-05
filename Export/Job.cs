@@ -18,7 +18,7 @@ namespace HMCon.Export {
 		public bool HasNextFile => CurrentFileIndex+1 < InputFileList.Count;
 
 		public List<string> InputFileList { get; private set; } = new List<string>();
-		public string[] importArgs = new string[0];
+		public Dictionary<string, string> variables = new Dictionary<string, string>();
 
 		public ModificationChain modificationChain = new ModificationChain();
 		public ExportSettings exportSettings = new ExportSettings();
@@ -37,7 +37,7 @@ namespace HMCon.Export {
 
 		public void AddInputFiles(params string[] files) {
 			foreach(var s in files) {
-				InputFileList.Add(ReplacePathVars(s.Replace("\"", "")));
+				InputFileList.Add(ParseVariables(s));
 			}
 		}
 
@@ -49,8 +49,8 @@ namespace HMCon.Export {
 				string ext = Path.GetExtension(f).ToLower().Replace(".", "");
 				HeightData d;
 				try {
-					var format = 
-					d = ImportManager.ImportFile(InputFileList[CurrentFileIndex], importArgs);
+					string path = ExtractArgs(InputFileList[CurrentFileIndex], out var importArgs);
+					d = ImportManager.ImportFile(path.Replace("\"", ""), importArgs);
 					if(d != null) {
 						//CurrentExportJobInfo.importedFilePath = f;
 						CurrentData = d;
@@ -66,6 +66,19 @@ namespace HMCon.Export {
 			} else {
 				return null;
 			}
+		}
+
+		static string ExtractArgs(string input, out string[] args)
+		{
+			var split = input.Split(new string[] { " -" }, StringSplitOptions.RemoveEmptyEntries);
+			List<string> argList = new List<string>();
+			input = split[0];
+			for(int i = 1; i < split.Length; i++)
+			{
+				argList.Add(split[i].Trim());
+			}
+			args = argList.ToArray();
+			return input;
 		}
 
 		public HeightData ApplyModificationChain(HeightData inputData)
@@ -157,11 +170,17 @@ namespace HMCon.Export {
 			}
 		}
 
-		public static string ReplacePathVars(string path) {
-			path = path.Replace("{datetime}", System.DateTime.Now.ToString("yy-MM-dd_HH-mm-ss"));
-			path = path.Replace("{datetimeshort}", System.DateTime.Now.ToString("yyMMddHHmmss"));
-			path = path.Replace("{user}", Environment.GetFolderPath(Environment.SpecialFolder.UserProfile));
-			return path;
+		public string ParseVariables(string input) {
+
+			foreach(var kv in variables)
+			{
+				input = input.Replace($"{{{kv.Key}}}", kv.Value);
+			}
+
+			input = input.Replace("{datetime}", DateTime.Now.ToString("yy-MM-dd_HH-mm-ss"));
+			input = input.Replace("{datetimeshort}", DateTime.Now.ToString("yyMMddHHmmss"));
+			input = input.Replace("{user}", Environment.GetFolderPath(Environment.SpecialFolder.UserProfile));
+			return input;
 		}
 	}
 }

@@ -11,10 +11,6 @@ namespace HMCon {
 
 		private static bool isInitialized = false;
 
-#if DEBUG
-		public static bool autoInputActive = false;
-#endif
-
 		public static void Initialize(string moduleDLLPath) {
 			ConsoleOutput.Initialize();
 			FileFormatManager.RegisterStandardFormats();
