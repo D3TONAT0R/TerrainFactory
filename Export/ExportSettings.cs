@@ -43,6 +43,14 @@ namespace HMCon.Export {
 			}
 		}
 
+		public void RemoveCustomSetting(string key)
+		{
+			if(customSettings.ContainsKey(key))
+			{
+				customSettings.Remove(key);
+			}
+		}
+
 		public bool ToggleCustomBoolSetting(string key) {
 			if(customSettings.ContainsKey(key) && customSettings[key] is bool b) {
 				b = !b;
