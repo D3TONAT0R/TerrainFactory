@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Text;
 
 namespace HMCon
@@ -18,15 +19,17 @@ namespace HMCon
 		internal static void LoadModules(string moduleDLLPath)
 		{
 			loadedModules = new Dictionary<string, HMConModule>();
-			var dllFiles = Directory.GetFiles(moduleDLLPath, "*.dll");
-			foreach (var path in dllFiles)
+			var infoFiles = Directory.GetFiles(moduleDLLPath, "module.info", SearchOption.AllDirectories);
+			foreach (var infoFilePath in infoFiles)
 			{
 				try
 				{
-					var assembly = Assembly.LoadFrom(path);
+					string dllName = File.ReadAllText(infoFilePath).Trim();
+					string dllPath = Path.Combine(Path.GetDirectoryName(infoFilePath), dllName + ".dll");
+					var assembly = Assembly.LoadFrom(dllPath);
 					foreach (var t in assembly.GetTypes())
 					{
-						if (t.BaseType != null && t.BaseType.Name == typeof(HMConModule).Name && !t.IsAbstract)
+						if (typeof(HMConModule).IsAssignableFrom(t) && !t.IsAbstract)
 						{
 							var module = (HMConModule)Activator.CreateInstance(t);
 							string info = "";
@@ -41,44 +44,29 @@ namespace HMCon
 								hasImporter |= f.HasImporter;
 								hasExporter |= f.HasExporter;
 							}
-							if (hasImporter && hasExporter) info = "I+E";
-							else if (hasImporter) info = "I";
-							else if (hasExporter) info = "E";
+							if(hasImporter) info += " [I]";
+							if(hasExporter) info += " [E]";
 
 							var c = module.GetCommandHandler();
 							if (c != null)
 							{
 								CommandHandler.commandHandlers.Add(c);
-								info += info.Length > 0 ? "+C" : "C";
+								info += " [C]";
 							}
 
-							var attribute = t.GetCustomAttribute<ModuleInfoAttribute>();
-							string moduleID;
-							string moduleAttr;
-							if (attribute != null)
+							if (loadedModules.ContainsKey(module.ModuleID))
 							{
-								moduleAttr = attribute.Name;
-								moduleID = attribute.ID.ToUpper();
+								throw new InvalidOperationException($"Duplicate Module with ID '{module.ModuleID}' detected.");
 							}
-							else
-							{
-								ConsoleOutput.WriteWarning($"Module with class '{t.FullName}' does not specify a Module name!");
-								moduleID = "[" + t.Name + "]";
-								moduleAttr = t.Name;
-							}
-							if (loadedModules.ContainsKey(moduleID))
-							{
-								continue;
-							}
-							loadedModules.Add(moduleID, module);
-							ConsoleOutput.WriteLine($"Loaded Module '{moduleAttr}' [{info}]");
+							loadedModules.Add(module.ModuleID, module);
+							ConsoleOutput.WriteLine($"Loaded Module '{module.ModuleName}' ({module.ModuleVersion}) {info}");
 						}
 					}
 					//ConsoleOutput.WriteWarning("Not a module dll: " + path);
 				}
-				catch
+				catch(Exception e)
 				{
-					//ConsoleOutput.WriteWarning("Failed to load dll: " + path);
+					ConsoleOutput.WriteWarning($"Failed to load module at '{Path.GetDirectoryName(infoFilePath)}'\n{e.Message}");
 				}
 			}
 		}
