@@ -20,12 +20,14 @@ namespace HMCon
 		{
 			loadedModules = new Dictionary<string, HMConModule>();
 			var infoFiles = Directory.GetFiles(moduleDLLPath, "module.info", SearchOption.AllDirectories);
+			AppDomain.CurrentDomain.AssemblyResolve += HandleAssemblyResolve;
 			foreach (var infoFilePath in infoFiles)
 			{
 				try
 				{
 					string dllName = File.ReadAllText(infoFilePath).Trim();
 					string dllPath = Path.Combine(Path.GetDirectoryName(infoFilePath), dllName + ".dll");
+
 					var assembly = Assembly.LoadFrom(dllPath);
 					foreach (var t in assembly.GetTypes())
 					{
@@ -68,6 +70,20 @@ namespace HMCon
 				{
 					ConsoleOutput.WriteWarning($"Failed to load module at '{Path.GetDirectoryName(infoFilePath)}'\n{e.Message}");
 				}
+			}
+		}
+
+		private static Assembly HandleAssemblyResolve(object sender, ResolveEventArgs args)
+		{
+			string assemblyName = args.Name.Substring(0, args.Name.IndexOf(","));
+			if(assemblyName.EndsWith(".resources"))
+			{
+				return null;
+			}
+			else
+			{
+				string assemblyPath = Path.Combine(Path.GetDirectoryName(args.RequestingAssembly.Location), assemblyName + ".dll");
+				return Assembly.LoadFile(assemblyPath);
 			}
 		}
 
