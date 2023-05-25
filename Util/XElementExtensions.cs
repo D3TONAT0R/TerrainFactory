@@ -59,6 +59,19 @@ namespace HMCon.Util
 			}
 		}
 
+		public static bool TryParseShort(this XElement e, string elementName, ref short value)
+		{
+			if(e.TryGetElement(elementName, out var elem))
+			{
+				value = short.Parse(elem.Value);
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+
 
 		public static bool TryParseIntAttribute(this XElement e, string attributeName, ref int value)
 		{
