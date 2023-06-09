@@ -22,9 +22,7 @@ namespace HMCon.Export {
 
 		public ModificationChain modificationChain = new ModificationChain();
 		public ExportSettings exportSettings = new ExportSettings();
-
-		//public int exportNumX;
-		//public int exportNumZ;
+		public FileFormatList outputFormats = new FileFormatList();
 
 		public string outputPath = null;
 
@@ -104,7 +102,7 @@ namespace HMCon.Export {
 
 			ApplyModificationChain();
 
-			if (!ExportManager.ValidateExportSettings(exportSettings, CurrentData))
+			if (!ExportManager.ValidateExportSettings(outputFormats, exportSettings, CurrentData))
 			{
 				throw new InvalidOperationException("Current export settings are invalid for at least one of the selected formats.");
 			}
@@ -134,7 +132,7 @@ namespace HMCon.Export {
 				{
 					foreach(var tile in GetSplitTiles(data))
 					{
-						foreach(FileFormat format in exportSettings.outputFormats) {
+						foreach(FileFormat format in outputFormats) {
 							ExportTask exportTask = new ExportTask(tile.data, format, exportSettings, dir, fname);
 
 							if(tile.HasMultiple) {
