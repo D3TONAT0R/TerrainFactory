@@ -15,7 +15,7 @@ namespace HMCon.Formats
 		public override string Extension => "cmds";
 		public override FileSupportFlags SupportedActions => FileSupportFlags.Export;
 
-		protected override bool ExportFile(string path, ExportJob job)
+		protected override bool ExportFile(string path, ExportTask task)
 		{
 			throw new NotImplementedException();
 		}

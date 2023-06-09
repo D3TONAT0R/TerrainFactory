@@ -15,17 +15,17 @@ namespace HMCon.Formats
 		public override string Extension => "xyz";
 		public override FileSupportFlags SupportedActions => FileSupportFlags.Export;
 
-		protected override bool ExportFile(string path, ExportJob job)
+		protected override bool ExportFile(string path, ExportTask task)
 		{
 			StringBuilder contents = new StringBuilder();
-			var grid = job.data.GetDataGrid();
-			var cs = job.data.cellSize;
-			for (int y = 0; y < job.data.GridHeight; y++)
+			var grid = task.data.GetDataGrid();
+			var cs = task.data.cellSize;
+			for (int y = 0; y < task.data.GridLengthY; y++)
 			{
-				for (int x = 0; x < job.data.GridWidth; x++)
+				for (int x = 0; x < task.data.GridLengthX; x++)
 				{
 					float z = grid[x, y];
-					if (z != job.data.nodata_value)
+					if (z != task.data.nodata_value)
 					{
 						contents.AppendLine($"{x * cs} {y * cs} {z}");
 					}

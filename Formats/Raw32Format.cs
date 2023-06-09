@@ -14,11 +14,11 @@ namespace HMCon.Formats
 		public override string Description => ReadableName;
 		public override string Extension => "r32";
 
-		protected override bool ExportFile(string path, ExportJob job)
+		protected override bool ExportFile(string path, ExportTask task)
 		{
 			using (var stream = BeginWriteStream(path))
 			{
-				WriteBytes(stream, job.data, 4);
+				WriteBytes(stream, task.data, 4);
 			}
 			return true;
 		}

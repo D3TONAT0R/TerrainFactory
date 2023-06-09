@@ -16,7 +16,7 @@ namespace HMCon.Modification {
 
 		protected override void ModifyData(HeightData data) {
 			if(subsampleAmount <= 1) return;
-			float[,] grid = new float[data.GridWidth / subsampleAmount, data.GridHeight / subsampleAmount];
+			float[,] grid = new float[data.GridLengthX / subsampleAmount, data.GridLengthY / subsampleAmount];
 			for(int y = 0; y < grid.GetLength(1); y++) {
 				for(int x = 0; x < grid.GetLength(0); x++) {
 					grid[x, y] = data.GetHeight(x * subsampleAmount, y * subsampleAmount);

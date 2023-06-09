@@ -40,14 +40,14 @@ namespace HMCon.Import {
 					asc.SetDataGrid(null);
 					ReadGridData(stream, asc, ncols, nrows, 1, false);
 					double sum = 0;
-					for(int i = 0; i < asc.GridWidth * asc.GridHeight; i++) {
+					for(int i = 0; i < asc.GridLengthX * asc.GridLengthY; i++) {
 						float value;
 						if(!NextGridValue(stream, out value)) break;
 						sum += value;
 					}
 					lowest = asc.lowestValue;
 					highest = asc.highestValue;
-					average = (float)(sum / (asc.GridWidth * asc.GridHeight));
+					average = (float)(sum / (asc.GridLengthX * asc.GridLengthY));
 				}
 			} catch(Exception e) {
 				WriteError("Error occured while getting summary for ASC file!");
@@ -94,7 +94,7 @@ namespace HMCon.Import {
 				}
 				data.lowPoint = data.lowestValue;
 				data.highPoint = data.highestValue;
-				if(data.HasHeightData) data.SetHeight(x / sub, data.GridHeight - (y / sub) - 1, value);
+				if(data.HasHeightData) data.SetHeight(x / sub, data.GridLengthY - (y / sub) - 1, value);
 			}
 			if(displayProgressBar)
 			{

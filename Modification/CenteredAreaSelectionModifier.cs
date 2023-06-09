@@ -36,10 +36,10 @@ namespace HMCon.Modification
 			var urx = cx + size / 2f;
 			var ury = cy + size / 2f;
 
-			int x1 = ClampRounded(llx / data.cellSize, 0, data.GridWidth - 1);
-			int y1 = ClampRounded(lly / data.cellSize, 0, data.GridHeight - 1);
-			int x2 = ClampRounded(urx / data.cellSize, 0, data.GridWidth - 1);
-			int y2 = ClampRounded(ury / data.cellSize, 0, data.GridHeight - 1);
+			int x1 = ClampRounded(llx / data.cellSize, 0, data.GridLengthX - 1);
+			int y1 = ClampRounded(lly / data.cellSize, 0, data.GridLengthY - 1);
+			int x2 = ClampRounded(urx / data.cellSize, 0, data.GridLengthX - 1);
+			int y2 = ClampRounded(ury / data.cellSize, 0, data.GridLengthY - 1);
 
 			var bounds = new Bounds(x1, y1, x2, y2);
 			if (bounds.CellCount <= 10) return;

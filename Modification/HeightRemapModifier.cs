@@ -24,8 +24,8 @@ namespace HMCon.Modification {
 		}
 
 		protected override void ModifyData(HeightData data) {
-			for(int y = 0; y < data.GridHeight; y++) {
-				for(int x = 0; x < data.GridWidth; x++) {
+			for(int y = 0; y < data.GridLengthY; y++) {
+				for(int x = 0; x < data.GridLengthX; x++) {
 					var value = data.GetHeight(x, y);
 					value = MathUtils.Remap(value, oldA, oldB, newA, newB);
 					data.SetHeight(x, y, value);

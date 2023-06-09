@@ -23,8 +23,8 @@ namespace HMCon.Export {
 		public ModificationChain modificationChain = new ModificationChain();
 		public ExportSettings exportSettings = new ExportSettings();
 
-		public int exportNumX;
-		public int exportNumZ;
+		//public int exportNumX;
+		//public int exportNumZ;
 
 		public string outputPath = null;
 
@@ -52,15 +52,14 @@ namespace HMCon.Export {
 					string path = ExtractArgs(InputFileList[CurrentFileIndex], out var importArgs);
 					d = ImportManager.ImportFile(path.Replace("\"", ""), importArgs);
 					if(d != null) {
-						//CurrentExportJobInfo.importedFilePath = f;
 						CurrentData = d;
-						if(FileImported != null) FileImported(CurrentFileIndex, f);
+						FileImported?.Invoke(CurrentFileIndex, f);
 						return d;
 					} else {
 						throw new IOException("Unsupported file type: " + ext);
 					}
 				} catch(Exception e) {
-					if (FileImportFailed != null) FileImportFailed(CurrentFileIndex, f, e);
+					FileImportFailed?.Invoke(CurrentFileIndex, f, e);
 					return null;
 				}
 			} else {
@@ -112,61 +111,79 @@ namespace HMCon.Export {
 
 			if (batchMode) {
 				string fullPath = Path.Combine(outputPath, Path.GetFileName(InputFileList[CurrentFileIndex]));
-				ExportFile(CurrentData, fullPath);
+				Export(CurrentData, fullPath);
 				while(HasNextFile) {
 					NextFile();
 					fullPath = Path.Combine(outputPath, Path.GetFileName(InputFileList[CurrentFileIndex]));
 					if(CurrentData != null) {
 						ApplyModificationChain();
-						ExportFile(CurrentData, fullPath);
+						Export(CurrentData, fullPath);
 					}
 				}
 			} else {
-				ExportFile(CurrentData, outputPath);
+				Export(CurrentData, outputPath);
 			}
-			if(ExportCompleted != null) ExportCompleted();
+			ExportCompleted?.Invoke();
 		}
 
-		void ExportFile(HeightData data, string outPath) {
+		void Export(HeightData data, string outPath) {
 			try {
 				string dir = Path.GetDirectoryName(outPath);
 				string fname = Path.GetFileNameWithoutExtension(outPath);
-				if(Directory.Exists(dir)) {
-					HeightDataSplitter splitter = new HeightDataSplitter(data, exportSettings.fileSplitDims);
-					for(int z = 0; z < splitter.NumDataY; z++) {
-						for(int x = 0; x < splitter.NumDataX; x++) {
-							exportNumX = x;
-							exportNumZ = z;
-							foreach(FileFormat format in exportSettings.outputFormats) {
-								ExportJob exportJob = new ExportJob(splitter.GetDataChunk(x,z), format, exportSettings, dir, fname);
-								if(splitter.NumChunks > 1) {
-									exportJob.nameBuilder.gridNum = (x, z);
-								}
-								format.ModifyFileName(exportJob, exportJob.nameBuilder);
-								string fullpath = exportJob.nameBuilder.GetFullPath();
+				if(Directory.Exists(dir))
+				{
+					foreach(var tile in GetSplitTiles(data))
+					{
+						foreach(FileFormat format in exportSettings.outputFormats) {
+							ExportTask exportTask = new ExportTask(tile.data, format, exportSettings, dir, fname);
 
-								WriteLine($"Creating file {fullpath} ...");
-								try {
-									var startTime = DateTime.Now;
-									exportJob.Export();
-									var span = DateTime.Now - startTime;
-									if(span.TotalSeconds > 5)
-									{
-										WriteLine($"Time: {span.TotalSeconds:F2}");
-									}
-									WriteSuccess($"{format.Identifier} file created successfully!");
-								} catch(Exception e) {
-									throw new IOException($"Failed to write {format.Identifier} file!", e);
+							if(tile.HasMultiple) {
+								exportTask.filenameBuilder.tileIndex = (tile.xIndex, tile.yIndex);
+							}
+
+							format.ModifyFileName(exportTask, exportTask.filenameBuilder);
+							string fullpath = exportTask.filenameBuilder.GetFullPath();
+
+							WriteLine($"Creating file {fullpath} ...");
+							try {
+								var startTime = DateTime.Now;
+								exportTask.Export();
+								var span = DateTime.Now - startTime;
+								if(span.TotalSeconds > 5)
+								{
+									WriteLine($"Time: {span.TotalSeconds:F2}");
 								}
+								WriteSuccess($"{format.Identifier} file created successfully!");
+							} catch(Exception e) {
+								throw new IOException($"Failed to write {format.Identifier} file!", e);
 							}
 						}
 					}
 				} else {
 					throw new IOException($"Directory '{dir}' does not exist!");
 				}
-				if(FileExported != null) FileExported(CurrentFileIndex, outputPath);
+				FileExported?.Invoke(CurrentFileIndex, outputPath);
 			} catch(Exception e) {
-				if (FileExportFailed != null) FileExportFailed(CurrentFileIndex, outputPath, e);
+				FileExportFailed?.Invoke(CurrentFileIndex, outputPath, e);
+			}
+		}
+
+		IEnumerable<ExportTile> GetSplitTiles(HeightData data)
+		{
+			if(exportSettings.splitInterval > 2)
+			{
+				ExportTile.CalcTileCount(data, exportSettings.splitInterval, out int xCount, out int yCount);
+				for(int y = 0; y < yCount; y++)
+				{
+					for(int x = 0; x < xCount; x++)
+					{
+						yield return ExportTile.GetTile(data, exportSettings.splitInterval, x, y);
+					}
+				}
+			}
+			else
+			{
+				yield return ExportTile.CreateFullTile(CurrentData);
 			}
 		}
 

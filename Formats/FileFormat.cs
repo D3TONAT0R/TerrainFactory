@@ -81,11 +81,11 @@ namespace HMCon.Formats
 			}
 		}
 
-		public bool Export(string path, ExportJob job)
+		public bool Export(string path, ExportTask task)
 		{
 			if(HasExporter)
 			{
-				return ExportFile(path, job);
+				return ExportFile(path, task);
 			}
 			else
 			{
@@ -98,7 +98,7 @@ namespace HMCon.Formats
 			throw new NotImplementedException("Import functionality is not implemented.");
 		}
 
-		protected virtual bool ExportFile(string path, ExportJob job)
+		protected virtual bool ExportFile(string path, ExportTask task)
 		{
 			throw new NotImplementedException("Export functionality is not implemented.");
 		}
@@ -106,15 +106,15 @@ namespace HMCon.Formats
 		/// <summary>
 		/// Modifies the target file name prior to exporting.
 		/// </summary>
-		public virtual void ModifyFileName(ExportJob exportJob, FileNameBuilder nameBuilder)
+		public virtual void ModifyFileName(ExportTask task, FileNameBuilder nameBuilder)
 		{
 
 		}
 
 		/// <summary>
-		/// Modifies the entire export job's file naming pattern.
+		/// Modifies the file naming pattern for this export.
 		/// </summary>
-		public virtual void ModifyJobNamingPattern(ExportJob exportJob, FileNameBuilder namingPattern)
+		public virtual void ModifyNamingPattern(ExportTask task, FileNameBuilder namingPattern)
 		{
 
 		}

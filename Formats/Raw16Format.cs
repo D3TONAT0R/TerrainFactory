@@ -15,11 +15,11 @@ namespace HMCon.Formats
 		public override string Extension => "r16";
 		public override FileSupportFlags SupportedActions => FileSupportFlags.Export;
 
-		protected override bool ExportFile(string path, ExportJob job)
+		protected override bool ExportFile(string path, ExportTask task)
 		{
 			using (var stream = BeginWriteStream(path))
 			{
-				WriteBytes(stream, job.data, 2);
+				WriteBytes(stream, task.data, 2);
 			}
 			return true;
 		}
@@ -28,9 +28,9 @@ namespace HMCon.Formats
 		{
 			int convert = 1 << (byteCount * 8);
 			//Decode with 1f / convert;
-			for (int y = data.GridHeight - 1; y >= 0; y--)
+			for (int y = data.GridLengthY - 1; y >= 0; y--)
 			{
-				for (int x = 0; x < data.GridWidth; x++)
+				for (int x = 0; x < data.GridLengthX; x++)
 				{
 					float height = data.GetHeight(x, y);
 					float height01 = Math.Min(1, Math.Max(0, MathUtils.InverseLerp(data.lowPoint, data.highPoint, height)));

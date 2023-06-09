@@ -31,9 +31,9 @@ namespace HMCon {
 		private bool PrintInfoCmd(Job job, string[] args)
 		{
 			var d = job.CurrentData;
-			Console.WriteLine($"Grid Size: {d.GridWidth} x {d.GridHeight}");
+			Console.WriteLine($"Grid Size: {d.GridLengthX} x {d.GridLengthY}");
 			Console.WriteLine($"Cell Size: {d.cellSize}");
-			Console.WriteLine($"Dimensions: {d.GridWidth * d.cellSize} x {d.GridHeight * d.cellSize}");
+			Console.WriteLine($"Dimensions: {d.GridLengthX * d.cellSize} x {d.GridLengthY * d.cellSize}");
 			Console.WriteLine($"Lowest/Highest: {d.lowestValue} / {d.highestValue}");
 			Console.WriteLine($"NODATA: {d.nodata_value}");
 			return true;
@@ -41,7 +41,7 @@ namespace HMCon {
 
 		private bool HandleSplitCmd(Job job, string[] args) {
 			int i = ParseArg<int>(args, 0);
-			job.exportSettings.fileSplitDims = i;
+			job.exportSettings.splitInterval = i;
 			WriteLine("File splitting set to: " + i + "x" + i);
 			return true;
 		}
@@ -120,7 +120,7 @@ namespace HMCon {
 
 		private Modifier HandleResizeMod(Job job, string[] args) {
 			int w = ParseArg<int>(args, 0);
-			WriteLine($"Resizing from {job.CurrentData.GridWidth} to {w} ({Math.Round(w/(float)job.CurrentData.GridWidth*100)}%)");
+			WriteLine($"Resizing from {job.CurrentData.GridLengthX} to {w} ({Math.Round(w/(float)job.CurrentData.GridLengthX*100)}%)");
 			float f = ParseArg<float>(args, 0);
 			WriteLine("Cellsize changed from {0} to {1}", job.CurrentData.cellSize, f);
 			return null;

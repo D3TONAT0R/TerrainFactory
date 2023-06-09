@@ -20,9 +20,9 @@ namespace HMCon.Export
 				return false;
 			}
 			bool valid = true;
-			foreach (var ff in settings.outputFormats)
+			foreach (var format in settings.outputFormats)
 			{
-				valid &= ff.ValidateSettings(settings, data);
+				valid &= format.ValidateSettings(settings, data);
 			}
 			return valid;
 		}
@@ -37,7 +37,7 @@ namespace HMCon.Export
 			bool success = true;
 			foreach (var format in formats)
 			{
-				var export = new ExportJob(heightData, format, settings, filename);
+				var export = new ExportTask(heightData, format, settings, filename);
 				success &= export.Export();
 			}
 			return success;

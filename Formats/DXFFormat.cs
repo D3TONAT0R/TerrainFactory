@@ -24,16 +24,16 @@ namespace HMCon.Formats
 		protected static Layer ptLayer;
 		protected static Layer textLayer;
 
-		protected override bool ExportFile(string path, ExportJob job)
+		protected override bool ExportFile(string path, ExportTask task)
 		{
-			var doc = CreateDrawing(job);
+			var doc = CreateDrawing(task);
 			doc.Save(path);
 			return true;
 		}
 
-		protected virtual DxfDocument CreateDrawing(ExportJob job)
+		protected virtual DxfDocument CreateDrawing(ExportTask task)
 		{
-			var d = job.data;
+			var d = task.data;
 			DxfDocument doc = new DxfDocument();
 
 			visualPoints = true;
@@ -47,9 +47,9 @@ namespace HMCon.Formats
 			doc.Layers.Add(textLayer);
 			doc.Layers.Add(originLayer);
 
-			for (int y = 0; y < d.GridHeight; y++)
+			for (int y = 0; y < d.GridLengthY; y++)
 			{
-				for (int x = 0; x < d.GridWidth; x++)
+				for (int x = 0; x < d.GridLengthX; x++)
 				{
 					var h = d.GetHeight(x, y);
 					if (h == d.nodata_value) continue;

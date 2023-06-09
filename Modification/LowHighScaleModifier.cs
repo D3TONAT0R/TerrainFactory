@@ -29,8 +29,8 @@ namespace HMCon.Modification {
 			float oldRange = highPoint - lowPoint;
 			float newRange = newHigh - newLow;
 
-			for(int y = 0; y < data.GridHeight; y++) {
-				for(int x = 0; x < data.GridWidth; x++) {
+			for(int y = 0; y < data.GridLengthY; y++) {
+				for(int x = 0; x < data.GridLengthX; x++) {
 					var value = data.GetHeight(x, y);
 					double h = (value - lowPoint) / oldRange;
 					h *= newRange;

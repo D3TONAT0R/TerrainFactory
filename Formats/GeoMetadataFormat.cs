@@ -16,20 +16,20 @@ namespace HMCon.Formats
 		public override string Extension => "txt";
 		public override FileSupportFlags SupportedActions => FileSupportFlags.Export;
 
-		protected override bool ExportFile(string path, ExportJob job)
+		protected override bool ExportFile(string path, ExportTask task)
 		{
 			var fileContents = new StringBuilder();
-			fileContents.AppendLine("cells_x       " + job.data.GridWidth);
-			fileContents.AppendLine("cells_y       " + job.data.GridHeight);
-			fileContents.AppendLine("xll_corner    " + job.data.lowerCornerPos.X);
-			fileContents.AppendLine("yll_corner    " + job.data.lowerCornerPos.Y);
-			fileContents.AppendLine("cell_size     " + job.data.cellSize);
-			fileContents.AppendLine("nodata_value  " + job.data.nodata_value);
+			fileContents.AppendLine("cells_x       " + task.data.GridLengthX);
+			fileContents.AppendLine("cells_y       " + task.data.GridLengthY);
+			fileContents.AppendLine("xll_corner    " + task.data.lowerCornerPos.X);
+			fileContents.AppendLine("yll_corner    " + task.data.lowerCornerPos.Y);
+			fileContents.AppendLine("cell_size     " + task.data.cellSize);
+			fileContents.AppendLine("nodata_value  " + task.data.nodata_value);
 			File.WriteAllText(path, fileContents.ToString());
 			return true;
 		}
 
-		public override void ModifyFileName(ExportJob exportJob, FileNameBuilder nameBuilder)
+		public override void ModifyFileName(ExportTask task, FileNameBuilder nameBuilder)
 		{
 			nameBuilder.suffix = "geodata";
 		}

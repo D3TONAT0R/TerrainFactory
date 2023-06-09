@@ -32,10 +32,10 @@
 		}
 
 		public bool IsValid(HeightData d) {
-			if(xMin < 0 || xMin >= d.GridWidth) return false;
-			if(yMin < 0 || yMin >= d.GridHeight) return false;
-			if(xMax < 0 || xMax >= d.GridWidth) return false;
-			if(yMax < 0 || yMax >= d.GridHeight) return false;
+			if(xMin < 0 || xMin >= d.GridLengthX) return false;
+			if(yMin < 0 || yMin >= d.GridLengthY) return false;
+			if(xMax < 0 || xMax >= d.GridLengthX) return false;
+			if(yMax < 0 || yMax >= d.GridLengthY) return false;
 			if(xMin > xMax) return false;
 			if(yMin > yMax) return false;
 			return true;

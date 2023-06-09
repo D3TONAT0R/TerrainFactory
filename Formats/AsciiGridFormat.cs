@@ -22,21 +22,21 @@ namespace HMCon.Formats
 			return ASCImporter.Import(filepath, args);
 		}
 
-		protected override bool ExportFile(string path, ExportJob job)
+		protected override bool ExportFile(string path, ExportTask task)
 		{
-			int decimals = job.settings.GetCustomSetting("decimals", 2);
+			int decimals = task.settings.GetCustomSetting("decimals", 2);
 
 			StringBuilder fileContents = new StringBuilder();
-			fileContents.AppendLine($"ncols        {job.data.GridWidth}");
-			fileContents.AppendLine($"nrows        {job.data.GridHeight}");
-			fileContents.AppendLine($"xllcorner    {job.data.lowerCornerPos.X}");
-			fileContents.AppendLine($"yllcorner    {job.data.lowerCornerPos.Y}");
-			fileContents.AppendLine($"cellsize     {job.data.cellSize}");
-			fileContents.AppendLine($"NODATA_value {job.data.nodata_value}");
-			var grid = job.data.GetDataGrid();
+			fileContents.AppendLine($"ncols        {task.data.GridLengthX}");
+			fileContents.AppendLine($"nrows        {task.data.GridLengthY}");
+			fileContents.AppendLine($"xllcorner    {task.data.lowerCornerPos.X}");
+			fileContents.AppendLine($"yllcorner    {task.data.lowerCornerPos.Y}");
+			fileContents.AppendLine($"cellsize     {task.data.cellSize}");
+			fileContents.AppendLine($"NODATA_value {task.data.nodata_value}");
+			var grid = task.data.GetDataGrid();
 
 			string format = "";
-			int mostZeros = Math.Max(Math.Abs((int)job.data.highestValue).ToString().Length, Math.Abs((int)job.data.lowestValue).ToString().Length);
+			int mostZeros = Math.Max(Math.Abs((int)task.data.highestValue).ToString().Length, Math.Abs((int)task.data.lowestValue).ToString().Length);
 			for (int i = 0; i < mostZeros; i++)
 			{
 				format += '0';
@@ -49,9 +49,9 @@ namespace HMCon.Formats
 
 			format = " " + format + ";" + "-" + format;
 
-			for (int y = job.data.GridHeight - 1; y >= 0; y--)
+			for (int y = task.data.GridLengthY - 1; y >= 0; y--)
 			{
-				for(int x = 0; x < job.data.GridWidth; x++)
+				for(int x = 0; x < task.data.GridLengthX; x++)
 				{
 					if (x > 0) fileContents.Append(" ");
 					fileContents.Append(grid[x, y].ToString(format));

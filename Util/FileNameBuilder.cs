@@ -11,7 +11,7 @@ namespace HMCon.Util {
 
 		public string prefix;
 		public string filename;
-		public (int x, int y)? gridNum = null;
+		public (int x, int y)? tileIndex = null;
 		public string suffix;
 
 		public FileFormat extension;
@@ -39,7 +39,7 @@ namespace HMCon.Util {
 			StringBuilder sb = new StringBuilder();
 			if(!string.IsNullOrEmpty(prefix)) sb.Append(string.Format(prefixFormat, prefix));
 			sb.Append(filename);
-			if(gridNum != null) sb.Append(string.Format(gridNumFormat, gridNum.Value.x, gridNum.Value.y));
+			if(tileIndex != null) sb.Append(string.Format(gridNumFormat, tileIndex.Value.x, tileIndex.Value.y));
 			if(!string.IsNullOrEmpty(suffix)) sb.Append(string.Format(suffixFormat, suffix));
 			sb.Append("." + extension.Extension);
 			return sb.ToString();

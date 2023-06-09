@@ -12,10 +12,10 @@ namespace HMCon {
 
 		public string filename;
 
-		public int GridWidth { get; private set; }
-		public int GridHeight { get; private set; }
+		public int GridLengthX { get; private set; }
+		public int GridLengthY { get; private set; }
 
-		public int GridCellCount => GridWidth * GridHeight;
+		public int GridCellCount => GridLengthX * GridLengthY;
 
 		public Vector2 lowerCornerPos;
 		public (int x, int y) offsetFromSource = (0, 0);
@@ -32,8 +32,8 @@ namespace HMCon {
 			set
 			{
 				grid = value;
-				GridWidth = grid.GetLength(0);
-				GridHeight = grid.GetLength(1);
+				GridLengthX = grid.GetLength(0);
+				GridLengthY = grid.GetLength(1);
 			}
 		}
 		private float[,] grid;
@@ -96,7 +96,7 @@ namespace HMCon {
 		}
 
 		public Bounds GetBounds() {
-			return new Bounds(0, 0, GridWidth - 1, GridHeight - 1);
+			return new Bounds(0, 0, GridLengthX - 1, GridLengthY - 1);
 		}
 
 		#region modification
@@ -135,10 +135,10 @@ namespace HMCon {
 
 		public delegate float ModificationFunc(int x, int y, float rx, float ry, float value);
 		public void Modify(ModificationFunc modificator) {
-			for(int y = 0; y < GridHeight; y++) {
-				for(int x = 0; x < GridWidth; x++) {
-					float rx = x / (float)(GridWidth - 1);
-					float ry = y / (float)(GridHeight - 1);
+			for(int y = 0; y < GridLengthY; y++) {
+				for(int x = 0; x < GridLengthX; x++) {
+					float rx = x / (float)(GridLengthX - 1);
+					float ry = y / (float)(GridLengthY - 1);
 					DataGrid[x, y] = modificator(x, y, rx, ry, DataGrid[x, y]);
 				}
 			}
@@ -147,13 +147,13 @@ namespace HMCon {
 
 		public void Resize(int newDimX, bool scaleHeight) {
 			int dimX = newDimX;
-			float ratio = GridWidth / (float)GridHeight;
+			float ratio = GridLengthX / (float)GridLengthY;
 			int dimY = (int)(dimX / ratio);
 			DataGrid = GetResizedData(dimX, dimY);
-			float resizeRatio = GridWidth / (float)GridWidth;
+			float resizeRatio = GridLengthX / (float)GridLengthX;
 			if(scaleHeight) {
-				for(int x = 0; x < GridWidth; x++) {
-					for(int y = 0; y < GridHeight; y++) {
+				for(int x = 0; x < GridLengthX; x++) {
+					for(int y = 0; y < GridLengthY; y++) {
 						DataGrid[x, y] *= resizeRatio;
 					}
 				}
@@ -167,7 +167,7 @@ namespace HMCon {
 				for(int y = 0; y < dimY; y++) {
 					float nx = x / (float)dimX;
 					float ny = y / (float)dimY;
-					newData[x, y] = GetHeightInterpolated(nx * GridWidth, ny * GridHeight);
+					newData[x, y] = GetHeightInterpolated(nx * GridLengthX, ny * GridLengthY);
 				}
 			}
 			return newData;
@@ -181,12 +181,12 @@ namespace HMCon {
 		}
 
 		public float[,] GetDataGridFlipped() {
-			float[,] grid = new float[GridWidth, GridHeight];
+			float[,] grid = new float[GridLengthX, GridLengthY];
 			var zLength = grid.GetLength(1);
 			for(int x = 0; x < grid.GetLength(0); x++) {
-				for(int z = 0; z < grid.GetLength(1); z++) {
-					//Z starts from top
-					grid[x, zLength - z - 1] = GetHeight(x, z);
+				for(int y = 0; y < grid.GetLength(1); y++) {
+					//Y starts from top
+					grid[x, zLength - y - 1] = GetHeight(x, y);
 				}
 			}
 			return grid;
@@ -197,7 +197,7 @@ namespace HMCon {
 		}
 
 		public float GetHeight(int x, int y) {
-			if(x < 0 || y < 0 || x >= GridWidth || y >= GridHeight) {
+			if(x < 0 || y < 0 || x >= GridLengthX || y >= GridLengthY) {
 				return nodata_value;
 			} else {
 				return DataGrid[x, y];
@@ -211,8 +211,8 @@ namespace HMCon {
 
 		public float GetHeightBounded(int x, int y)
 		{
-			x = MathUtils.Clamp(x, 0, GridWidth - 1);
-			y = MathUtils.Clamp(y, 0, GridHeight - 1);
+			x = MathUtils.Clamp(x, 0, GridLengthX - 1);
+			y = MathUtils.Clamp(y, 0, GridLengthY - 1);
 			return DataGrid[x, y];
 		}
 
@@ -221,10 +221,10 @@ namespace HMCon {
 			int y1 = (int)y;
 			int x2 = x1 + 1;
 			int y2 = y1 + 1;
-			x1 = MathUtils.Clamp(x1, 0, GridWidth - 1);
-			x2 = MathUtils.Clamp(x2, 0, GridWidth - 1);
-			y1 = MathUtils.Clamp(y1, 0, GridHeight - 1);
-			y2 = MathUtils.Clamp(y2, 0, GridHeight - 1);
+			x1 = MathUtils.Clamp(x1, 0, GridLengthX - 1);
+			x2 = MathUtils.Clamp(x2, 0, GridLengthX - 1);
+			y1 = MathUtils.Clamp(y1, 0, GridLengthY - 1);
+			y2 = MathUtils.Clamp(y2, 0, GridLengthY - 1);
 			float wx = x - x1;
 			float wy = y - y1;
 			float vx1 = MathUtils.Lerp(GetHeight(x1, y1), GetHeight(x2, y1), wx);
@@ -233,7 +233,7 @@ namespace HMCon {
 		}
 
 		public float GetHeightRelative(float rx, float ry) {
-			return GetHeightInterpolated(rx * (GridWidth - 1), ry * (GridHeight - 1));
+			return GetHeightInterpolated(rx * (GridLengthX - 1), ry * (GridLengthY - 1));
 		}
 
 		public float[,] GetDataRange(Bounds bounds) {

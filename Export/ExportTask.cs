@@ -7,7 +7,7 @@ using System.Text;
 
 namespace HMCon.Export
 {
-	public class ExportJob
+	public class ExportTask
 	{
 
 		public bool useGridNumbering = false;
@@ -18,12 +18,12 @@ namespace HMCon.Export
 		public ExportSettings settings;
 		public FileFormat format;
 
-		public FileNameBuilder nameBuilder;
-		public string FilePath => nameBuilder.GetFullPath();
+		public FileNameBuilder filenameBuilder;
+		public string FilePath => filenameBuilder.GetFullPath();
 
 		public bool allowOverwrite = true;
 
-		public ExportJob(HeightData heightData, FileFormat fileFormat, ExportSettings exportSettings, string targetDirectory, string filename)
+		public ExportTask(HeightData heightData, FileFormat fileFormat, ExportSettings exportSettings, string targetDirectory, string filename)
 		{
 			data = heightData;
 			settings = exportSettings;
@@ -32,10 +32,10 @@ namespace HMCon.Export
 			{
 				filename = filename.Substring(0, filename.Length - 1 - fileFormat.Extension.Length);
 			}
-			nameBuilder = new FileNameBuilder(targetDirectory, filename, fileFormat);
+			filenameBuilder = new FileNameBuilder(targetDirectory, filename, fileFormat);
 		}
 
-		public ExportJob(HeightData heightData, FileFormat fileFormat, ExportSettings exportSettings, string targetFilePathAndName)
+		public ExportTask(HeightData heightData, FileFormat fileFormat, ExportSettings exportSettings, string targetFilePathAndName)
 		 : this(heightData, fileFormat, exportSettings, Path.GetDirectoryName(targetFilePathAndName), Path.GetFileName(targetFilePathAndName))
 		{
 

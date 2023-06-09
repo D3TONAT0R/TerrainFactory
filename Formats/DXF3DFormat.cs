@@ -19,14 +19,14 @@ namespace HMCon.Formats
 		public override string Extension => "dxf";
 		public override FileSupportFlags SupportedActions => FileSupportFlags.Export;
 
-		public override void ModifyFileName(ExportJob exportJob, FileNameBuilder nameBuilder)
+		public override void ModifyFileName(ExportTask task, FileNameBuilder nameBuilder)
 		{
 			nameBuilder.suffix = "3d";
 		}
 
-		protected override bool ExportFile(string path, ExportJob job)
+		protected override bool ExportFile(string path, ExportTask task)
 		{
-			var doc = CreateDrawing(job);
+			var doc = CreateDrawing(task);
 			doc.Save(path);
 			return true;
 		}

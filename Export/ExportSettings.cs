@@ -9,7 +9,7 @@ namespace HMCon.Export {
 
 		//TODO: move to Job class? Redundant when using ExportManager.ExportAs()
 		public List<FileFormat> outputFormats = new List<FileFormat>();
-		public int fileSplitDims = -1;
+		public int splitInterval = -1;
 
 		private readonly Dictionary<string, object> customSettings = new Dictionary<string, object>();
 
