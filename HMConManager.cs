@@ -22,7 +22,6 @@ namespace HMCon {
 			{
 				throw new InvalidOperationException("Already initialized.");
 			}
-			ConsoleOutput.Initialize();
 			FileFormatManager.RegisterStandardFormats();
 			CommandHandler.commandHandlers.Add(new StandardCommands());
 			if(ModuleLoadingEnabled)

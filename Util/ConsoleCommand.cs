@@ -10,7 +10,7 @@ namespace HMCon.Util {
 		public string description;
 		private HandleCommandDelegate commandHandler;
 
-		public delegate bool HandleCommandDelegate(Worksheet job, string[] args);
+		public delegate bool HandleCommandDelegate(Worksheet sheet, string[] args);
 
 		public ConsoleCommand(string cmd, string argHint, string desc, HandleCommandDelegate handler) {
 			command = cmd;
@@ -19,8 +19,8 @@ namespace HMCon.Util {
 			commandHandler = handler;
 		}
 
-		public bool ExecuteCommand(Worksheet job, string[] args) {
-			return commandHandler(job, args);
+		public bool ExecuteCommand(Worksheet sheet, string[] args) {
+			return commandHandler(sheet, args);
 		}
 
 		public static T ParseArg<T>(string[] args, int i) {

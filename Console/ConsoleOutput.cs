@@ -12,27 +12,12 @@ namespace HMCon
 		public static IConsoleHandler consoleHandler;
 		public static bool debugLogging = false;
 
-		static string progressString;
-		static float progressValue;
-		static int progressBarUpdateTick;
-		static int lastProgressBarUpdateTick = -1;
-
-		[System.Runtime.InteropServices.DllImport("kernel32.dll")]
-		static extern IntPtr GetConsoleWindow();
-
-		static Timer progressBarUpdateTimer;
+		static long lastProgressBarUpdateMillisecond = -1;
+		static string fullProgressString;
 
 		public static event Action<string> ErrorOccurred;
 
-		internal static void Initialize()
-		{
-			if (GetConsoleWindow() != null)
-			{
-				progressBarUpdateTimer = new Timer(250);
-				progressBarUpdateTimer.Elapsed += OnProgressBarUpdate;
-				progressBarUpdateTimer.Start();
-			}
-		}
+		static readonly object lockObj = new object();
 
 		static void WriteConsoleLine(string str)
 		{
@@ -45,12 +30,14 @@ namespace HMCon
 				try
 				{
 					Console.CursorVisible = false;
-					if (progressString != null)
+					if (fullProgressString != null)
 					{
-						WriteProgress("", -1);
-						progressString = null;
-						lastProgressBarUpdateTick = -1;
-						Console.SetCursorPosition(0, Console.CursorTop);
+						var bg = Console.BackgroundColor;
+						var fg = Console.ForegroundColor;
+						ClearProgressBar();
+						Console.SetCursorPosition(0, Console.CursorTop - 1);
+						Console.BackgroundColor = bg;
+						Console.ForegroundColor = fg;
 					}
 					Console.Write(str);
 					Console.ResetColor();
@@ -104,34 +91,24 @@ namespace HMCon
 			ErrorOccurred?.Invoke(str);
 		}
 
-		static object locker = new object();
-
-		static void OnProgressBarUpdate(object sender, ElapsedEventArgs e)
+		public static void UpdateProgressBar(string str, float progress, bool forceWrite = false)
 		{
-			if (progressBarUpdateTick == lastProgressBarUpdateTick)
+			lock (lockObj)
 			{
-				WriteProgress(progressString, progressValue);
-			}
-			progressBarUpdateTick++;
-		}
-
-		public static void UpdateProgressBar(string str, float progress)
-		{
-			lock (locker)
-			{
-				progressString = str;
-				progressValue = progress;
-				lastProgressBarUpdateTick = progressBarUpdateTick;
+				long millisecond = DateTime.Now.Ticks / 10000;
+				if(forceWrite || millisecond > lastProgressBarUpdateMillisecond + 50)
+				{
+					lastProgressBarUpdateMillisecond = millisecond;
+					WriteProgress(str, progress);
+				}
 			}
 		}
 
 		public static void ClearProgressBar()
 		{
-			progressString = null;
-			progressValue = -1;
+			WriteProgress("", -1);
+			fullProgressString = null;
 		}
-
-		static object lockObj = new object();
 
 		private static void WriteProgress(string str, float progress)
 		{
@@ -145,15 +122,15 @@ namespace HMCon
 				{
 					Console.CursorVisible = false;
 					Console.ForegroundColor = ConsoleColor.DarkGray;
-					if (!string.IsNullOrEmpty(progressString))
+					if (!string.IsNullOrEmpty(fullProgressString))
 					{
 						Console.SetCursorPosition(0, Console.CursorTop - 1);
-						Console.Write(" ".PadRight(progressString.Length + 1, ' '));
+						Console.Write(" ".PadRight(fullProgressString.Length + 1, ' '));
 						Console.SetCursorPosition(0, Console.CursorTop);
 					}
-					progressString = str;
-					if (progress >= 0) progressString += " " + GetProgressBar(progress) + " " + (int)Math.Round(progress * 100) + "%";
-					Console.WriteLine(progressString);
+					fullProgressString = str;
+					if (progress >= 0) fullProgressString += " " + GetProgressBar(progress) + " " + (int)Math.Round(progress * 100) + "%";
+					Console.WriteLine(fullProgressString);
 					Console.ResetColor();
 				}
 			}
@@ -169,5 +146,7 @@ namespace HMCon
 			return s.ToString();
 		}
 
+		[System.Runtime.InteropServices.DllImport("kernel32.dll")]
+		static extern IntPtr GetConsoleWindow();
 	}
 }
