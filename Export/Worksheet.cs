@@ -100,9 +100,17 @@ namespace HMCon.Export {
 			if(CurrentFileIndex == -1) {
 				NextFile();
 			}
-			while(CurrentFileIndex < InputFileCount)
+			while(true)
 			{
 				ExportCurrent(UseBatchNamingPattern);
+				if(HasNextFile)
+				{
+					NextFile();
+				}
+				else
+				{
+					break;
+				}
 			}
 			ExportCompleted?.Invoke();
 		}
