@@ -2,41 +2,48 @@
 using HMCon.Formats;
 using HMCon.Import;
 using System;
+using System.Collections.Generic;
 using static HMCon.ConsoleOutput;
 
 namespace HMCon {
 	public static class HMConManager {
 
-		public static Job currentJob;
+		public static bool ModuleLoadingEnabled { get; set; } = true;
+		public static List<string> ModuleLocations { get; private set; } = new List<string>();
+		public static bool IsInitialized { get; private set; } = false;
 
-		private static bool isInitialized = false;
+		static HMConManager()
+		{
+			ModuleLocations.Add(AppContext.BaseDirectory);
+		}
 
-		public static void Initialize(string moduleDLLPath) {
+		public static void Initialize() {
+			if(IsInitialized)
+			{
+				throw new InvalidOperationException("Already initialized.");
+			}
 			ConsoleOutput.Initialize();
 			FileFormatManager.RegisterStandardFormats();
 			CommandHandler.commandHandlers.Add(new StandardCommands());
-			if(!string.IsNullOrEmpty(moduleDLLPath)) {
-				ModuleLoader.LoadModules(moduleDLLPath);
+			if(ModuleLoadingEnabled)
+			{
+				foreach(var moduleLoc in ModuleLocations)
+				{
+					ModuleLoader.LoadModules(moduleLoc);
+				}
 			} else {
 				WriteLine("Module loading has been disabled.");
 			}
 			CommandHandler.Initialize();
-			isInitialized = true;
+			IsInitialized = true;
 		}
 
-		public static bool ConvertFile(string inputPath, string outputPath, ExportSettings settings, params string[] importArgs) {
-			if(!isInitialized) {
-				throw new ArgumentException("The application must be initialized before it can be used");
+		public static void InitializeIfNeeded()
+		{
+			if(!IsInitialized)
+			{
+				Initialize();
 			}
-			HeightData data = ImportManager.ImportFile(inputPath, importArgs);
-			return true;
 		}
-
-		//TODO: Move somewhere else
-		/*public static int GetTotalExportCellsPerFile() {
-			int cells = currentJob.exportSettings.fileSplitDims >= 32 ? (int)Math.Pow(currentJob.exportSettings.fileSplitDims, 2) : currentJob.CurrentData.GridWidth * currentJob.CurrentData.GridHeight;
-			if(currentJob.exportSettings.Subsampling > 1) cells /= currentJob.exportSettings.Subsampling * currentJob.exportSettings.Subsampling;
-			return cells;
-		}*/
 	}
 }

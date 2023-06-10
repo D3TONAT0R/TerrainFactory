@@ -8,7 +8,7 @@ using System.IO;
 using static HMCon.ConsoleOutput;
 
 namespace HMCon.Export {
-	public class Job {
+	public class Worksheet {
 
 		public bool allowOverwrite = true;
 		public bool batchMode = false;
@@ -16,6 +16,7 @@ namespace HMCon.Export {
 		public int CurrentFileIndex { get; private set; } = -1;
 		public HeightData CurrentData { get; private set; }
 		public bool HasNextFile => CurrentFileIndex+1 < InputFileList.Count;
+		public int InputFileCount => InputFileList.Count;
 
 		public List<string> InputFileList { get; private set; } = new List<string>();
 		public Dictionary<string, string> variables = new Dictionary<string, string>();
@@ -85,46 +86,52 @@ namespace HMCon.Export {
 
 		public void ApplyModificationChain() {
 			if(CurrentData == null) {
-				throw new NullReferenceException("CurrentData is null");
+				throw new NullReferenceException("Data is null");
 			}
 			UpdateProgressBar($"Applying {modificationChain.chain.Count} modifiers...", -1);
 			CurrentData = ApplyModificationChain(CurrentData);
 			UpdateProgressBar("", -1);
 		}
 
-		public void ExportAll() {
-			if(string.IsNullOrWhiteSpace(outputPath)) {
-				throw new ArgumentException("outputPath is null");
-			}
-			if(CurrentData == null) {
+		public void ExportAll()
+		{
+			if(CurrentFileIndex == -1) {
 				NextFile();
 			}
-
-			ApplyModificationChain();
-
-			if (!ExportManager.ValidateExportSettings(outputFormats, exportSettings, CurrentData))
+			while(CurrentFileIndex < InputFileCount)
 			{
-				throw new InvalidOperationException("Current export settings are invalid for at least one of the selected formats.");
-			}
-
-			if (batchMode) {
-				string fullPath = Path.Combine(outputPath, Path.GetFileName(InputFileList[CurrentFileIndex]));
-				Export(CurrentData, fullPath);
-				while(HasNextFile) {
-					NextFile();
-					fullPath = Path.Combine(outputPath, Path.GetFileName(InputFileList[CurrentFileIndex]));
-					if(CurrentData != null) {
-						ApplyModificationChain();
-						Export(CurrentData, fullPath);
-					}
-				}
-			} else {
-				Export(CurrentData, outputPath);
+				ExportCurrent(InputFileCount > 1);
 			}
 			ExportCompleted?.Invoke();
 		}
 
-		void Export(HeightData data, string outPath) {
+		void ExportCurrent(bool useBatchNamingPattern)
+		{
+			if(string.IsNullOrWhiteSpace(outputPath))
+			{
+				throw new ArgumentException("outputPath is null");
+			}
+
+			ApplyModificationChain();
+
+			if(!ExportManager.ValidateExportSettings(outputFormats, exportSettings, CurrentData))
+			{
+				throw new InvalidOperationException("Current export settings are invalid for at least one of the selected formats.");
+			}
+
+			string finalOutputPath;
+			if(useBatchNamingPattern)
+			{
+				finalOutputPath = Path.Combine(outputPath, Path.GetFileName(InputFileList[CurrentFileIndex]));
+			}
+			else
+			{
+				finalOutputPath = outputPath;
+			}
+			ExportData(CurrentData, finalOutputPath);
+		}
+
+		void ExportData(HeightData data, string outPath) {
 			try {
 				string dir = Path.GetDirectoryName(outPath);
 				string fname = Path.GetFileNameWithoutExtension(outPath);

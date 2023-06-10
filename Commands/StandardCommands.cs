@@ -28,9 +28,9 @@ namespace HMCon {
 			list.Add(new ModificationCommand("clip", "L H", "Clips height values below or above the thresholds", HandleClipMod, new ClippingModifier(0, 1)));
 		}
 
-		private bool PrintInfoCmd(Job job, string[] args)
+		private bool PrintInfoCmd(Worksheet sheet, string[] args)
 		{
-			var d = job.CurrentData;
+			var d = sheet.CurrentData;
 			Console.WriteLine($"Grid Size: {d.GridLengthX} x {d.GridLengthY}");
 			Console.WriteLine($"Cell Size: {d.cellSize}");
 			Console.WriteLine($"Dimensions: {d.GridLengthX * d.cellSize} x {d.GridLengthY * d.cellSize}");
@@ -39,21 +39,21 @@ namespace HMCon {
 			return true;
 		}
 
-		private bool HandleSplitCmd(Job job, string[] args) {
+		private bool HandleSplitCmd(Worksheet sheet, string[] args) {
 			int i = ParseArg<int>(args, 0);
-			job.exportSettings.splitInterval = i;
+			sheet.exportSettings.splitInterval = i;
 			WriteLine("File splitting set to: " + i + "x" + i);
 			return true;
 		}
 
-		private bool HandleClearModifierCmd(Job job, string[] args) {
-			int l = job.modificationChain.chain.Count;
-			job.modificationChain.chain.Clear();
+		private bool HandleClearModifierCmd(Worksheet sheet, string[] args) {
+			int l = sheet.modificationChain.chain.Count;
+			sheet.modificationChain.chain.Clear();
 			WriteLine($"Removed {l} modifiers from the chain");
 			return true;
 		}
 
-		private Modifier HandleSubsampleMod(Job job, string[] args) {
+		private Modifier HandleSubsampleMod(Worksheet sheet, string[] args) {
 			if(ParseArgOptional(args, 0, out int i)) {
 				WriteLine("Subsampling set to: " + i);
 				return new SubsamplingModifier(i);
@@ -63,7 +63,7 @@ namespace HMCon {
 			}
 		}
 
-		private Modifier HandleAreaSelectionMod(Job job, string[] args) {
+		private Modifier HandleAreaSelectionMod(Worksheet sheet, string[] args) {
 			if(args.Length == 0) {
 				WriteLine("Selection reset");
 				return new BoundedAreaSelectionModifier(null);
@@ -73,7 +73,7 @@ namespace HMCon {
 			int x2 = ParseArg<int>(args, 2);
 			int y2 = ParseArg<int>(args, 3);
 			Bounds bounds = new Bounds(x1, y1, x2, y2);
-			if(bounds.IsValid(job.CurrentData)) {
+			if(bounds.IsValid(sheet.CurrentData)) {
 				WriteLine($"Selection set ({bounds.CellCount} cells total)");
 				return new BoundedAreaSelectionModifier(bounds);
 			} else {
@@ -82,7 +82,7 @@ namespace HMCon {
 			return null;
 		}
 
-		private Modifier HandleCenteredSelectionMod(Job job, string[] args)
+		private Modifier HandleCenteredSelectionMod(Worksheet sheet, string[] args)
 		{
 			if (args.Length == 0)
 			{
@@ -96,7 +96,7 @@ namespace HMCon {
 			return new CenteredAreaSelectionModifier(cx, cy, size);
 		}
 
-		private Modifier HandleHeightScaleMod(Job job, string[] args) {
+		private Modifier HandleHeightScaleMod(Worksheet sheet, string[] args) {
 			float scale = ParseArg<float>(args, 0);
 			if(ParseArgOptional(args, 1, out float pivot)) {
 				WriteLine($"Height rescaled successfully with pivot at {pivot}");
@@ -107,32 +107,32 @@ namespace HMCon {
 			}
 		}
 
-		private Modifier HandleRemapMod(Job job, string[] args) {
+		private Modifier HandleRemapMod(Worksheet sheet, string[] args) {
 			return new HeightRemapModifier(ParseArg<float>(args, 0), ParseArg<float>(args, 1), ParseArg<float>(args, 2), ParseArg<float>(args, 3));
 		}
 
-		private Modifier HandleHeightRangeMod(Job job, string[] args) {
+		private Modifier HandleHeightRangeMod(Worksheet sheet, string[] args) {
 			float min = ParseArg<float>(args, 0);
 			float max = ParseArg<float>(args, 1);
 			WriteLine("Height rescaled successfully");
 			return new LowHighScaleModifier(null, null, min, max);
 		}
 
-		private Modifier HandleResizeMod(Job job, string[] args) {
+		private Modifier HandleResizeMod(Worksheet sheet, string[] args) {
 			int w = ParseArg<int>(args, 0);
-			WriteLine($"Resizing from {job.CurrentData.GridLengthX} to {w} ({Math.Round(w/(float)job.CurrentData.GridLengthX*100)}%)");
+			WriteLine($"Resizing from {sheet.CurrentData.GridLengthX} to {w} ({Math.Round(w/(float)sheet.CurrentData.GridLengthX*100)}%)");
 			float f = ParseArg<float>(args, 0);
-			WriteLine("Cellsize changed from {0} to {1}", job.CurrentData.cellSize, f);
+			WriteLine("Cellsize changed from {0} to {1}", sheet.CurrentData.cellSize, f);
 			return null;
 		}
 
-		private Modifier HandleCellsizeMod(Job job, string[] args) {
+		private Modifier HandleCellsizeMod(Worksheet sheet, string[] args) {
 			float f = ParseArg<float>(args, 0);
-			WriteLine("Cellsize changed from {0} to {1}", job.CurrentData.cellSize, f);
+			WriteLine("Cellsize changed from {0} to {1}", sheet.CurrentData.cellSize, f);
 			return null;
 		}
 
-		private Modifier HandleLowHighPointMod(Job job, string[] args) {
+		private Modifier HandleLowHighPointMod(Worksheet sheet, string[] args) {
 			if(args.Length >= 2) {
 				float low = ParseArg<float>(args, 0);
 				float high = ParseArg<float>(args, 1);
@@ -146,7 +146,7 @@ namespace HMCon {
 			}
 		}
 
-		private Modifier HandleClipMod(Job job, string[] args) {
+		private Modifier HandleClipMod(Worksheet sheet, string[] args) {
 			float min = ParseArg<float>(args, 0);
 			float max = ParseArg<float>(args, 1);
 			WriteLine($"Clipping height data to {min} and {max}");
