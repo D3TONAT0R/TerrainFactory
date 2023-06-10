@@ -11,12 +11,14 @@ namespace HMCon.Export {
 	public class Worksheet {
 
 		public bool allowOverwrite = true;
-		public bool batchMode = false;
+		public bool ForceBatchNamingPattern { get; set; } = false;
+		public bool UseBatchNamingPattern => ForceBatchNamingPattern || InputFileCount > 1;
 
 		public int CurrentFileIndex { get; private set; } = -1;
 		public HeightData CurrentData { get; private set; }
 		public bool HasNextFile => CurrentFileIndex+1 < InputFileList.Count;
 		public int InputFileCount => InputFileList.Count;
+		public bool HasMultipleInputs => InputFileCount > 1;
 
 		public List<string> InputFileList { get; private set; } = new List<string>();
 		public Dictionary<string, string> variables = new Dictionary<string, string>();
@@ -100,7 +102,7 @@ namespace HMCon.Export {
 			}
 			while(CurrentFileIndex < InputFileCount)
 			{
-				ExportCurrent(InputFileCount > 1);
+				ExportCurrent(UseBatchNamingPattern);
 			}
 			ExportCompleted?.Invoke();
 		}
