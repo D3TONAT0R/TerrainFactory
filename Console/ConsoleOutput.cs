@@ -136,6 +136,21 @@ namespace HMCon
 			}
 		}
 
+		public static void WriteBox(string text)
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.Append("┌");
+			sb.Append("".PadLeft(text.Length + 2, '─'));
+			sb.AppendLine("┐");
+			sb.Append("│ ");
+			sb.Append(text);
+			sb.AppendLine(" │");
+			sb.Append("└");
+			sb.Append("".PadLeft(text.Length + 2, '─'));
+			sb.Append("┘");
+			WriteLine(sb.ToString());
+		}
+
 		static string GetProgressBar(float prog)
 		{
 			StringBuilder s = new StringBuilder();
