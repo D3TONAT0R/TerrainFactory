@@ -80,7 +80,7 @@ namespace HMCon.Import {
 				{
 					UpdateProgressBar("Loading cells", i / (float)length);
 				}
-				int y = (int)Math.Floor(i / (float)ncols);
+				int y = (int)Math.Floor(i / (double)ncols);
 				int x = i % ncols;
 				if(!NextGridValue(stream, out float value)) break;
 				if(x % sub > 0 || y % sub > 0)
