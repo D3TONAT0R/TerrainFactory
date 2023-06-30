@@ -1,4 +1,6 @@
-﻿using HMCon.Util;
+﻿using HMCon.Commands;
+using HMCon.Export;
+using HMCon.Util;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -67,17 +69,6 @@ namespace HMCon
 			WriteConsoleLine(str);
 		}
 
-		public static void WriteAutoTask(string str)
-		{
-			Console.BackgroundColor = ConsoleColor.DarkBlue;
-			WriteConsoleLine(str);
-		}
-
-		public static void WriteLine(string str, params Object[] args)
-		{
-			Console.WriteLine(str, args);
-		}
-
 		public static void WriteWarning(string str)
 		{
 			Console.ForegroundColor = ConsoleColor.DarkYellow;
@@ -88,6 +79,7 @@ namespace HMCon
 		{
 			Console.ForegroundColor = ConsoleColor.DarkRed;
 			WriteConsoleLine(str);
+			CommandHandler.ClearCommandQueue();
 			ErrorOccurred?.Invoke(str);
 		}
 

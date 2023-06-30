@@ -1,26 +1,28 @@
 ﻿using HMCon.Export;
 using HMCon.Modification;
+using HMCon.Util;
 using System;
+using System.Linq;
+using System.Text.RegularExpressions;
 
-namespace HMCon.Util {
-	public class ConsoleCommand {
+namespace HMCon.Commands {
+	public static class CommandParser {
 
-		public string command;
-		public string argsHint;
-		public string description;
-		private HandleCommandDelegate commandHandler;
+		public static void ParseCommandInput(string input, out string cmd, out string[] args)
+		{
+			while(input.Contains("  ")) input = input.Replace("  ", " "); //Remove all double spaces
 
-		public delegate bool HandleCommandDelegate(Worksheet sheet, string[] args);
+			cmd = input.Split(' ')[0].ToLower();
+			string argsString = "";
+			if(input.Length > cmd.Length + 1)
+			{
+				argsString = input.Substring(cmd.Length + 1);
+			}
 
-		public ConsoleCommand(string cmd, string argHint, string desc, HandleCommandDelegate handler) {
-			command = cmd;
-			argsHint = argHint;
-			description = desc;
-			commandHandler = handler;
-		}
-
-		public bool ExecuteCommand(Worksheet sheet, string[] args) {
-			return commandHandler(sheet, args);
+			args = Regex.Matches(argsString, @"[\""].+?[\""]|[^ ]+")
+			.Cast<Match>()
+			.Select(x => x.Value.Trim('"'))
+			.ToArray();
 		}
 
 		public static T ParseArg<T>(string[] args, int i) {

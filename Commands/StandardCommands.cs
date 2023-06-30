@@ -1,34 +1,18 @@
 ﻿using HMCon.Export;
 using HMCon.Modification;
-using HMCon.Util;
 using System;
 using System.Collections.Generic;
 using static HMCon.ConsoleOutput;
-using static HMCon.Util.ConsoleCommand;
+using static HMCon.Commands.CommandParser;
+using HMCon.Formats;
 
-namespace HMCon {
-	public class StandardCommands : HMConCommandHandler {
+namespace HMCon.Commands
+{
+	public static class StandardCommands
+	{
 
-		public override void AddCommands(List<ConsoleCommand> list) {
-			list.Add(new ConsoleCommand("info", "", "Prints general info about the imported height data", PrintInfoCmd));
-			list.Add(new ConsoleCommand("split", "N", "Split files every NxN cells (minimum 32)", HandleSplitCmd));
-			list.Add(new ConsoleCommand("clearmodifiers", "", "Removes all modifiers from the chain", HandleClearModifierCmd));
-		}
-
-		public override void AddModifiers(List<ModificationCommand> list) {
-			list.Add(new ModificationCommand("subsample", "N", "Subsamples the data by factor N", HandleSubsampleMod, new SubsamplingModifier(2)));
-			list.Add(new ModificationCommand("areaselect", "x1 y1 x2 y2", "Selects an area defined by lower and upper bounds", HandleAreaSelectionMod, new BoundedAreaSelectionModifier(null)));
-			list.Add(new ModificationCommand("radselect", "$cx $cy size", "Selects an area defined by a center point and area size", HandleCenteredSelectionMod, new CenteredAreaSelectionModifier()));
-			list.Add(new ModificationCommand("scale", "mul <pivot>", "Scales the height values with optional scaling pivot", HandleHeightScaleMod, new HeightScaleModifier(1)));
-			list.Add(new ModificationCommand("remap", "old-H1 new-H1 old-H2 new-H2", "Remaps the given heights to match the new heights", HandleRemapMod, new HeightRemapModifier(0, 1, 0, 1)));
-			list.Add(new ModificationCommand("heightrange", "min max", "Modifies the height range (low- and high points)", HandleHeightRangeMod, new LowHighScaleModifier(null, null, 0, 1)));
-			list.Add(new ModificationCommand("resize", "sizeX", "Resizes the data grid to match the target width", HandleResizeMod, new ResizingModifier(0, true)));
-			list.Add(new ModificationCommand("cellsize", "size", "Changes the data's cell size", HandleCellsizeMod, new CellSizeModifier(1)));
-			list.Add(new ModificationCommand("lowhighpoints", "L H", "Changes the data's low and high points (for heightmap mapping)", HandleLowHighPointMod, new LowHighPointModifier(0, 1)));
-			list.Add(new ModificationCommand("clip", "L H", "Clips height values below or above the thresholds", HandleClipMod, new ClippingModifier(0, 1)));
-		}
-
-		private bool PrintInfoCmd(Worksheet sheet, string[] args)
+		[Command("info", "", "Prints general info about the imported height data")]
+		public static bool PrintInfoCmd(Worksheet sheet, string[] args)
 		{
 			var d = sheet.CurrentData;
 			Console.WriteLine($"Grid Size: {d.GridLengthX} x {d.GridLengthY}");
@@ -39,118 +23,101 @@ namespace HMCon {
 			return true;
 		}
 
-		private bool HandleSplitCmd(Worksheet sheet, string[] args) {
+		[Command("split", "N", "Split files every NxN cells (minimum 32)")]
+		private static bool RunSplitCmd(Worksheet sheet, string[] args)
+		{
 			int i = ParseArg<int>(args, 0);
 			sheet.exportSettings.splitInterval = i;
 			WriteLine("File splitting set to: " + i + "x" + i);
 			return true;
 		}
 
-		private bool HandleClearModifierCmd(Worksheet sheet, string[] args) {
+		[Command("clearmods", "", "Removes all added modifiers")]
+		private static bool RunClearModifierCmd(Worksheet sheet, string[] args)
+		{
 			int l = sheet.modificationChain.chain.Count;
 			sheet.modificationChain.chain.Clear();
-			WriteLine($"Removed {l} modifiers from the chain");
+			WriteLine($"Removed {l} modifiers");
 			return true;
 		}
 
-		private Modifier HandleSubsampleMod(Worksheet sheet, string[] args) {
-			if(ParseArgOptional(args, 0, out int i)) {
-				WriteLine("Subsampling set to: " + i);
-				return new SubsamplingModifier(i);
-			} else {
-				WriteLine("Subsampling disabled");
-				return new SubsamplingModifier(1);
-			}
-		}
-
-		private Modifier HandleAreaSelectionMod(Worksheet sheet, string[] args) {
-			if(args.Length == 0) {
-				WriteLine("Selection reset");
-				return new BoundedAreaSelectionModifier(null);
-			}
-			int x1 = ParseArg<int>(args, 0);
-			int y1 = ParseArg<int>(args, 1);
-			int x2 = ParseArg<int>(args, 2);
-			int y2 = ParseArg<int>(args, 3);
-			Bounds bounds = new Bounds(x1, y1, x2, y2);
-			if(bounds.IsValid(sheet.CurrentData)) {
-				WriteLine($"Selection set ({bounds.CellCount} cells total)");
-				return new BoundedAreaSelectionModifier(bounds);
-			} else {
-				WriteWarning("The specified input is invalid");
-			}
-			return null;
-		}
-
-		private Modifier HandleCenteredSelectionMod(Worksheet sheet, string[] args)
+		[Command("format", "F ..", "Sets the given formats for export", hidden = true)]
+		private static bool RunFormatCmd(Worksheet sheet, string[] args)
 		{
-			if (args.Length == 0)
+			if(args.Length > 0)
 			{
-				WriteLine("Selection reset");
-				return new CenteredAreaSelectionModifier();
+				sheet.outputFormats.SetFormats(args, false);
+				string str = "";
+				foreach(FileFormat ff in sheet.outputFormats)
+				{
+					str += " " + ff.Identifier;
+				}
+				if(str == "") str = " <NONE>";
+				WriteLine("Exporting to the following format(s):" + str);
 			}
-			var cx = ParseArg<Coordinate>(args, 0);
-			var cy = ParseArg<Coordinate>(args, 1);
-			var size = ParseArg<float>(args, 2);
-			WriteLine($"Selection set (center: ({cx},{cy}) size: {size})");
-			return new CenteredAreaSelectionModifier(cx, cy, size);
-		}
-
-		private Modifier HandleHeightScaleMod(Worksheet sheet, string[] args) {
-			float scale = ParseArg<float>(args, 0);
-			if(ParseArgOptional(args, 1, out float pivot)) {
-				WriteLine($"Height rescaled successfully with pivot at {pivot}");
-				return new HeightScaleModifier(pivot, scale);
-			} else {
-				WriteLine("Height rescaled successfully");
-				return new HeightScaleModifier(scale);
+			else
+			{
+				WriteWarning("A list of formats is required.");
 			}
+			return true;
 		}
 
-		private Modifier HandleRemapMod(Worksheet sheet, string[] args) {
-			return new HeightRemapModifier(ParseArg<float>(args, 0), ParseArg<float>(args, 1), ParseArg<float>(args, 2), ParseArg<float>(args, 3));
-		}
+		//------------------
+		//Universal commands
 
-		private Modifier HandleHeightRangeMod(Worksheet sheet, string[] args) {
-			float min = ParseArg<float>(args, 0);
-			float max = ParseArg<float>(args, 1);
-			WriteLine("Height rescaled successfully");
-			return new LowHighScaleModifier(null, null, min, max);
-		}
-
-		private Modifier HandleResizeMod(Worksheet sheet, string[] args) {
-			int w = ParseArg<int>(args, 0);
-			WriteLine($"Resizing from {sheet.CurrentData.GridLengthX} to {w} ({Math.Round(w/(float)sheet.CurrentData.GridLengthX*100)}%)");
-			float f = ParseArg<float>(args, 0);
-			WriteLine("Cellsize changed from {0} to {1}", sheet.CurrentData.cellSize, f);
-			return null;
-		}
-
-		private Modifier HandleCellsizeMod(Worksheet sheet, string[] args) {
-			float f = ParseArg<float>(args, 0);
-			WriteLine("Cellsize changed from {0} to {1}", sheet.CurrentData.cellSize, f);
-			return null;
-		}
-
-		private Modifier HandleLowHighPointMod(Worksheet sheet, string[] args) {
-			if(args.Length >= 2) {
-				float low = ParseArg<float>(args, 0);
-				float high = ParseArg<float>(args, 1);
-				WriteLine($"Setting low and high points to {low} and {high}");
-				return new LowHighPointModifier(low, high);
-			} else if(args.Length == 0) {
-				WriteLine("Recalculating low and high values from data");
-				return new LowHighPointModifier(0, 0);
-			} else {
-				throw new ArgumentException("Incorrect number of arguments");
+		[Command("exec", "path", "Executes a list of commands defined in the given file", context = CommandAttribute.ContextFlags.Global)]
+		private static bool RunExecCmd(Worksheet sheet, string[] args)
+		{
+			if(args.Length > 0)
+			{
+				CommandHandler.AddCommandsToQueue(args[0]);
 			}
+			else
+			{
+				WriteError("Path to file is required.");
+			}
+			return true;
 		}
 
-		private Modifier HandleClipMod(Worksheet sheet, string[] args) {
-			float min = ParseArg<float>(args, 0);
-			float max = ParseArg<float>(args, 1);
-			WriteLine($"Clipping height data to {min} and {max}");
-			return new ClippingModifier(min, max);
+		//---------------
+		//Hidden commands
+
+		[Command("alias", "key value", "Define a variable with the given name", hidden = true)]
+		private static bool RunAliasCmd(Worksheet sheet, string[] args)
+		{
+			if(args.Length >= 2)
+			{
+				sheet.variables.Add(args[0], args[1]);
+			}
+			else
+			{
+				WriteError("Not enough arguments.");
+			}
+			return true;
+		}
+
+		[Command("aliasp", "key (prompt)", "Prompt user to define a variable with the given name", hidden = true)]
+		private static bool RunAliasPromptCmd(Worksheet sheet, string[] args)
+		{
+			if(args.Length >= 1)
+			{
+				string prompt;
+				if(args.Length >= 2)
+				{
+					prompt = args[1];
+				}
+				else
+				{
+					prompt = $"Enter value for variable '{args[0]}'";
+				}
+				WriteLine(prompt);
+				sheet.variables.Add(args[0], CommandHandler.GetInput(sheet, prompt));
+			}
+			else
+			{
+				WriteError("Not enough arguments.");
+			}
+			return true;
 		}
 	}
 }

@@ -1,4 +1,5 @@
-﻿using HMCon.Export;
+﻿using HMCon.Commands;
+using HMCon.Export;
 using HMCon.Formats;
 using HMCon.Import;
 using System;
@@ -23,7 +24,6 @@ namespace HMCon {
 				throw new InvalidOperationException("Already initialized.");
 			}
 			FileFormatManager.RegisterStandardFormats();
-			CommandHandler.commandHandlers.Add(new StandardCommands());
 			if(ModuleLoadingEnabled)
 			{
 				foreach(var moduleLoc in ModuleLocations)
