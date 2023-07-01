@@ -83,6 +83,8 @@ namespace HMCon {
 		}
 
 		public void RecalculateValues(bool updateLowHighPoints) {
+			lowestValue = float.MaxValue;
+			highestValue = float.MinValue;
 			foreach(float f in DataGrid) {
 				if(Math.Abs(f - nodata_value) > 0.1f) {
 					if(f < lowestValue) lowestValue = f;
