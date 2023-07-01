@@ -102,8 +102,7 @@ namespace HMCon.Commands
 		{
 			int w = ParseArg<int>(args, 0);
 			WriteLine($"Resizing from {sheet.CurrentData.GridLengthX} to {w} ({Math.Round(w / (float)sheet.CurrentData.GridLengthX * 100)}%)");
-			float f = ParseArg<float>(args, 0);
-			return null;
+			return new ResizingModifier(w, false);
 		}
 
 		[ModifierCommand("cellsize", "size", "Changes the data's cell size")]
@@ -111,7 +110,7 @@ namespace HMCon.Commands
 		{
 			float f = ParseArg<float>(args, 0);
 			WriteLine($"Cellsize changed from {sheet.CurrentData.cellSize} to {f}");
-			return null;
+			return new CellSizeModifier(f);
 		}
 
 		[ModifierCommand("lowhighpoints", "L H", "Changes the data's low and high points (for heightmap mapping)")]

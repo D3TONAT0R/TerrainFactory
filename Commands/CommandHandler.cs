@@ -24,8 +24,6 @@ namespace HMCon.Commands {
 			}
 		}
 
-		public static List<HMConCommandHandler> commandHandlers = new List<HMConCommandHandler>();
-
 		public static List<CommandDefinition<CommandAttribute>> Commands { get; private set; }
 		public static List<CommandDefinition<ModifierCommandAttribute>> ModifierCommands { get; private set; }
 
@@ -40,13 +38,9 @@ namespace HMCon.Commands {
 			{
 				try
 				{
-					var handler = m.Value.GetCommandHandler();
-					if(handler != null)
-					{
-						var definingTypes = handler.GetCommandDefiningTypes().ToArray();
-						AddCommandMethodsFromTypes(Commands, definingTypes);
-						AddCommandMethodsFromTypes(ModifierCommands, definingTypes);
-					}
+					var definingTypes = m.Value.GetCommandDefiningTypes().ToArray();
+					AddCommandMethodsFromTypes(Commands, definingTypes);
+					AddCommandMethodsFromTypes(ModifierCommands, definingTypes);
 				}
 				catch(Exception e)
 				{

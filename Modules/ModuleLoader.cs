@@ -5,6 +5,7 @@ using HMCon.Import;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Text;
@@ -50,10 +51,9 @@ namespace HMCon
 							if(hasImporter) info += " [I]";
 							if(hasExporter) info += " [E]";
 
-							var c = module.GetCommandHandler();
-							if (c != null)
+							var c = module.GetCommandDefiningTypes().ToArray();
+							if (c.Length > 0)
 							{
-								CommandHandler.commandHandlers.Add(c);
 								info += " [C]";
 							}
 

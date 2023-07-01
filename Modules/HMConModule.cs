@@ -18,8 +18,11 @@ namespace HMCon
 		public abstract string ModuleName { get; }
 		public abstract string ModuleVersion { get; }
 
-		public abstract HMConCommandHandler GetCommandHandler();
-
 		public abstract void RegisterFormats(List<FileFormat> registry);
+
+		public virtual IEnumerable<Type> GetCommandDefiningTypes()
+		{
+			yield break;
+		}
 	}
 }
