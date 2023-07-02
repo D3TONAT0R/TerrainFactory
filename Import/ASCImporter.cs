@@ -69,7 +69,7 @@ namespace HMCon.Import {
 			var yllcorner = ExtractFloat(ReadHeaderLine(stream), "yllcorner");
 			d.lowerCornerPos = new Vector2(xllcorner, yllcorner);
 			d.cellSize = ExtractFloat(ReadHeaderLine(stream), "cellsize") * sub;
-			d.nodata_value = ExtractFloat(ReadHeaderLine(stream), "NODATA_value");
+			d.nodataValue = ExtractFloat(ReadHeaderLine(stream), "NODATA_value");
 			return d;
 		}
 
@@ -88,7 +88,7 @@ namespace HMCon.Import {
 					//Skip this cell due to import subsampling
 					continue;
 				}
-				if(Math.Abs(value - data.nodata_value) > 0.1f) {
+				if(Math.Abs(value - data.nodataValue) > 0.1f) {
 					if(value < data.lowestValue) data.lowestValue = value;
 					if(value > data.highestValue) data.highestValue = value;
 				}

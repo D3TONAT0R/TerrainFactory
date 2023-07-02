@@ -64,9 +64,17 @@ namespace HMCon.Formats
 			return registeredFormats.FirstOrDefault(f => f.GetType() == type);
 		}
 
-		public static FileFormat[] GetSupportedFormats()
+		public static FileFormat[] GetSupportedFormats(FileFormat.FileSupportFlags supportType)
 		{
-			return registeredFormats.ToArray();
+			List<FileFormat> formats = new List<FileFormat>();
+			foreach(var f in registeredFormats)
+			{
+				if(f.SupportedActions.HasFlag(supportType))
+				{
+					formats.Add(f);
+				}
+			}
+			return formats.ToArray();
 		}
 	}
 }

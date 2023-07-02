@@ -18,8 +18,9 @@ namespace HMCon.Commands
 			Console.WriteLine($"Grid Size: {d.GridLengthX} x {d.GridLengthY}");
 			Console.WriteLine($"Cell Size: {d.cellSize}");
 			Console.WriteLine($"Dimensions: {d.GridLengthX * d.cellSize} x {d.GridLengthY * d.cellSize}");
+			Console.WriteLine($"Lower Corner Pos: {d.lowerCornerPos.X}, {d.lowerCornerPos.Y}");
 			Console.WriteLine($"Lowest/Highest: {d.lowestValue} / {d.highestValue}");
-			Console.WriteLine($"NODATA: {d.nodata_value}");
+			Console.WriteLine($"Nodata Value: {d.nodataValue}");
 			return true;
 		}
 

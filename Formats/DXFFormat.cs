@@ -52,7 +52,7 @@ namespace HMCon.Formats
 				for (int x = 0; x < d.GridLengthX; x++)
 				{
 					var h = d.GetHeight(x, y);
-					if (h == d.nodata_value) continue;
+					if (h == d.nodataValue) continue;
 					AddPoint(doc, x, y, h, d);
 				}
 			}

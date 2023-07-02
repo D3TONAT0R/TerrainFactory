@@ -24,7 +24,7 @@ namespace HMCon.Formats
 			fileContents.AppendLine("xll_corner    " + task.data.lowerCornerPos.X);
 			fileContents.AppendLine("yll_corner    " + task.data.lowerCornerPos.Y);
 			fileContents.AppendLine("cell_size     " + task.data.cellSize);
-			fileContents.AppendLine("nodata_value  " + task.data.nodata_value);
+			fileContents.AppendLine("nodata_value  " + task.data.nodataValue);
 			File.WriteAllText(path, fileContents.ToString());
 			return true;
 		}

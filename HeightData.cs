@@ -22,9 +22,7 @@ namespace HMCon {
 
 		public float cellSize;
 
-		public float nodata_value = float.MinValue;
-
-		//public string fileHeader = "";
+		public float nodataValue = float.MinValue;
 
 		private float[,] DataGrid
 		{
@@ -71,7 +69,7 @@ namespace HMCon {
 			lowerCornerPos = original.lowerCornerPos;
 			offsetFromSource = original.offsetFromSource;
 			cellSize = original.cellSize;
-			nodata_value = original.nodata_value;
+			nodataValue = original.nodataValue;
 			DataGrid = newGrid;
 			RecalculateValues(false);
 			lowPoint = original.lowPoint;
@@ -86,7 +84,7 @@ namespace HMCon {
 			lowestValue = float.MaxValue;
 			highestValue = float.MinValue;
 			foreach(float f in DataGrid) {
-				if(Math.Abs(f - nodata_value) > 0.1f) {
+				if(Math.Abs(f - nodataValue) > 0.1f) {
 					if(f < lowestValue) lowestValue = f;
 					if(f > highestValue) highestValue = f;
 				}
@@ -200,7 +198,7 @@ namespace HMCon {
 
 		public float GetHeight(int x, int y) {
 			if(x < 0 || y < 0 || x >= GridLengthX || y >= GridLengthY) {
-				return nodata_value;
+				return nodataValue;
 			} else {
 				return DataGrid[x, y];
 			}

@@ -25,7 +25,7 @@ namespace HMCon.Formats
 				for (int x = 0; x < task.data.GridLengthX; x++)
 				{
 					float z = grid[x, y];
-					if (z != task.data.nodata_value)
+					if (z != task.data.nodataValue)
 					{
 						contents.AppendLine($"{x * cs} {y * cs} {z}");
 					}

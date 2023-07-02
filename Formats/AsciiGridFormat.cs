@@ -32,7 +32,7 @@ namespace HMCon.Formats
 			fileContents.AppendLine($"xllcorner    {task.data.lowerCornerPos.X}");
 			fileContents.AppendLine($"yllcorner    {task.data.lowerCornerPos.Y}");
 			fileContents.AppendLine($"cellsize     {task.data.cellSize}");
-			fileContents.AppendLine($"NODATA_value {task.data.nodata_value}");
+			fileContents.AppendLine($"NODATA_value {task.data.nodataValue}");
 			var grid = task.data.GetDataGrid();
 
 			string format = "";
