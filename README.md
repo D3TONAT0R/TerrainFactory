@@ -2,7 +2,7 @@
   <img width="200" alt="Logo" src="images/logo_base.png">
 </p>
 
-# HeightMap Converter (TerrainFactory) Console Application
+# TerrainFactory
 
 A modular elevation data conversion tool.
 
@@ -27,9 +27,9 @@ Provides a console application that can convert elevation data from various file
 | Minecraft Region File <sup>3</sup> | :heavy_check_mark: | :heavy_check_mark: |
 | Minecraft World File <sup>3</sup>  | :x:                | :heavy_check_mark: |
 
-<sub>1 - [Requires TerrainFactory.Modules.Images Module](#heightmap-converter---image-module)</sub><br/>
-<sub>2 - [Requires TerrainFactory.Modules.ThreeD Module](#heightmap-converter---3d-module)</sub><br/>
-<sub>3 - [Requires TerrainFactory.Modules.MC Module](#heightmap-converter---minecraft-module)</sub><br/>
+<sub>1 - [Requires TerrainFactory Image Module](#heightmap-converter---image-module)</sub><br/>
+<sub>2 - [Requires TerrainFactory 3D Module](#heightmap-converter---3d-module)</sub><br/>
+<sub>3 - [Requires TerrainFactory MC Module](#heightmap-converter---minecraft-module)</sub><br/>
 
 ### Features
 
@@ -40,16 +40,16 @@ Provides a console application that can convert elevation data from various file
 - Create labeled point grids as 2-Dimensional DXF files for CAD applications.
 - Pregenerate entire playable Minecraft worlds with customizable world gen instructions and weightmaps for biome / feature distribution control.
 - Modular Plug-In system for additional file format support or adding custom commands.
-- Specifically designed with CAD / 3D Modelling / Game Development in mind.
+- Specifically designed with CAD / 3D Modelling / Game Dev in mind.
 
 ### How to use
 
 - Download the latest release (TO DO)
-- (Optional) Add modules by placing the DLL files next to the executable.
+- (Optional) Add modules by placing the corresponding module files next to the executable.
 - Run the .exe and type (or drag and drop into the console window if your OS supports it) the path of the file you want to import.
-- (Optional) Modify the data using the various `modify ...` commands.
-- Define one or more target formats with the `format ...` command.
-- Type `export` then type the file path where you want to save the file(s).
+- (Optional) Modify the data by running the various modification commands.
+- Define one or more output formats.
+- Export the resulting files.
 - That's all there is to it!
 
 ---
@@ -58,7 +58,7 @@ Provides a console application that can convert elevation data from various file
   <img width="200" alt="Logo" src="images/logo_img.png">
 </p>
 
-# HeightMap Converter - Image Module
+# TerrainFactory - Image Module
 
 to do
 
@@ -68,7 +68,7 @@ to do
   <img width="200" alt="Logo" src="images/logo_3d.png">
 </p>
 
-# HeightMap Converter - 3D Module
+# TerrainFactory - 3D Module
 
 to do
 
@@ -78,6 +78,6 @@ to do
   <img width="200" alt="Logo" src="images/logo_mc.png">
 </p>
 
-# HeightMap Converter - Minecraft Module
+# TerrainFactory - Minecraft Module
 
 to do
