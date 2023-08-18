@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace HMCon.Util {
+namespace TerrainFactory.Util {
 	public interface IConsoleHandler {
 
 		void WriteLine(string line);

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace HMCon.Util {
+namespace TerrainFactory.Util {
 	public static class ArrayConverter {
 
 		public static float[,] ToFloatMap(short[,] arr) {

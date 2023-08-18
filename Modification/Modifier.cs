@@ -1,19 +1,45 @@
-﻿using HMCon.Util;
+﻿using TerrainFactory.Util;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
-namespace HMCon.Modification {
+namespace TerrainFactory.Modification {
 	public abstract class Modifier : ICloneable {
 
-		public Modifier()
-		{
-			
-		}
+		public static List<Type> availableModifierTypes;
 
 		public string sourceCommandString;
 
 		public virtual string Name => GetType().Name;
+
+		protected Modifier()
+		{
+
+		}
+		
+		internal static void InitializeList()
+		{
+			availableModifierTypes = new List<Type>();
+			foreach(var assembly in AppDomain.CurrentDomain.GetAssemblies())
+			{
+				foreach(var modType in assembly.GetTypes().Where(t => typeof(Modifier).IsAssignableFrom(t) && !t.IsAbstract))
+				{
+					//Check if there is a parameterless constructor
+					if(modType.GetConstructor(new Type[0]) == null)
+					{
+						ConsoleOutput.WriteError($"Modifier '{modType}' does not contain a parameterless constructor.");
+					}
+					availableModifierTypes.Add(modType);
+				}
+			}
+		}
+
+		public static Modifier CreateModifier(Type modifierType)
+		{
+			if(!typeof(Modifier).IsAssignableFrom(modifierType)) throw new ArgumentException("Type is not a modifier type.");
+			return (Modifier)Activator.CreateInstance(modifierType);
+		}
 
 		protected abstract void ModifyData(HeightData data);
 

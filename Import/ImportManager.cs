@@ -1,10 +1,10 @@
-﻿using HMCon.Formats;
+﻿using TerrainFactory.Formats;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace HMCon.Import {
+namespace TerrainFactory.Import {
 	public static class ImportManager {
 
 		public static HeightData ImportFile(string path, params string[] args) {

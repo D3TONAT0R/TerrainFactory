@@ -1,19 +1,24 @@
-﻿using HMCon.Util;
+﻿using TerrainFactory.Util;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace HMCon.Modification {
+namespace TerrainFactory.Modification {
 	public class HeightRemapModifier : Modifier {
 
 		[DrawInInspector("Old A")]
-		public float oldA;
+		public float oldA = 0;
 		[DrawInInspector("New A")]
-		public float newA;
+		public float newA = 0;
 		[DrawInInspector("Old B")]
-		public float oldB;
+		public float oldB = 1;
 		[DrawInInspector("New B")]
-		public float newB;
+		public float newB = 1;
+
+		public HeightRemapModifier()
+		{
+
+		}
 
 		public HeightRemapModifier(float oldA, float newA, float oldB, float newB)
 		{

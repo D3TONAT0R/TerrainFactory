@@ -1,12 +1,12 @@
-﻿using HMCon.Util;
+﻿using TerrainFactory.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Text;
-using static HMCon.ConsoleOutput;
+using static TerrainFactory.ConsoleOutput;
 
-namespace HMCon.Import {
+namespace TerrainFactory.Import {
 	public class ASCImporter {
 
 		public static HeightData Import(string filepath, params string[] args) {

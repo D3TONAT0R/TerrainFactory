@@ -1,4 +1,4 @@
-﻿using HMCon.Export;
+﻿using TerrainFactory.Export;
 using netDxf;
 using netDxf.Entities;
 using netDxf.Objects;
@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace HMCon.Formats
+namespace TerrainFactory.Formats
 {
 	public class DXFFormat : FileFormat
 	{

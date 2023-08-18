@@ -1,4 +1,4 @@
-﻿namespace HMCon.Util {
+﻿namespace TerrainFactory.Util {
 	public struct Bounds {
 
 		public int xMin;

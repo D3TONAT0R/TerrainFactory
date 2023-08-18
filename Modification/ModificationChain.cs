@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace HMCon.Modification
+namespace TerrainFactory.Modification
 {
 	public class ModificationChain
 	{

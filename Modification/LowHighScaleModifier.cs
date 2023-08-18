@@ -1,9 +1,9 @@
-﻿using HMCon.Util;
+﻿using TerrainFactory.Util;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace HMCon.Modification {
+namespace TerrainFactory.Modification {
 	public class LowHighScaleModifier : Modifier {
 
 		[DrawInInspector("New low")]
@@ -13,6 +13,11 @@ namespace HMCon.Modification {
 
 		public float? srcLow;
 		public float? srcHigh;
+
+		public LowHighScaleModifier()
+		{
+
+		}
 
 		public LowHighScaleModifier(float? sourceLow, float? sourceHigh, float targetLow, float targetHigh)
 		{

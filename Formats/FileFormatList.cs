@@ -1,11 +1,11 @@
-﻿using HMCon.Formats;
+﻿using TerrainFactory.Formats;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace HMCon.Formats
+namespace TerrainFactory.Formats
 {
 	public class FileFormatList : IEnumerable<FileFormat>
 	{

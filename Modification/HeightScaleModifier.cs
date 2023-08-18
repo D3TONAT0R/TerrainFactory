@@ -1,15 +1,20 @@
-﻿using HMCon.Util;
+﻿using TerrainFactory.Util;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace HMCon.Modification {
+namespace TerrainFactory.Modification {
 	public class HeightScaleModifier : Modifier {
 
 		[DrawInInspector("Scale")]
-		public float scaleMultiplier;
+		public float scaleMultiplier = 1;
 		[DrawInInspector("Scaling pivot")]
-		public float scalePivot;
+		public float scalePivot = 0;
+
+		public HeightScaleModifier()
+		{
+
+		}
 
 		public HeightScaleModifier(float scale) : this(0, scale) {
 

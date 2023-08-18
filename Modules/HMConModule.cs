@@ -1,18 +1,18 @@
-﻿using HMCon.Export;
-using HMCon.Formats;
-using HMCon.Import;
-using HMCon.Util;
+﻿using TerrainFactory.Export;
+using TerrainFactory.Formats;
+using TerrainFactory.Import;
+using TerrainFactory.Util;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace HMCon
+namespace TerrainFactory
 {
 
 	/// <summary>
 	/// Base class for adding different file formats that can be imported or exported.
 	/// </summary>
-	public abstract class HMConModule
+	public abstract class TerrainFactoryModule
 	{
 		public abstract string ModuleID { get; }
 		public abstract string ModuleName { get; }

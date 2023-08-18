@@ -1,7 +1,7 @@
-﻿using HMCon.Formats;
+﻿using TerrainFactory.Formats;
 using System;
 
-namespace HMCon.Export
+namespace TerrainFactory.Export
 {
 	public static class ExportManager
 	{

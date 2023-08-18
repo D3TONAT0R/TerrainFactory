@@ -2,7 +2,7 @@
   <img width="200" alt="Logo" src="images/logo_base.png">
 </p>
 
-# HeightMap Converter (HMCon) Console Application
+# HeightMap Converter (TerrainFactory) Console Application
 
 A modular elevation data conversion tool.
 
@@ -27,9 +27,9 @@ Provides a console application that can convert elevation data from various file
 | Minecraft Region File <sup>3</sup> | :heavy_check_mark: | :heavy_check_mark: |
 | Minecraft World File <sup>3</sup>  | :x:                | :heavy_check_mark: |
 
-<sub>1 - [Requires HMConImage Module](#heightmap-converter---image-module)</sub><br/>
-<sub>2 - [Requires HMCon3D Module](#heightmap-converter---3d-module)</sub><br/>
-<sub>3 - [Requires HMConMC Module](#heightmap-converter---minecraft-module)</sub><br/>
+<sub>1 - [Requires TerrainFactory.Modules.Images Module](#heightmap-converter---image-module)</sub><br/>
+<sub>2 - [Requires TerrainFactory.Modules.ThreeD Module](#heightmap-converter---3d-module)</sub><br/>
+<sub>3 - [Requires TerrainFactory.Modules.MC Module](#heightmap-converter---minecraft-module)</sub><br/>
 
 ### Features
 

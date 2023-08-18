@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace HMCon.Import {
+namespace TerrainFactory.Import {
 	public interface IImporter {
 		
 	}

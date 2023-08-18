@@ -1,11 +1,11 @@
-using HMCon.Export;
-using HMCon.Import;
-using HMCon.Util;
+using TerrainFactory.Export;
+using TerrainFactory.Import;
+using TerrainFactory.Util;
 using System;
 using System.IO;
 using System.Text;
 
-namespace HMCon.Formats
+namespace TerrainFactory.Formats
 {
 
 	public abstract class FileFormat

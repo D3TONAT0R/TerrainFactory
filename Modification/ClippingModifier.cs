@@ -1,15 +1,20 @@
-﻿using HMCon.Util;
+﻿using TerrainFactory.Util;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace HMCon.Modification {
+namespace TerrainFactory.Modification {
 	public class ClippingModifier : Modifier {
 
 		[DrawInInspector("Minimum")]
 		public float minimum;
 		[DrawInInspector("Maximum")]
 		public float maximum;
+
+		public ClippingModifier()
+		{
+
+		}
 
 		public ClippingModifier(float min, float max)
 		{

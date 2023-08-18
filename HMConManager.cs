@@ -1,19 +1,20 @@
-﻿using HMCon.Commands;
-using HMCon.Export;
-using HMCon.Formats;
-using HMCon.Import;
+﻿using TerrainFactory.Commands;
+using TerrainFactory.Export;
+using TerrainFactory.Formats;
+using TerrainFactory.Import;
 using System;
 using System.Collections.Generic;
-using static HMCon.ConsoleOutput;
+using static TerrainFactory.ConsoleOutput;
+using TerrainFactory.Modification;
 
-namespace HMCon {
-	public static class HMConManager {
+namespace TerrainFactory {
+	public static class TerrainFactoryManager {
 
 		public static bool ModuleLoadingEnabled { get; set; } = true;
 		public static List<string> ModuleLocations { get; private set; } = new List<string>();
 		public static bool IsInitialized { get; private set; } = false;
 
-		static HMConManager()
+		static TerrainFactoryManager()
 		{
 			ModuleLocations.Add(AppContext.BaseDirectory);
 		}
@@ -33,6 +34,7 @@ namespace HMCon {
 			} else {
 				WriteLine("Module loading has been disabled.");
 			}
+			Modifier.InitializeList();
 			CommandHandler.Initialize();
 			IsInitialized = true;
 		}

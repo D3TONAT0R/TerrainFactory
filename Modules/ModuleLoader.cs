@@ -1,7 +1,7 @@
-﻿using HMCon.Commands;
-using HMCon.Export;
-using HMCon.Formats;
-using HMCon.Import;
+﻿using TerrainFactory.Commands;
+using TerrainFactory.Export;
+using TerrainFactory.Formats;
+using TerrainFactory.Import;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,17 +10,17 @@ using System.Reflection;
 using System.Runtime.Loader;
 using System.Text;
 
-namespace HMCon
+namespace TerrainFactory
 {
 	public static class ModuleLoader
 	{
 
-		public static Dictionary<string, HMConModule> loadedModules;
+		public static Dictionary<string, TerrainFactoryModule> loadedModules;
 		public static int LoadedModulesCount => loadedModules.Count;
 
 		internal static void LoadModules(string moduleDLLPath)
 		{
-			loadedModules = new Dictionary<string, HMConModule>();
+			loadedModules = new Dictionary<string, TerrainFactoryModule>();
 			var infoFiles = Directory.GetFiles(moduleDLLPath, "module.info", SearchOption.AllDirectories);
 			AppDomain.CurrentDomain.AssemblyResolve += HandleAssemblyResolve;
 			foreach (var infoFilePath in infoFiles)
@@ -33,9 +33,9 @@ namespace HMCon
 					var assembly = Assembly.LoadFrom(dllPath);
 					foreach (var t in assembly.GetTypes())
 					{
-						if (typeof(HMConModule).IsAssignableFrom(t) && !t.IsAbstract)
+						if (typeof(TerrainFactoryModule).IsAssignableFrom(t) && !t.IsAbstract)
 						{
-							var module = (HMConModule)Activator.CreateInstance(t);
+							var module = (TerrainFactoryModule)Activator.CreateInstance(t);
 							string info = "";
 
 							bool hasImporter = false;

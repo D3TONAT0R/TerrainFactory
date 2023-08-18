@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace HMCon.Commands
+namespace TerrainFactory.Commands
 {
 	public class ModifierCommandAttribute : Attribute
 	{

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace HMCon.Util {
+namespace TerrainFactory.Util {
 	public static class Extensions {
 
 		public static bool TryGetArgument(this string[] array, string name) {

@@ -1,12 +1,12 @@
-using HMCon.Export;
-using HMCon.Modification;
-using HMCon.Util;
+using TerrainFactory.Export;
+using TerrainFactory.Modification;
+using TerrainFactory.Util;
 using System;
 using System.IO;
 using System.Numerics;
 using System.Text;
 
-namespace HMCon {
+namespace TerrainFactory {
 
 	public class HeightData {
 

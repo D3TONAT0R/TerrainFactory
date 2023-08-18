@@ -1,5 +1,5 @@
-﻿using HMCon.Export;
-using HMCon.Util;
+﻿using TerrainFactory.Export;
+using TerrainFactory.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,9 +7,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using static HMCon.Commands.CommandAttribute;
+using static TerrainFactory.Commands.CommandAttribute;
 
-namespace HMCon.Commands {
+namespace TerrainFactory.Commands {
 	public static class CommandHandler {
 
 		public class CommandDefinition<A> where A : Attribute

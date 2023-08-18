@@ -1,13 +1,18 @@
-﻿using HMCon.Util;
+﻿using TerrainFactory.Util;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace HMCon.Modification {
+namespace TerrainFactory.Modification {
 	public class SubsamplingModifier : Modifier {
 
 		[DrawInInspector("Subsample amount")]
-		public int subsampleAmount;
+		public int subsampleAmount = 1;
+
+		public SubsamplingModifier()
+		{
+
+		}
 
 		public SubsamplingModifier(int subsample)
 		{

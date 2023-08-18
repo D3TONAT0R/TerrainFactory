@@ -1,15 +1,20 @@
-﻿using HMCon.Util;
+﻿using TerrainFactory.Util;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace HMCon.Modification {
+namespace TerrainFactory.Modification {
 	public class LowHighPointModifier : Modifier {
 
 		[DrawInInspector("New low")]
-		public float newLow;
+		public float newLow = 0;
 		[DrawInInspector("New high")]
-		public float newHigh;
+		public float newHigh = 1;
+
+		public LowHighPointModifier()
+		{
+
+		}
 
 		public LowHighPointModifier(float low, float high)
 		{

@@ -1,13 +1,18 @@
-﻿using HMCon.Util;
+﻿using TerrainFactory.Util;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace HMCon.Modification {
+namespace TerrainFactory.Modification {
 	public class CellSizeModifier : Modifier {
 
 		[DrawInInspector("New cell size")]
-		public float newCellSize;
+		public float newCellSize = 1;
+
+		public CellSizeModifier()
+		{
+
+		}
 
 		public CellSizeModifier(float newSize)
 		{

@@ -1,10 +1,10 @@
-﻿using HMCon.Export;
+﻿using TerrainFactory.Export;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace HMCon.Formats
+namespace TerrainFactory.Formats
 {
 	public class Raw16Format : FileFormat
 	{

@@ -7,7 +7,7 @@ set target=%1
 set solution=%2
 set config=%3
 set name=%4
-set dest=%solution%HMConConsole\bin\%config%\netcoreapp3.1\%name%
+set dest=%solution%TerrainFactoryConsole\bin\%config%\netcoreapp3.1\%name%
 
 echo Copying DLLs for module %name%...
 echo Destination is %dest%

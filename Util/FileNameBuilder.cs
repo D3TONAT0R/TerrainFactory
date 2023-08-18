@@ -1,10 +1,10 @@
-﻿using HMCon.Formats;
+﻿using TerrainFactory.Formats;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace HMCon.Util {
+namespace TerrainFactory.Util {
 	public class FileNameBuilder {
 
 		public string directoryPath;

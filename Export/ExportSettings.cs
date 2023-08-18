@@ -1,10 +1,10 @@
-using HMCon.Formats;
-using HMCon.Modification;
-using HMCon.Util;
+using TerrainFactory.Formats;
+using TerrainFactory.Modification;
+using TerrainFactory.Util;
 using System;
 using System.Collections.Generic;
 
-namespace HMCon.Export {
+namespace TerrainFactory.Export {
 	public class ExportSettings {
 
 		public int splitInterval = -1;

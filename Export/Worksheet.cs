@@ -1,13 +1,13 @@
-﻿using HMCon.Formats;
-using HMCon.Import;
-using HMCon.Modification;
-using HMCon.Util;
+﻿using TerrainFactory.Formats;
+using TerrainFactory.Import;
+using TerrainFactory.Modification;
+using TerrainFactory.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using static HMCon.ConsoleOutput;
+using static TerrainFactory.ConsoleOutput;
 
-namespace HMCon.Export {
+namespace TerrainFactory.Export {
 	public class Worksheet {
 
 		public bool allowOverwrite = true;

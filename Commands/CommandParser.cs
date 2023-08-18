@@ -1,11 +1,11 @@
-﻿using HMCon.Export;
-using HMCon.Modification;
-using HMCon.Util;
+﻿using TerrainFactory.Export;
+using TerrainFactory.Modification;
+using TerrainFactory.Util;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace HMCon.Commands {
+namespace TerrainFactory.Commands {
 	public static class CommandParser {
 
 		public static void ParseCommandInput(string input, out string cmd, out string[] args)

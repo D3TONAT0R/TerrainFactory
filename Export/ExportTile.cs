@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace HMCon.Export
+namespace TerrainFactory.Export
 {
 	public class ExportTile
 	{

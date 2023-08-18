@@ -1,13 +1,13 @@
-﻿using HMCon.Modification;
-using HMCon.Util;
+﻿using TerrainFactory.Modification;
+using TerrainFactory.Util;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using static HMCon.Commands.CommandParser;
-using static HMCon.ConsoleOutput;
-using HMCon.Export;
+using static TerrainFactory.Commands.CommandParser;
+using static TerrainFactory.ConsoleOutput;
+using TerrainFactory.Export;
 
-namespace HMCon.Commands
+namespace TerrainFactory.Commands
 {
 	public static class StandardModifierCommands
 	{

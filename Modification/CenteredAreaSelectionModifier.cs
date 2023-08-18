@@ -1,9 +1,9 @@
-﻿using HMCon.Util;
+﻿using TerrainFactory.Util;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace HMCon.Modification
+namespace TerrainFactory.Modification
 {
 	public class CenteredAreaSelectionModifier : Modifier
 	{

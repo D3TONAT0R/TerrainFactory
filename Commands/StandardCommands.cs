@@ -1,12 +1,12 @@
-﻿using HMCon.Export;
-using HMCon.Modification;
+﻿using TerrainFactory.Export;
+using TerrainFactory.Modification;
 using System;
 using System.Collections.Generic;
-using static HMCon.ConsoleOutput;
-using static HMCon.Commands.CommandParser;
-using HMCon.Formats;
+using static TerrainFactory.ConsoleOutput;
+using static TerrainFactory.Commands.CommandParser;
+using TerrainFactory.Formats;
 
-namespace HMCon.Commands
+namespace TerrainFactory.Commands
 {
 	public static class StandardCommands
 	{

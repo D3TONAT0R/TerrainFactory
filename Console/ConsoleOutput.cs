@@ -1,12 +1,12 @@
-﻿using HMCon.Commands;
-using HMCon.Export;
-using HMCon.Util;
+﻿using TerrainFactory.Commands;
+using TerrainFactory.Export;
+using TerrainFactory.Util;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Timers;
 
-namespace HMCon
+namespace TerrainFactory
 {
 	public static class ConsoleOutput
 	{

@@ -1,15 +1,20 @@
-﻿using HMCon.Util;
+﻿using TerrainFactory.Util;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace HMCon.Modification {
+namespace TerrainFactory.Modification {
 	public class ResizingModifier : Modifier {
 
 		[DrawInInspector("New width")]
-		public int newWidth;
+		public int newWidth = 100;
 		[DrawInInspector("Adjust height")]
-		public bool adjustHeight;
+		public bool adjustHeight = false;
+
+		public ResizingModifier()
+		{
+
+		}
 
 		public ResizingModifier(int newDimX, bool scaleHeight)
 		{

@@ -1,11 +1,11 @@
-﻿using HMCon.Formats;
-using HMCon.Util;
+﻿using TerrainFactory.Formats;
+using TerrainFactory.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace HMCon.Export
+namespace TerrainFactory.Export
 {
 	public class ExportTask
 	{

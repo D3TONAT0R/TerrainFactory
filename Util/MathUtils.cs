@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace HMCon {
+namespace TerrainFactory {
 	public static class MathUtils {
 
 		public static int Clamp(int v, int min, int max) {

@@ -1,13 +1,18 @@
-﻿using HMCon.Util;
+﻿using TerrainFactory.Util;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace HMCon.Modification {
+namespace TerrainFactory.Modification {
 	public class BoundedAreaSelectionModifier : Modifier {
 
 		[DrawInInspector("Bounds")]
 		public Bounds bounds;
+
+		public BoundedAreaSelectionModifier()
+		{
+
+		}
 
 		public BoundedAreaSelectionModifier(int x1, int y1, int x2, int y2) : this(new Bounds(x1, y1, x2, y2)) {
 
