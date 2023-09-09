@@ -26,9 +26,9 @@ Provides a console application that can convert elevation data from various file
 | Minecraft Region File <sup>3</sup> | :heavy_check_mark: | :heavy_check_mark: |
 | Minecraft World File <sup>3</sup>  | :x:                | :heavy_check_mark: |
 
-<sub>1 - [Requires TerrainFactory Image Module](#heightmap-converter---image-module)</sub><br/>
-<sub>2 - [Requires TerrainFactory 3D Module](#heightmap-converter---3d-module)</sub><br/>
-<sub>3 - [Requires TerrainFactory MC Module](#heightmap-converter---minecraft-module)</sub><br/>
+<sub>1 - [Requires TerrainFactory Image Module](#terrainfactory---image-module)</sub><br/>
+<sub>2 - [Requires TerrainFactory 3D Module](#terrainfactory---3d-module)</sub><br/>
+<sub>3 - [Requires TerrainFactory MC Module](#terrainfactory---minecraft-module)</sub><br/>
 
 ### Features
 
