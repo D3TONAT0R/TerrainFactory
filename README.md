@@ -1,6 +1,5 @@
-<p align="center">
-  <img width="200" alt="Logo" src="images/logo_base.png">
-</p>
+<img align="left" width="128" alt="Logo" src="images/logo_base.png">
+<br/>
 
 # TerrainFactory
 
@@ -54,9 +53,8 @@ Provides a console application that can convert elevation data from various file
 
 ---
 
-<p align="center">
-  <img width="200" alt="Logo" src="images/logo_img.png">
-</p>
+<img align="left" width="128" alt="Logo" src="images/logo_img.png">
+<br/><br/>
 
 # TerrainFactory - Image Module
 
@@ -64,9 +62,8 @@ to do
 
 ---
 
-<p align="center">
-  <img width="200" alt="Logo" src="images/logo_3d.png">
-</p>
+<img align="left" width="128" alt="Logo" src="images/logo_3d.png">
+<br/><br/>
 
 # TerrainFactory - 3D Module
 
@@ -74,9 +71,8 @@ to do
 
 ---
 
-<p align="center">
-  <img width="200" alt="Logo" src="images/logo_mc.png">
-</p>
+<img align="left" width="128" alt="Logo" src="images/logo_mc.png">
+<br/><br/>
 
 # TerrainFactory - Minecraft Module
 
