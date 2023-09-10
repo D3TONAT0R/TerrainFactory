@@ -15,12 +15,12 @@ namespace TerrainFactory.Commands
 		public static bool PrintInfoCmd(Worksheet sheet, string[] args)
 		{
 			var d = sheet.CurrentData;
-			Console.WriteLine($"Grid Size: {d.GridLengthX} x {d.GridLengthY}");
-			Console.WriteLine($"Cell Size: {d.cellSize}");
-			Console.WriteLine($"Dimensions: {d.GridLengthX * d.cellSize} x {d.GridLengthY * d.cellSize}");
-			Console.WriteLine($"Lower Corner Pos: {d.lowerCornerPos.X}, {d.lowerCornerPos.Y}");
-			Console.WriteLine($"Lowest/Highest: {d.lowestValue} / {d.highestValue}");
-			Console.WriteLine($"Nodata Value: {d.nodataValue}");
+			Console.WriteLine($"Grid Size: {d.CellCountX} x {d.CellCountY}");
+			Console.WriteLine($"Cell Size: {d.CellSize}");
+			Console.WriteLine($"Dimensions: {d.CellCountX * d.CellSize} x {d.CellCountY * d.CellSize}");
+			Console.WriteLine($"Lower Corner Pos: {d.LowerCornerPosition.X}, {d.LowerCornerPosition.Y}");
+			Console.WriteLine($"Lowest/Highest: {d.MinElevation} / {d.MaxElevation}");
+			Console.WriteLine($"Nodata Value: {d.NoDataValue}");
 			return true;
 		}
 

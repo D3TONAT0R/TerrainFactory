@@ -27,27 +27,27 @@ namespace TerrainFactory.Modification {
 			newHigh = targetHigh;
 		}
 
-		protected override void ModifyData(HeightData data) {
+		protected override void ModifyData(ElevationData data) {
 
-			float lowPoint = srcLow ?? data.lowPoint;
-			float highPoint = srcHigh ?? data.highPoint;
+			float lowPoint = srcLow ?? data.LowPoint;
+			float highPoint = srcHigh ?? data.HighPoint;
 			float oldRange = highPoint - lowPoint;
 			float newRange = newHigh - newLow;
 
-			for(int y = 0; y < data.GridLengthY; y++) {
-				for(int x = 0; x < data.GridLengthX; x++) {
-					var value = data.GetHeight(x, y);
+			for(int y = 0; y < data.CellCountY; y++) {
+				for(int x = 0; x < data.CellCountX; x++) {
+					var value = data.GetElevationAtCell(x, y);
 					double h = (value - lowPoint) / oldRange;
 					h *= newRange;
 					h += newLow;
 					value = (float)h;
-					data.SetHeight(x, y, value);
+					data.SetHeightAt(x, y, value);
 				}
 			}
 
-			data.lowPoint = lowPoint;
-			data.highPoint = highPoint;
-			data.RecalculateValues(false);
+			data.OverrideLowPoint = lowPoint;
+			data.OverrideHighPoint = highPoint;
+			data.RecalculateElevationRange(false);
 		}
 	}
 }

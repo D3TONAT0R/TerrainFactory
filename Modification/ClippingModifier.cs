@@ -22,7 +22,7 @@ namespace TerrainFactory.Modification {
 			maximum = max;
 		}
 
-		protected override void ModifyData(HeightData data) {
+		protected override void ModifyData(ElevationData data) {
 			data.Modify((x, y, rx, ry, v) => {
 				return MathUtils.Clamp(v, minimum, maximum);
 			});

@@ -19,13 +19,13 @@ namespace TerrainFactory.Formats
 		{
 			StringBuilder contents = new StringBuilder();
 			var grid = task.data.GetDataGrid();
-			var cs = task.data.cellSize;
-			for (int y = 0; y < task.data.GridLengthY; y++)
+			var cs = task.data.CellSize;
+			for (int y = 0; y < task.data.CellCountY; y++)
 			{
-				for (int x = 0; x < task.data.GridLengthX; x++)
+				for (int x = 0; x < task.data.CellCountX; x++)
 				{
 					float z = grid[x, y];
-					if (z != task.data.nodataValue)
+					if (z != task.data.NoDataValue)
 					{
 						contents.AppendLine($"{x * cs} {y * cs} {z}");
 					}

@@ -19,16 +19,16 @@ namespace TerrainFactory.Modification {
 			subsampleAmount = subsample;
 		}
 
-		protected override void ModifyData(HeightData data) {
+		protected override void ModifyData(ElevationData data) {
 			if(subsampleAmount <= 1) return;
-			float[,] grid = new float[data.GridLengthX / subsampleAmount, data.GridLengthY / subsampleAmount];
+			float[,] grid = new float[data.CellCountX / subsampleAmount, data.CellCountY / subsampleAmount];
 			for(int y = 0; y < grid.GetLength(1); y++) {
 				for(int x = 0; x < grid.GetLength(0); x++) {
-					grid[x, y] = data.GetHeight(x * subsampleAmount, y * subsampleAmount);
+					grid[x, y] = data.GetElevationAtCell(x * subsampleAmount, y * subsampleAmount);
 				}
 			}
-			data.cellSize *= subsampleAmount;
-			data.SetDataGrid(grid);
+			data.CellSize *= subsampleAmount;
+			data.ReplaceData(grid);
 		}
 	}
 }

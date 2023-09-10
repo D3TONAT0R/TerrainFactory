@@ -7,11 +7,13 @@ using System.Text;
 namespace TerrainFactory.Import {
 	public static class ImportManager {
 
-		public static HeightData ImportFile(string path, params string[] args) {
+		public static ElevationData ImportFile(string path, params string[] args) {
 			var format = FileFormat.GetFromFileName(path);
 			if (format != null)
 			{
-				return format.Import(path, args);
+				var data = format.Import(path, args);
+				data.RecalculateElevationRange(false);
+				return data;
 			}
 			else
 			{

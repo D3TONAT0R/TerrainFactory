@@ -19,12 +19,12 @@ namespace TerrainFactory.Formats
 		protected override bool ExportFile(string path, ExportTask task)
 		{
 			var fileContents = new StringBuilder();
-			fileContents.AppendLine("cells_x       " + task.data.GridLengthX);
-			fileContents.AppendLine("cells_y       " + task.data.GridLengthY);
-			fileContents.AppendLine("xll_corner    " + task.data.lowerCornerPos.X);
-			fileContents.AppendLine("yll_corner    " + task.data.lowerCornerPos.Y);
-			fileContents.AppendLine("cell_size     " + task.data.cellSize);
-			fileContents.AppendLine("nodata_value  " + task.data.nodataValue);
+			fileContents.AppendLine("cells_x       " + task.data.CellCountX);
+			fileContents.AppendLine("cells_y       " + task.data.CellCountY);
+			fileContents.AppendLine("xll_corner    " + task.data.LowerCornerPosition.X);
+			fileContents.AppendLine("yll_corner    " + task.data.LowerCornerPosition.Y);
+			fileContents.AppendLine("cell_size     " + task.data.CellSize);
+			fileContents.AppendLine("nodata_value  " + task.data.NoDataValue);
 			File.WriteAllText(path, fileContents.ToString());
 			return true;
 		}

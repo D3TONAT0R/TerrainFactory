@@ -22,13 +22,13 @@ namespace TerrainFactory.Modification {
 			newHigh = high;
 		}
 
-		protected override void ModifyData(HeightData data) {
+		protected override void ModifyData(ElevationData data) {
 			if(newLow == 0 && newHigh == 0) {
-				data.RecalculateValues(true);
+				data.RecalculateElevationRange(true);
 			} else {
-				data.lowPoint = newLow;
-				data.highPoint = newHigh;
-				data.RecalculateValues(false);
+				data.OverrideLowPoint = newLow;
+				data.OverrideHighPoint = newHigh;
+				data.RecalculateElevationRange(false);
 			}
 		}
 	}

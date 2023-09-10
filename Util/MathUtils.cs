@@ -21,7 +21,17 @@ namespace TerrainFactory {
 			return a + (b - a) * t;
 		}
 
+		public static double Lerp(double a, double b, double t)
+		{
+			return a + (b - a) * t;
+		}
+
 		public static float InverseLerp(float a, float b, float v)
+		{
+			return (v - a) / (b - a);
+		}
+
+		public static double InverseLerp(double a, double b, double v)
 		{
 			return (v - a) / (b - a);
 		}
@@ -30,6 +40,11 @@ namespace TerrainFactory {
 		{
 			float t = InverseLerp(oldA, oldB, value);
 			return Lerp(newA, newB, t);
+		}
+
+		public static double Remap(double value, double oldA, double oldB, double newA, double newB)
+		{
+			return Lerp(newA, newB, InverseLerp(oldA, oldB, value));
 		}
 	}
 }

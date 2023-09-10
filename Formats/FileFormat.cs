@@ -69,7 +69,7 @@ namespace TerrainFactory.Formats
 			return FileFormatManager.GetFormatFromType(type);
 		}
 
-		public HeightData Import(string importPath, params string[] args)
+		public ElevationData Import(string importPath, params string[] args)
 		{
 			if (HasImporter)
 			{
@@ -93,7 +93,7 @@ namespace TerrainFactory.Formats
 			}
 		}
 
-		protected virtual HeightData ImportFile(string importPath, params string[] args)
+		protected virtual ElevationData ImportFile(string importPath, params string[] args)
 		{
 			throw new NotImplementedException("Import functionality is not implemented.");
 		}
@@ -119,7 +119,7 @@ namespace TerrainFactory.Formats
 
 		}
 
-		public virtual bool ValidateSettings(ExportSettings settings, HeightData data)
+		public virtual bool ValidateSettings(ExportSettings settings, ElevationData data)
 		{
 			return true;
 		}

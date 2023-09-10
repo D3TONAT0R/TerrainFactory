@@ -37,7 +37,7 @@ namespace TerrainFactory.Formats
 			DxfDocument doc = new DxfDocument();
 
 			visualPoints = true;
-			visualPointRadius = d.cellSize * 0.1f;
+			visualPointRadius = d.CellSize * 0.1f;
 
 			ptLayer = new Layer("HEIGHT_PTS");
 			textLayer = new Layer("HEIGHT_TEXT");
@@ -47,17 +47,17 @@ namespace TerrainFactory.Formats
 			doc.Layers.Add(textLayer);
 			doc.Layers.Add(originLayer);
 
-			for (int y = 0; y < d.GridLengthY; y++)
+			for (int y = 0; y < d.CellCountY; y++)
 			{
-				for (int x = 0; x < d.GridLengthX; x++)
+				for (int x = 0; x < d.CellCountX; x++)
 				{
-					var h = d.GetHeight(x, y);
-					if (h == d.nodataValue) continue;
+					var h = d.GetElevationAtCell(x, y);
+					if (h == d.NoDataValue) continue;
 					AddPoint(doc, x, y, h, d);
 				}
 			}
 
-			var info = new Text($"[ {d.lowerCornerPos.X} , {d.lowerCornerPos.Y} ]", new Vector2(d.lowerCornerPos.X, d.lowerCornerPos.Y), 0.2f * d.cellSize)
+			var info = new Text($"[ {d.LowerCornerPosition.X} , {d.LowerCornerPosition.Y} ]", new Vector2(d.LowerCornerPosition.X, d.LowerCornerPosition.Y), 0.2f * d.CellSize)
 			{
 				Alignment = TextAlignment.TopRight,
 				Layer = originLayer
@@ -67,13 +67,13 @@ namespace TerrainFactory.Formats
 			return doc;
 		}
 
-		protected virtual void AddPoint(DxfDocument doc, int ix, int iy, float z, HeightData d)
+		protected virtual void AddPoint(DxfDocument doc, int ix, int iy, float z, ElevationData d)
 		{
-			Vector2 pos = new Vector2(d.lowerCornerPos.X + ix * d.cellSize, d.lowerCornerPos.Y + iy * d.cellSize);
+			Vector2 pos = new Vector2(d.LowerCornerPosition.X + ix * d.CellSize, d.LowerCornerPosition.Y + iy * d.CellSize);
 
 			var cellGroup = new Group($"X{ix}Y{iy}");
 
-			var text = new Text(z.ToString("F3"), pos, 0.1f * d.cellSize)
+			var text = new Text(z.ToString("F3"), pos, 0.1f * d.CellSize)
 			{
 				Layer = textLayer,
 				Alignment = TextAlignment.TopLeft

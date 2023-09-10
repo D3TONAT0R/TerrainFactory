@@ -31,11 +31,11 @@
 			}
 		}
 
-		public bool IsValid(HeightData d) {
-			if(xMin < 0 || xMin >= d.GridLengthX) return false;
-			if(yMin < 0 || yMin >= d.GridLengthY) return false;
-			if(xMax < 0 || xMax >= d.GridLengthX) return false;
-			if(yMax < 0 || yMax >= d.GridLengthY) return false;
+		public bool IsValid(ElevationData d) {
+			if(xMin < 0 || xMin >= d.CellCountX) return false;
+			if(yMin < 0 || yMin >= d.CellCountY) return false;
+			if(xMax < 0 || xMax >= d.CellCountX) return false;
+			if(yMax < 0 || yMax >= d.CellCountY) return false;
 			if(xMin > xMax) return false;
 			if(yMin > yMax) return false;
 			return true;

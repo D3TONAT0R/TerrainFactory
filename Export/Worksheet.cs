@@ -15,7 +15,7 @@ namespace TerrainFactory.Export {
 		public bool UseBatchNamingPattern => ForceBatchNamingPattern || InputFileCount > 1;
 
 		public int CurrentFileIndex { get; private set; } = -1;
-		public HeightData CurrentData { get; private set; }
+		public ElevationData CurrentData { get; private set; }
 		public bool HasNextFile => CurrentFileIndex+1 < InputFileList.Count;
 		public int InputFileCount => InputFileList.Count;
 		public bool HasMultipleInputs => InputFileCount > 1;
@@ -42,13 +42,13 @@ namespace TerrainFactory.Export {
 			}
 		}
 
-		public HeightData NextFile() {
+		public ElevationData NextFile() {
 			CurrentData = null;
 			CurrentFileIndex++;
 			if(CurrentFileIndex < InputFileList.Count) {
 				string f = InputFileList[0];
 				string ext = Path.GetExtension(f).ToLower().Replace(".", "");
-				HeightData d;
+				ElevationData d;
 				try {
 					string path = ExtractArgs(InputFileList[CurrentFileIndex], out var importArgs);
 					d = ImportManager.ImportFile(path.Replace("\"", ""), importArgs);
@@ -81,7 +81,7 @@ namespace TerrainFactory.Export {
 			return input;
 		}
 
-		public HeightData ApplyModificationChain(HeightData inputData)
+		public ElevationData ApplyModificationChain(ElevationData inputData)
 		{
 			return modificationChain.Apply(inputData);
 		}
@@ -141,7 +141,7 @@ namespace TerrainFactory.Export {
 			ExportData(CurrentData, finalOutputPath);
 		}
 
-		void ExportData(HeightData data, string outPath) {
+		void ExportData(ElevationData data, string outPath) {
 			try {
 				string dir = Path.GetDirectoryName(outPath);
 				string fname = Path.GetFileNameWithoutExtension(outPath);
@@ -183,7 +183,7 @@ namespace TerrainFactory.Export {
 			}
 		}
 
-		IEnumerable<ExportTile> GetSplitTiles(HeightData data)
+		IEnumerable<ExportTile> GetSplitTiles(ElevationData data)
 		{
 			if(exportSettings.splitInterval > 2)
 			{

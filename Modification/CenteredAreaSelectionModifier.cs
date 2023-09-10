@@ -24,22 +24,22 @@ namespace TerrainFactory.Modification
 			this.size = size;
 		}
 
-		protected override void ModifyData(HeightData data)
+		protected override void ModifyData(ElevationData data)
 		{
 			if (size <= 0) return;
 
-			var cx = centerX.GetLocalValue(data.lowerCornerPos.X);
-			var cy = centerY.GetLocalValue(data.lowerCornerPos.Y);
+			var cx = centerX.GetLocalValue(data.LowerCornerPosition.X);
+			var cy = centerY.GetLocalValue(data.LowerCornerPosition.Y);
 
 			var llx = cx - size / 2f;
 			var lly = cy - size / 2f;
 			var urx = cx + size / 2f;
 			var ury = cy + size / 2f;
 
-			int x1 = ClampRounded(llx / data.cellSize, 0, data.GridLengthX - 1);
-			int y1 = ClampRounded(lly / data.cellSize, 0, data.GridLengthY - 1);
-			int x2 = ClampRounded(urx / data.cellSize, 0, data.GridLengthX - 1);
-			int y2 = ClampRounded(ury / data.cellSize, 0, data.GridLengthY - 1);
+			int x1 = ClampRounded(llx / data.CellSize, 0, data.CellCountX - 1);
+			int y1 = ClampRounded(lly / data.CellSize, 0, data.CellCountY - 1);
+			int x2 = ClampRounded(urx / data.CellSize, 0, data.CellCountX - 1);
+			int y2 = ClampRounded(ury / data.CellSize, 0, data.CellCountY - 1);
 
 			var bounds = new Bounds(x1, y1, x2, y2);
 			if (bounds.CellCount <= 10) return;
@@ -48,13 +48,13 @@ namespace TerrainFactory.Modification
 			{
 				for (int x = 0; x < bounds.NumCols; x++)
 				{
-					grid[x, y] = data.GetHeight(bounds.xMin + x, bounds.yMin + y);
+					grid[x, y] = data.GetElevationAtCell(bounds.xMin + x, bounds.yMin + y);
 				}
 			}
 			data.offsetFromSource.x += bounds.xMin;
 			data.offsetFromSource.y += bounds.yMin;
-			data.lowerCornerPos += new System.Numerics.Vector2(bounds.xMin, bounds.yMin) * data.cellSize;
-			data.SetDataGrid(grid);
+			data.LowerCornerPosition += new System.Numerics.Vector2(bounds.xMin, bounds.yMin) * data.CellSize;
+			data.ReplaceData(grid);
 		}
 
 		private int ClampRounded(float f, int min, int max)

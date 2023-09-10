@@ -22,8 +22,8 @@ namespace TerrainFactory.Modification {
 			adjustHeight = scaleHeight;
 		}
 
-		protected override void ModifyData(HeightData data) {
-			if(newWidth > 0) data.Resize(newWidth, adjustHeight);
+		protected override void ModifyData(ElevationData data) {
+			if(newWidth > 0) data.Resample(newWidth, adjustHeight);
 		}
 	}
 }

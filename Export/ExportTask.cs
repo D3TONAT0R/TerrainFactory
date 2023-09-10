@@ -14,7 +14,7 @@ namespace TerrainFactory.Export
 		public int exportNumX;
 		public int exportNumZ;
 
-		public HeightData data;
+		public ElevationData data;
 		public ExportSettings settings;
 		public FileFormat format;
 
@@ -23,7 +23,7 @@ namespace TerrainFactory.Export
 
 		public bool allowOverwrite = true;
 
-		public ExportTask(HeightData heightData, FileFormat fileFormat, ExportSettings exportSettings, string targetDirectory, string filename)
+		public ExportTask(ElevationData heightData, FileFormat fileFormat, ExportSettings exportSettings, string targetDirectory, string filename)
 		{
 			data = heightData;
 			settings = exportSettings;
@@ -35,7 +35,7 @@ namespace TerrainFactory.Export
 			filenameBuilder = new FileNameBuilder(targetDirectory, filename, fileFormat);
 		}
 
-		public ExportTask(HeightData heightData, FileFormat fileFormat, ExportSettings exportSettings, string targetFilePathAndName)
+		public ExportTask(ElevationData heightData, FileFormat fileFormat, ExportSettings exportSettings, string targetFilePathAndName)
 		 : this(heightData, fileFormat, exportSettings, Path.GetDirectoryName(targetFilePathAndName), Path.GetFileName(targetFilePathAndName))
 		{
 

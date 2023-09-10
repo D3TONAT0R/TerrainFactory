@@ -18,10 +18,10 @@ namespace TerrainFactory
 		public static Dictionary<string, TerrainFactoryModule> loadedModules;
 		public static int LoadedModulesCount => loadedModules.Count;
 
-		internal static void LoadModules(string moduleDLLPath)
+		internal static void LoadModules(string directory)
 		{
 			loadedModules = new Dictionary<string, TerrainFactoryModule>();
-			var infoFiles = Directory.GetFiles(moduleDLLPath, "module.info", SearchOption.AllDirectories);
+			var infoFiles = Directory.GetFiles(directory, "module.info", SearchOption.AllDirectories);
 			AppDomain.CurrentDomain.AssemblyResolve += HandleAssemblyResolve;
 			foreach (var infoFilePath in infoFiles)
 			{

@@ -26,15 +26,15 @@ namespace TerrainFactory.Modification {
 			scaleMultiplier = scale;
 		}
 
-		protected override void ModifyData(HeightData data) {
-			for(int y = 0; y < data.GridLengthY; y++) {
-				for(int x = 0; x < data.GridLengthX; x++) {
-					var value = data.GetHeight(x, y);
+		protected override void ModifyData(ElevationData data) {
+			for(int y = 0; y < data.CellCountY; y++) {
+				for(int x = 0; x < data.CellCountX; x++) {
+					var value = data.GetElevationAtCell(x, y);
 					value = (value - scalePivot) * scaleMultiplier + scalePivot;
-					data.SetHeight(x, y, value);
+					data.SetHeightAt(x, y, value);
 				}
 			}
-			data.RecalculateValues(true);
+			data.RecalculateElevationRange(true);
 		}
 	}
 }

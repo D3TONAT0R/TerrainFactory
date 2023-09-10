@@ -19,8 +19,8 @@ namespace TerrainFactory.Modification {
 			newCellSize = newSize;
 		}
 
-		protected override void ModifyData(HeightData data) {
-			data.cellSize = newCellSize;
+		protected override void ModifyData(ElevationData data) {
+			data.CellSize = newCellSize;
 		}
 	}
 }

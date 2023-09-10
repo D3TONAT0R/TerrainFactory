@@ -17,7 +17,7 @@ namespace TerrainFactory.Formats
 		public override string Extension => "asc";
 		public override FileSupportFlags SupportedActions => FileSupportFlags.ImportAndExport;
 
-		protected override HeightData ImportFile(string filepath, params string[] args)
+		protected override ElevationData ImportFile(string filepath, params string[] args)
 		{
 			return ASCImporter.Import(filepath, args);
 		}
@@ -27,16 +27,16 @@ namespace TerrainFactory.Formats
 			int decimals = task.settings.GetCustomSetting("decimals", 2);
 
 			StringBuilder fileContents = new StringBuilder();
-			fileContents.AppendLine($"ncols        {task.data.GridLengthX}");
-			fileContents.AppendLine($"nrows        {task.data.GridLengthY}");
-			fileContents.AppendLine($"xllcorner    {task.data.lowerCornerPos.X}");
-			fileContents.AppendLine($"yllcorner    {task.data.lowerCornerPos.Y}");
-			fileContents.AppendLine($"cellsize     {task.data.cellSize}");
-			fileContents.AppendLine($"NODATA_value {task.data.nodataValue}");
+			fileContents.AppendLine($"ncols        {task.data.CellCountX}");
+			fileContents.AppendLine($"nrows        {task.data.CellCountY}");
+			fileContents.AppendLine($"xllcorner    {task.data.LowerCornerPosition.X}");
+			fileContents.AppendLine($"yllcorner    {task.data.LowerCornerPosition.Y}");
+			fileContents.AppendLine($"cellsize     {task.data.CellSize}");
+			fileContents.AppendLine($"NODATA_value {task.data.NoDataValue}");
 			var grid = task.data.GetDataGrid();
 
 			string format = "";
-			int mostZeros = Math.Max(Math.Abs((int)task.data.highestValue).ToString().Length, Math.Abs((int)task.data.lowestValue).ToString().Length);
+			int mostZeros = Math.Max(Math.Abs((int)task.data.MaxElevation).ToString().Length, Math.Abs((int)task.data.MinElevation).ToString().Length);
 			for (int i = 0; i < mostZeros; i++)
 			{
 				format += '0';
@@ -49,9 +49,9 @@ namespace TerrainFactory.Formats
 
 			format = " " + format + ";" + "-" + format;
 
-			for (int y = task.data.GridLengthY - 1; y >= 0; y--)
+			for (int y = task.data.CellCountY - 1; y >= 0; y--)
 			{
-				for(int x = 0; x < task.data.GridLengthX; x++)
+				for(int x = 0; x < task.data.CellCountX; x++)
 				{
 					if (x > 0) fileContents.Append(" ");
 					fileContents.Append(grid[x, y].ToString(format));

@@ -101,7 +101,7 @@ namespace TerrainFactory.Commands
 		public static Modifier HandleResizeMod(Worksheet sheet, string[] args)
 		{
 			int w = ParseArg<int>(args, 0);
-			WriteLine($"Resizing from {sheet.CurrentData.GridLengthX} to {w} ({Math.Round(w / (float)sheet.CurrentData.GridLengthX * 100)}%)");
+			WriteLine($"Resizing from {sheet.CurrentData.CellCountX} to {w} ({Math.Round(w / (float)sheet.CurrentData.CellCountX * 100)}%)");
 			return new ResizingModifier(w, false);
 		}
 
@@ -109,7 +109,7 @@ namespace TerrainFactory.Commands
 		public static Modifier HandleCellsizeMod(Worksheet sheet, string[] args)
 		{
 			float f = ParseArg<float>(args, 0);
-			WriteLine($"Cellsize changed from {sheet.CurrentData.cellSize} to {f}");
+			WriteLine($"Cellsize changed from {sheet.CurrentData.CellSize} to {f}");
 			return new CellSizeModifier(f);
 		}
 

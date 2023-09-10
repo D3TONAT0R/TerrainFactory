@@ -41,10 +41,10 @@ namespace TerrainFactory.Modification {
 			return (Modifier)Activator.CreateInstance(modifierType);
 		}
 
-		protected abstract void ModifyData(HeightData data);
+		protected abstract void ModifyData(ElevationData data);
 
-		public HeightData Modify(HeightData inputData, bool keepOriginal) {
-			HeightData data = keepOriginal ? new HeightData(inputData) : inputData;
+		public ElevationData Modify(ElevationData inputData, bool keepOriginal) {
+			ElevationData data = keepOriginal ? new ElevationData(inputData) : inputData;
 			ModifyData(data);
 			return data;
 		}

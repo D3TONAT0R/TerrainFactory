@@ -31,16 +31,14 @@ namespace TerrainFactory.Modification
 			}
 		}
 
-		public HeightData Apply(HeightData inputData)
+		public ElevationData Apply(ElevationData inputData)
 		{
-			HeightData data = new HeightData(inputData)
-			{
-				wasModified = true
-			};
+			ElevationData data = new ElevationData(inputData);
 			for (int i = 0; i < chain.Count; i++)
 			{
 				data = chain[i].Modify(data, true);
 			}
+			data.RecalculateElevationRange(false);
 			return data;
 		}
 	}

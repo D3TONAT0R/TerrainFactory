@@ -31,7 +31,7 @@ namespace TerrainFactory.Formats
 			return true;
 		}
 
-		protected override void AddPoint(DxfDocument doc, int ix, int iy, float z, HeightData d)
+		protected override void AddPoint(DxfDocument doc, int ix, int iy, float z, ElevationData d)
 		{
 			//TO DO
 			base.AddPoint(doc, ix, iy, z, d);

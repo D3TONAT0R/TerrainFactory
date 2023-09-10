@@ -28,18 +28,18 @@ namespace TerrainFactory.Modification {
 			}
 		}
 
-		protected override void ModifyData(HeightData data) {
+		protected override void ModifyData(ElevationData data) {
 			if(bounds.CellCount <= 10) return;
 			float[,] grid = new float[bounds.NumCols, bounds.NumRows];
 			for(int y = 0; y < bounds.NumRows; y++) {
 				for(int x = 0; x < bounds.NumCols; x++) {
-					grid[x, y] = data.GetHeight(bounds.xMin + x, bounds.yMin + y);
+					grid[x, y] = data.GetElevationAtCell(bounds.xMin + x, bounds.yMin + y);
 				}
 			}
 			data.offsetFromSource.x += bounds.xMin;
 			data.offsetFromSource.y += bounds.yMin;
-			data.lowerCornerPos += new System.Numerics.Vector2(bounds.xMin, bounds.yMin) * data.cellSize;
-			data.SetDataGrid(grid);
+			data.LowerCornerPosition += new System.Numerics.Vector2(bounds.xMin, bounds.yMin) * data.CellSize;
+			data.ReplaceData(grid);
 		}
 	}
 }

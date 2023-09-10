@@ -28,17 +28,17 @@ namespace TerrainFactory.Modification {
 			this.newB = newB;
 		}
 
-		protected override void ModifyData(HeightData data) {
-			for(int y = 0; y < data.GridLengthY; y++) {
-				for(int x = 0; x < data.GridLengthX; x++) {
-					var value = data.GetHeight(x, y);
+		protected override void ModifyData(ElevationData data) {
+			for(int y = 0; y < data.CellCountY; y++) {
+				for(int x = 0; x < data.CellCountX; x++) {
+					var value = data.GetElevationAtCell(x, y);
 					value = MathUtils.Remap(value, oldA, oldB, newA, newB);
-					data.SetHeight(x, y, value);
+					data.SetHeightAt(x, y, value);
 				}
 			}
-			data.lowPoint = MathUtils.Remap(data.lowPoint, oldA, oldB, newA, newB);
-			data.highPoint = MathUtils.Remap(data.highPoint, oldA, oldB, newA, newB);
-			data.RecalculateValues(false);
+			if(data.OverrideLowPoint.HasValue) data.OverrideLowPoint = MathUtils.Remap(data.OverrideLowPoint.Value, oldA, oldB, newA, newB);
+			if(data.OverrideHighPoint.HasValue) data.OverrideHighPoint = MathUtils.Remap(data.OverrideHighPoint.Value, oldA, oldB, newA, newB);
+			data.RecalculateElevationRange(false);
 		}
 	}
 }

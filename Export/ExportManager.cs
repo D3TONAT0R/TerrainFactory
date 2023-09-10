@@ -6,7 +6,7 @@ namespace TerrainFactory.Export
 	public static class ExportManager
 	{
 
-		public static bool ValidateExportSettings(FileFormatList formats, ExportSettings settings, HeightData data)
+		public static bool ValidateExportSettings(FileFormatList formats, ExportSettings settings, ElevationData data)
 		{
 			//TODO: modification chain not taken into account (checks the raw (unprocessed) height data)
 			if (formats.Count == 0)
@@ -22,7 +22,7 @@ namespace TerrainFactory.Export
 			return valid;
 		}
 
-		public static bool ExportAs(HeightData heightData, ExportSettings settings, string filename, params FileFormat[] formats)
+		public static bool ExportAs(ElevationData heightData, ExportSettings settings, string filename, params FileFormat[] formats)
 		{
 			if (formats.Length == 0)
 			{
@@ -38,7 +38,7 @@ namespace TerrainFactory.Export
 			return success;
 		}
 
-		public static bool ExportAs(HeightData heightData, ExportSettings settings, string filename, params string[] formatIDs)
+		public static bool ExportAs(ElevationData heightData, ExportSettings settings, string filename, params string[] formatIDs)
 		{
 			FileFormat[] formats = new FileFormat[formatIDs.Length];
 			for (int i = 0; i < formats.Length; i++)
@@ -48,7 +48,7 @@ namespace TerrainFactory.Export
 			return ExportAs(heightData, settings, filename, formats);
 		}
 
-		public static bool ExportAs(HeightData heightData, ExportSettings settings, string filename, params Type[] formatTypes)
+		public static bool ExportAs(ElevationData heightData, ExportSettings settings, string filename, params Type[] formatTypes)
 		{
 			FileFormat[] ffs = new FileFormat[formatTypes.Length];
 			for (int i = 0; i < ffs.Length; i++)
@@ -58,12 +58,12 @@ namespace TerrainFactory.Export
 			return ExportAs(heightData, settings, filename, ffs);
 		}
 
-		public static bool ExportAs(HeightData heightData, string filename, params string[] formatIDs)
+		public static bool ExportAs(ElevationData heightData, string filename, params string[] formatIDs)
 		{
 			return ExportAs(heightData, new ExportSettings(), filename, formatIDs);
 		}
 
-		public static bool ExportAs(HeightData heightData, string filename, params Type[] formatTypes)
+		public static bool ExportAs(ElevationData heightData, string filename, params Type[] formatTypes)
 		{
 			return ExportAs(heightData, new ExportSettings(), filename, formatTypes);
 		}
