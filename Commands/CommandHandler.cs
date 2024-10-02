@@ -38,7 +38,7 @@ namespace TerrainFactory.Commands {
 			{
 				try
 				{
-					var definingTypes = m.Value.GetCommandDefiningTypes().ToArray();
+					var definingTypes = m.Value.CommandDefiningTypes.ToArray();
 					AddCommandMethodsFromTypes(Commands, definingTypes);
 					AddCommandMethodsFromTypes(ModifierCommands, definingTypes);
 				}

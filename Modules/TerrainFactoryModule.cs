@@ -10,7 +10,7 @@ namespace TerrainFactory
 {
 
 	/// <summary>
-	/// Base class for adding different file formats that can be imported or exported.
+	/// Main class defining a module and its supported file formats and commands.
 	/// </summary>
 	public abstract class TerrainFactoryModule
 	{
@@ -18,11 +18,13 @@ namespace TerrainFactory
 		public abstract string ModuleName { get; }
 		public abstract string ModuleVersion { get; }
 
-		public abstract void RegisterFormats(List<FileFormat> registry);
+		public List<FileFormat> SupportedFormats { get; private set; } = new List<FileFormat>();
+		public List<Type> CommandDefiningTypes { get; private set; } = new List<Type>();
 
-		public virtual IEnumerable<Type> GetCommandDefiningTypes()
+
+		public virtual void Initialize()
 		{
-			yield break;
+
 		}
 	}
 }

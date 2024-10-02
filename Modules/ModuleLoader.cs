@@ -40,9 +40,8 @@ namespace TerrainFactory
 
 							bool hasImporter = false;
 							bool hasExporter = false;
-							List<FileFormat> formats = new List<FileFormat>();
-							module.RegisterFormats(formats);
-							foreach(var f in formats)
+							module.Initialize();
+							foreach(var f in module.SupportedFormats)
 							{
 								FileFormatManager.RegisterFormat(f);
 								hasImporter |= f.HasImporter;
@@ -51,8 +50,8 @@ namespace TerrainFactory
 							if(hasImporter) info += " [I]";
 							if(hasExporter) info += " [E]";
 
-							var c = module.GetCommandDefiningTypes().ToArray();
-							if (c.Length > 0)
+							var c = module.CommandDefiningTypes;
+							if (c.Count > 0)
 							{
 								info += " [C]";
 							}
