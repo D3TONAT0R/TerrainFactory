@@ -11,7 +11,7 @@ set dest=%solution%TerrainFactoryConsole\bin\%config%\netcoreapp3.1\%name%
 
 echo Copying DLLs for module %name%...
 echo Destination is %dest%
-xcopy "%target%\*.*" %dest% /Y /I /E
+xcopy %target%\*.* %dest% /Y /I /E
 
 echo Generating module.info file...
 @echo off
