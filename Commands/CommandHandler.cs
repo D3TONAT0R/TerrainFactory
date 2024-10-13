@@ -60,7 +60,7 @@ namespace TerrainFactory.Commands {
 			}
 		}
 
-		public static string GetInput(Worksheet worksheet, string prompt = null, bool allowQueued = true)
+		public static string GetInput(Project project, string prompt = null, bool allowQueued = true)
 		{
 			if(ConsoleOutput.consoleHandler != null)
 			{
@@ -99,16 +99,16 @@ namespace TerrainFactory.Commands {
 				Console.BackgroundColor = lastBackgroundColor;
 
 				//Parse variables
-				if(worksheet != null)
+				if(project != null)
 				{
-					input = worksheet.ParseVariables(input);
+					input = project.ResolveWildcards(input, null);
 				}
 
 				return input;
 			}
 		}
 
-		public static CommandResult ExecuteCommand(Worksheet worksheet, string input, ContextFlags context)
+		public static CommandResult ExecuteCommand(Project project, string input, ContextFlags context)
 		{
 			CommandParser.ParseCommandInput(input, out string cmd, out string[] args);
 			if(context.HasFlag(ContextFlags.AfterImport))
@@ -130,7 +130,7 @@ namespace TerrainFactory.Commands {
 			{
 				if(cmd == c.attribute.commandName)
 				{
-					bool result = (bool)c.method.Invoke(null, new object[] { worksheet, args });
+					bool result = (bool)c.method.Invoke(null, new object[] { project, args });
 					return result ? CommandResult.Success : CommandResult.Failed;
 				}
 			}

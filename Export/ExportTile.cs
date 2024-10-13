@@ -2,7 +2,7 @@
 
 namespace TerrainFactory.Export
 {
-	public class ExportTile
+	public class ExportTileInfo
 	{
 		public int xIndex;
 		public int yIndex;
@@ -11,19 +11,19 @@ namespace TerrainFactory.Export
 
 		public bool HasMultiple => xIndex >= 0 || yIndex >= 0;
 
-		private ExportTile(int xIndex, int yIndex, ElevationData data)
+		private ExportTileInfo(int xIndex, int yIndex, ElevationData data)
 		{
 			this.xIndex = xIndex;
 			this.yIndex = yIndex;
 			this.data = data;
 		}
 
-		public static ExportTile CreateFullTile(ElevationData data)
+		public static ExportTileInfo CreateFullTile(ElevationData data)
 		{
-			return new ExportTile(-1, -1, data);
+			return new ExportTileInfo(-1, -1, data);
 		}
 
-		public static ExportTile GetTile(ElevationData source, int splitInterval, int xIndex, int yIndex)
+		public static ExportTileInfo GetTile(ElevationData source, int splitInterval, int xIndex, int yIndex)
 		{
 			int sx = Math.Min(source.CellCountX - xIndex * splitInterval, splitInterval);
 			int sy = Math.Min(source.CellCountY - yIndex * splitInterval, splitInterval);
@@ -40,7 +40,7 @@ namespace TerrainFactory.Export
 			data.offsetFromSource.y += yIndex * splitInterval;
 			data.LowerCornerPosition += new System.Numerics.Vector2(xIndex * splitInterval, yIndex * splitInterval) * data.CellSize;
 			data.RecalculateElevationRange(false);
-			return new ExportTile(xIndex, yIndex, data);
+			return new ExportTileInfo(xIndex, yIndex, data);
 		}
 
 		public static void CalcTileCount(ElevationData data, int splitInterval, out int xCount, out int yCount)
