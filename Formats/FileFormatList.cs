@@ -40,9 +40,19 @@ namespace TerrainFactory.Formats
 			list.Add(format);
 		}
 
+		public void AddFormats(IEnumerable<FileFormat> formats)
+		{
+			foreach(var f in formats) AddFormat(f);
+		}
+
 		public void AddFormat(Type formatType)
 		{
 			AddFormat(FileFormat.GetFromType(formatType));
+		}
+
+		public void AddFormats(IEnumerable<Type> formats)
+		{
+			foreach(var f in formats) AddFormat(f);
 		}
 
 		public bool ContainsFormat(Type formatType)

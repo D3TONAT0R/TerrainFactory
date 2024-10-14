@@ -1,7 +1,6 @@
 ﻿using TerrainFactory.Formats;
 using TerrainFactory.Import;
 using TerrainFactory.Modification;
-using TerrainFactory.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,12 +22,16 @@ namespace TerrainFactory.Export
 		public int InputFileCount => InputFileList.Count;
 		public bool HasMultipleInputs => InputFileCount > 1;
 
+
+		public FileFormatList outputFormats = new FileFormatList();
+		public int OutputFormatCount => outputFormats.Count;
+
+
 		public List<string> InputFileList { get; } = new List<string>();
 		public Dictionary<string, string> Wildcards { get; } = new Dictionary<string, string>();
 
 		public ModificationChain modificationChain = new ModificationChain();
 		public ExportSettings exportSettings = new ExportSettings();
-		public FileFormatList outputFormats = new FileFormatList();
 
 		public string OutputPath { get; set; } = null;
 
@@ -38,6 +41,30 @@ namespace TerrainFactory.Export
 		public event Action<int, string> FileExported;
 		public event Action<int, string, Exception> FileExportFailed;
 		public event Action ExportCompleted;
+
+		public Project()
+		{
+
+		}
+
+		public Project(string inputFile, string outputFile)
+		{
+			AddInputFile(inputFile);
+		}
+
+		public Project(string inputFile, string outputFile, params FileFormat[] formats)
+		{
+			AddInputFile(inputFile);
+			outputFormats.AddFormats(formats);
+			OutputPath = outputFile;
+		}
+
+		public Project(string inputFile, string outputFile, params Type[] formats)
+		{
+			AddInputFile(inputFile);
+			outputFormats.AddFormats(formats);
+			OutputPath = outputFile;
+		}
 
 		public void AddInputFile(string file)
 		{
@@ -52,7 +79,7 @@ namespace TerrainFactory.Export
 			}
 		}
 
-		public ElevationData NextFile()
+		private void ImportNext()
 		{
 			CurrentData = null;
 			CurrentFileIndex++;
@@ -71,17 +98,11 @@ namespace TerrainFactory.Export
 
 					CurrentData = importedData;
 					FileImported?.Invoke(CurrentFileIndex, f);
-					return importedData;
 				}
 				catch(Exception e)
 				{
 					FileImportFailed?.Invoke(CurrentFileIndex, f, e);
-					return null;
 				}
-			}
-			else
-			{
-				return null;
 			}
 		}
 
@@ -99,16 +120,24 @@ namespace TerrainFactory.Export
 
 		public void ProcessAll()
 		{
+			if(InputFileCount == 0)
+			{
+				throw new InvalidOperationException("No input files specified.");
+			}
+			if(OutputPath == null)
+			{
+				throw new InvalidOperationException("No output path specified.");
+			}
 			if(CurrentFileIndex == -1)
 			{
-				NextFile();
+				ImportNext();
 			}
 			while(true)
 			{
 				ProcessData(CurrentData, UseBatchNamingPattern);
 				if(HasNextFile)
 				{
-					NextFile();
+					ImportNext();
 				}
 				else
 				{
@@ -206,7 +235,7 @@ namespace TerrainFactory.Export
 			}
 		}
 
-		IEnumerable<ExportTileInfo> GetExportTiles(ElevationData data)
+		private IEnumerable<ExportTileInfo> GetExportTiles(ElevationData data)
 		{
 			if(exportSettings.splitInterval > 2)
 			{
