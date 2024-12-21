@@ -50,6 +50,7 @@ namespace TerrainFactory.Export
 		public Project(string inputFile, string outputFile)
 		{
 			AddInputFile(inputFile);
+			OutputPath = outputFile;
 		}
 
 		public Project(string inputFile, string outputFile, params FileFormat[] formats)
