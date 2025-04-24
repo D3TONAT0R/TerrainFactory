@@ -5,29 +5,114 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using static TerrainFactory.ConsoleOutput;
+using TerrainFactory.Export;
 
-namespace TerrainFactory.Export
+namespace TerrainFactory
 {
 	public class Project
 	{
+		public class InputDataCollection
+		{
+			public List<string> Files { get; } = new List<string>();
+
+			public ElevationData Current { get; private set; }
+			public int CurrentIndex { get; private set; } = -1;
+			public string CurrentFileName => CurrentIndex >= 0 ? Files[CurrentIndex] : null;
+			public bool HasNext => CurrentIndex + 1 < Files.Count;
+			public int FileCount => Files.Count;
+			public bool HasMultiple => FileCount > 1;
+
+			public event Action<int, string> FileImported;
+			public event Action<int, string, Exception> FileImportFailed;
+
+			public void Add(string file)
+			{
+				Files.Add(file);
+			}
+
+			public void Clear()
+			{
+				Files.Clear();
+				CurrentIndex = -1;
+				Current = null;
+			}
+
+			public void LoadFirst()
+			{
+				if(Files.Count > 0)
+				{
+					CurrentIndex = 0;
+					Current = ImportManager.ImportFile(Files[CurrentIndex]);
+				}
+				else
+				{
+					throw new InvalidOperationException("No input files specified.");
+				}
+			}
+
+			public void Next()
+			{
+				if(CurrentIndex + 1 < Files.Count)
+				{
+					CurrentIndex++;
+					Current = ImportManager.ImportFile(Files[CurrentIndex]);
+				}
+				else
+				{
+					throw new InvalidOperationException("No more files to import.");
+				}
+			}
+
+			public void Load(int index)
+			{
+				if(index < 0 || index >= Files.Count)
+				{
+					throw new ArgumentOutOfRangeException(nameof(index), "Index is out of range.");
+				}
+				Current = null;
+				CurrentIndex = index;
+
+				string f = Files[index];
+				string ext = Path.GetExtension(f).ToLower().Replace(".", "");
+				try
+				{
+					string path = ExtractArgs(Files[CurrentIndex], out var importArgs);
+					var importedData = ImportManager.ImportFile(path.Replace("\"", ""), importArgs);
+					if(importedData == null)
+					{
+						throw new IOException("Unsupported file type: " + ext);
+					}
+
+					Current = importedData;
+					FileImported?.Invoke(CurrentIndex, f);
+				}
+				catch(Exception e)
+				{
+					FileImportFailed?.Invoke(CurrentIndex, f, e);
+				}
+			}
+
+			public void LoadIfRequired()
+			{
+				if(Current == null)
+				{
+					if(CurrentIndex < 0) LoadFirst();
+					else Load(CurrentIndex);
+				}
+			}
+		}
+
+
+		public InputDataCollection InputData { get; } = new InputDataCollection();
 
 		public bool AllowFileOverwrite { get; set; } = true;
 		public bool ForceBatchNamingPattern { get; set; } = false;
-		public bool UseBatchNamingPattern => ForceBatchNamingPattern || InputFileCount > 1;
-
-		public ElevationData CurrentData { get; private set; }
-
-		public int CurrentFileIndex { get; private set; } = -1;
-		public bool HasNextFile => CurrentFileIndex + 1 < InputFileList.Count;
-		public int InputFileCount => InputFileList.Count;
-		public bool HasMultipleInputs => InputFileCount > 1;
+		public bool UseBatchNamingPattern => ForceBatchNamingPattern || InputData.FileCount > 1;
 
 
 		public FileFormatList outputFormats = new FileFormatList();
 		public int OutputFormatCount => outputFormats.Count;
 
-
-		public List<string> InputFileList { get; } = new List<string>();
 		public Dictionary<string, string> Wildcards { get; } = new Dictionary<string, string>();
 
 		public ModificationChain modificationChain = new ModificationChain();
@@ -44,66 +129,43 @@ namespace TerrainFactory.Export
 
 		public Project()
 		{
-
+			InputData.FileImported += (index, file) => FileImported?.Invoke(index, file);
+			InputData.FileImportFailed += (index, file, e) => FileImportFailed?.Invoke(index, file, e);
 		}
 
-		public Project(string inputFile, string outputFile)
+		public Project(string inputFile, string outputFile) : this()
 		{
 			AddInputFile(inputFile);
+			InputData.LoadFirst();
 			OutputPath = outputFile;
 		}
 
-		public Project(string inputFile, string outputFile, params FileFormat[] formats)
+		public Project(string inputFile, string outputFile, params FileFormat[] formats) : this()
 		{
 			AddInputFile(inputFile);
+			InputData.LoadFirst();
 			outputFormats.AddFormats(formats);
 			OutputPath = outputFile;
 		}
 
-		public Project(string inputFile, string outputFile, params Type[] formats)
+		public Project(string inputFile, string outputFile, params Type[] formats) : this()
 		{
 			AddInputFile(inputFile);
+			InputData.LoadFirst();
 			outputFormats.AddFormats(formats);
 			OutputPath = outputFile;
 		}
 
 		public void AddInputFile(string file)
 		{
-			InputFileList.Add(ResolveWildcards(file, null));
+			InputData.Add(ResolveWildcards(file, null));
 		}
 
 		public void AddInputFiles(IEnumerable<string> files)
 		{
 			foreach(var s in files)
 			{
-				InputFileList.Add(ResolveWildcards(s, null));
-			}
-		}
-
-		private void ImportNext()
-		{
-			CurrentData = null;
-			CurrentFileIndex++;
-			if(CurrentFileIndex < InputFileList.Count)
-			{
-				string f = InputFileList[0];
-				string ext = Path.GetExtension(f).ToLower().Replace(".", "");
-				try
-				{
-					string path = ExtractArgs(InputFileList[CurrentFileIndex], out var importArgs);
-					var importedData = ImportManager.ImportFile(path.Replace("\"", ""), importArgs);
-					if (importedData == null)
-					{
-						throw new IOException("Unsupported file type: " + ext);
-					}
-
-					CurrentData = importedData;
-					FileImported?.Invoke(CurrentFileIndex, f);
-				}
-				catch(Exception e)
-				{
-					FileImportFailed?.Invoke(CurrentFileIndex, f, e);
-				}
+				InputData.Add(ResolveWildcards(s, null));
 			}
 		}
 
@@ -121,7 +183,7 @@ namespace TerrainFactory.Export
 
 		public void ProcessAll()
 		{
-			if(InputFileCount == 0)
+			if(InputData.FileCount == 0)
 			{
 				throw new InvalidOperationException("No input files specified.");
 			}
@@ -129,21 +191,14 @@ namespace TerrainFactory.Export
 			{
 				throw new InvalidOperationException("No output path specified.");
 			}
-			if(CurrentFileIndex == -1)
+			if(InputData.CurrentIndex == -1)
 			{
-				ImportNext();
+				InputData.LoadFirst();
 			}
-			while(true)
+			while(InputData.HasNext)
 			{
-				ProcessData(CurrentData, UseBatchNamingPattern);
-				if(HasNextFile)
-				{
-					ImportNext();
-				}
-				else
-				{
-					break;
-				}
+				ProcessData(InputData.Current, UseBatchNamingPattern);
+				InputData.Next();
 			}
 			ExportCompleted?.Invoke();
 		}
@@ -165,7 +220,7 @@ namespace TerrainFactory.Export
 			string finalOutputPath;
 			if(useBatchNamingPattern)
 			{
-				finalOutputPath = ResolveWildcards(Path.Combine(OutputPath, Path.GetFileName(InputFileList[CurrentFileIndex])), inputData.SourceFileName);
+				finalOutputPath = ResolveWildcards(Path.Combine(OutputPath, Path.GetFileName(InputData.CurrentFileName)), inputData.SourceFileName);
 			}
 			else
 			{
@@ -190,11 +245,11 @@ namespace TerrainFactory.Export
 					ExportTile(tile, dir, fileNameWithoutExtension);
 				}
 
-				FileExported?.Invoke(CurrentFileIndex, OutputPath);
+				FileExported?.Invoke(InputData.CurrentIndex, OutputPath);
 			}
 			catch(Exception e)
 			{
-				FileExportFailed?.Invoke(CurrentFileIndex, OutputPath, e);
+				FileExportFailed?.Invoke(InputData.CurrentIndex, OutputPath, e);
 			}
 		}
 
@@ -251,7 +306,7 @@ namespace TerrainFactory.Export
 			}
 			else
 			{
-				yield return ExportTileInfo.CreateFullTile(CurrentData);
+				yield return ExportTileInfo.CreateFullTile(InputData.Current);
 			}
 		}
 

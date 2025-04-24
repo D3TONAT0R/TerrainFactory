@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Text;
 using static TerrainFactory.Commands.CommandParser;
 using static TerrainFactory.ConsoleOutput;
-using TerrainFactory.Export;
 
 namespace TerrainFactory.Commands
 {
@@ -39,7 +38,7 @@ namespace TerrainFactory.Commands
 			int x2 = ParseArg<int>(args, 2);
 			int y2 = ParseArg<int>(args, 3);
 			Bounds bounds = new Bounds(x1, y1, x2, y2);
-			if(bounds.IsValid(sheet.CurrentData))
+			if(bounds.IsValid(sheet.InputData.Current))
 			{
 				WriteLine($"Selection set ({bounds.CellCount} cells total)");
 				return new BoundedAreaSelectionModifier(bounds);
@@ -101,7 +100,7 @@ namespace TerrainFactory.Commands
 		public static Modifier HandleResizeMod(Project sheet, string[] args)
 		{
 			int w = ParseArg<int>(args, 0);
-			WriteLine($"Resizing from {sheet.CurrentData.CellCountX} to {w} ({Math.Round(w / (float)sheet.CurrentData.CellCountX * 100)}%)");
+			WriteLine($"Resizing from {sheet.InputData.Current.CellCountX} to {w} ({Math.Round(w / (float)sheet.InputData.Current.CellCountX * 100)}%)");
 			return new ResizingModifier(w, false);
 		}
 
@@ -109,7 +108,7 @@ namespace TerrainFactory.Commands
 		public static Modifier HandleCellsizeMod(Project sheet, string[] args)
 		{
 			float f = ParseArg<float>(args, 0);
-			WriteLine($"Cellsize changed from {sheet.CurrentData.CellSize} to {f}");
+			WriteLine($"Cellsize changed from {sheet.InputData.Current.CellSize} to {f}");
 			return new CellSizeModifier(f);
 		}
 

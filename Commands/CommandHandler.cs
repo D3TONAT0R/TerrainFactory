@@ -1,5 +1,4 @@
-﻿using TerrainFactory.Export;
-using TerrainFactory.Util;
+﻿using TerrainFactory.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,7 +8,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using static TerrainFactory.Commands.CommandAttribute;
 
-namespace TerrainFactory.Commands {
+namespace TerrainFactory.Commands
+{
 	public static class CommandHandler {
 
 		public class CommandDefinition<A> where A : Attribute

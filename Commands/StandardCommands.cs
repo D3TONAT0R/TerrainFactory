@@ -1,5 +1,4 @@
-﻿using TerrainFactory.Export;
-using TerrainFactory.Modification;
+﻿using TerrainFactory.Modification;
 using System;
 using System.Collections.Generic;
 using static TerrainFactory.ConsoleOutput;
@@ -14,7 +13,7 @@ namespace TerrainFactory.Commands
 		[Command("info", "", "Prints general info about the imported height data")]
 		public static bool PrintInfoCmd(Project sheet, string[] args)
 		{
-			var d = sheet.CurrentData;
+			var d = sheet.InputData.Current;
 			Console.WriteLine($"Grid Size: {d.CellCountX} x {d.CellCountY}");
 			Console.WriteLine($"Cell Size: {d.CellSize}");
 			Console.WriteLine($"Dimensions: {d.CellCountX * d.CellSize} x {d.CellCountY * d.CellSize}");
