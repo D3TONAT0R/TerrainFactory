@@ -6,6 +6,9 @@
 		public int xMax;
 		public int yMax;
 
+		public float CenterX => (xMin + xMax) / 2f;
+		public float CenterY => (yMin + yMax) / 2f;
+
 		public Bounds(int x1, int y1, int x2, int y2) {
 			xMin = x1;
 			yMin = y1;

@@ -67,6 +67,16 @@ namespace TerrainFactory
 				}
 			}
 
+			public bool TryNext()
+			{
+				if(HasNext)
+				{
+					Next();
+					return true;
+				}
+				return false;
+			}
+
 			public void Load(int index)
 			{
 				if(index < 0 || index >= Files.Count)
@@ -195,28 +205,28 @@ namespace TerrainFactory
 			{
 				throw new InvalidOperationException("No output path specified.");
 			}
-			if(InputData.CurrentIndex == -1)
+			if(InputData.CurrentIndex != 0)
 			{
 				InputData.LoadFirst();
 			}
-			while(InputData.HasNext)
+			do
 			{
 				ProcessData(InputData.Current, UseBatchNamingPattern);
-				InputData.Next();
 			}
+			while(InputData.TryNext());
 			ExportCompleted?.Invoke();
 		}
 
-		public void ProcessData(ElevationData inputData, bool useBatchNamingPattern)
+		public void ProcessData(ElevationData data, bool useBatchNamingPattern)
 		{
 			if(string.IsNullOrWhiteSpace(OutputPath))
 			{
 				throw new ArgumentException("outputPath is null");
 			}
 
-			ApplyModificationChain(inputData, true);
+			data = ApplyModificationChain(data, true);
 
-			if(!ExportManager.ValidateExportSettings(outputFormats, exportSettings, inputData))
+			if(!ExportManager.ValidateExportSettings(outputFormats, exportSettings, data))
 			{
 				throw new InvalidOperationException("Current export settings are invalid for at least one of the selected formats.");
 			}
@@ -224,13 +234,13 @@ namespace TerrainFactory
 			string finalOutputPath;
 			if(useBatchNamingPattern)
 			{
-				finalOutputPath = ResolveWildcards(Path.Combine(OutputPath, Path.GetFileName(InputData.CurrentFileName)), inputData.SourceFileName);
+				finalOutputPath = ResolveWildcards(Path.Combine(OutputPath, Path.GetFileName(InputData.CurrentFileName)), data.SourceFileName);
 			}
 			else
 			{
-				finalOutputPath = ResolveWildcards(OutputPath, inputData.SourceFileName);
+				finalOutputPath = ResolveWildcards(OutputPath, data.SourceFileName);
 			}
-			ExportData(inputData, finalOutputPath);
+			ExportData(data, finalOutputPath);
 		}
 
 		private void ExportData(ElevationData data, string destinationPath)
@@ -310,7 +320,7 @@ namespace TerrainFactory
 			}
 			else
 			{
-				yield return ExportTileInfo.CreateFullTile(InputData.Current);
+				yield return ExportTileInfo.CreateFullTile(data);
 			}
 		}
 
