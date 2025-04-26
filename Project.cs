@@ -25,8 +25,12 @@ namespace TerrainFactory
 			public event Action<int, string> FileImported;
 			public event Action<int, string, Exception> FileImportFailed;
 
-			public void Add(string file)
+			public void Add(string file, bool checkFileExists = true)
 			{
+				if(checkFileExists && !File.Exists(file))
+				{
+					throw new FileNotFoundException($"File not found: {file}");
+				}
 				Files.Add(file);
 			}
 

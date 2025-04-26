@@ -13,6 +13,7 @@ namespace TerrainFactory.Commands
 		[Command("info", "", "Prints general info about the imported height data")]
 		public static bool PrintInfoCmd(Project sheet, string[] args)
 		{
+			sheet.InputData.LoadIfRequired();
 			var d = sheet.InputData.Current;
 			Console.WriteLine($"Grid Size: {d.CellCountX} x {d.CellCountY}");
 			Console.WriteLine($"Cell Size: {d.CellSize}");
@@ -24,7 +25,7 @@ namespace TerrainFactory.Commands
 		}
 
 		[Command("split", "N", "Split files every NxN cells (minimum 32)")]
-		private static bool RunSplitCmd(Project sheet, string[] args)
+		public static bool RunSplitCmd(Project sheet, string[] args)
 		{
 			int i = ParseArg<int>(args, 0);
 			sheet.exportSettings.splitInterval = i;
@@ -33,7 +34,7 @@ namespace TerrainFactory.Commands
 		}
 
 		[Command("clearmods", "", "Removes all added modifiers")]
-		private static bool RunClearModifierCmd(Project sheet, string[] args)
+		public static bool RunClearModifierCmd(Project sheet, string[] args)
 		{
 			int l = sheet.modificationChain.chain.Count;
 			sheet.modificationChain.chain.Clear();
@@ -42,7 +43,7 @@ namespace TerrainFactory.Commands
 		}
 
 		[Command("format", "F ..", "Sets the given formats for export", hidden = true)]
-		private static bool RunFormatCmd(Project sheet, string[] args)
+		public static bool RunFormatCmd(Project sheet, string[] args)
 		{
 			if(args.Length > 0)
 			{
@@ -66,7 +67,7 @@ namespace TerrainFactory.Commands
 		//Universal commands
 
 		[Command("exec", "path", "Executes a list of commands defined in the given file", context = CommandAttribute.ContextFlags.Global)]
-		private static bool RunExecCmd(Project sheet, string[] args)
+		public static bool RunExecCmd(Project sheet, string[] args)
 		{
 			if(args.Length > 0)
 			{
@@ -83,7 +84,7 @@ namespace TerrainFactory.Commands
 		//Hidden commands
 
 		[Command("alias", "key value", "Define a variable with the given name", hidden = true)]
-		private static bool RunAliasCmd(Project sheet, string[] args)
+		public static bool RunAliasCmd(Project sheet, string[] args)
 		{
 			if(args.Length >= 2)
 			{
@@ -97,7 +98,7 @@ namespace TerrainFactory.Commands
 		}
 
 		[Command("aliasp", "key (prompt)", "Prompt user to define a variable with the given name", hidden = true)]
-		private static bool RunAliasPromptCmd(Project sheet, string[] args)
+		public static bool RunAliasPromptCmd(Project sheet, string[] args)
 		{
 			if(args.Length >= 1)
 			{
