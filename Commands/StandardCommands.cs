@@ -80,6 +80,25 @@ namespace TerrainFactory.Commands
 			return true;
 		}
 
+
+
+		[Command("sample-cell", "x y", "Samples the height at the given coordinates", hidden = true)]
+		public static bool SampleHeight(Project sheet, string[] args)
+		{
+			if(args.Length >= 2)
+			{
+				int x = ParseArg<int>(args, 0);
+				int y = ParseArg<int>(args, 1);
+				float h = sheet.InputData.Current.GetElevationAtCell(x, y);
+				WriteLine($"Height at {x}, {y} is {h}");
+			}
+			else
+			{
+				WriteError("Not enough arguments.");
+			}
+			return true;
+		}
+
 		//---------------
 		//Hidden commands
 
