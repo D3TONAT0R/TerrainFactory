@@ -91,12 +91,14 @@ namespace TerrainFactory.Commands
 				if(input == null)
 				{
 					input = Console.ReadLine();
+					Console.BackgroundColor = lastBackgroundColor;
 				}
 				else
 				{
-					Console.WriteLine(input);
+					Console.Write(input);
+					Console.BackgroundColor = lastBackgroundColor;
+					Console.WriteLine();
 				}
-				Console.BackgroundColor = lastBackgroundColor;
 
 				//Parse variables
 				if(project != null)
