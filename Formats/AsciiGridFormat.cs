@@ -26,41 +26,43 @@ namespace TerrainFactory.Formats
 		{
 			int decimals = task.settings.GetCustomSetting("decimals", 2);
 
-			StringBuilder fileContents = new StringBuilder();
-			fileContents.AppendLine($"ncols        {task.data.CellCountX}");
-			fileContents.AppendLine($"nrows        {task.data.CellCountY}");
-			fileContents.AppendLine($"xllcorner    {task.data.LowerCornerPosition.X}");
-			fileContents.AppendLine($"yllcorner    {task.data.LowerCornerPosition.Y}");
-			fileContents.AppendLine($"cellsize     {task.data.CellSize}");
-			fileContents.AppendLine($"NODATA_value {task.data.NoDataValue}");
-			var grid = task.data.GetDataGrid();
-
-			string format = "";
-			int mostZeros = Math.Max(Math.Abs((int)task.data.MaxElevation).ToString().Length, Math.Abs((int)task.data.MinElevation).ToString().Length);
-			for (int i = 0; i < mostZeros; i++)
+			using(var fileStream = new FileStream(path, FileMode.Create, FileAccess.Write))
 			{
-				format += '0';
-			}
-			format += ".";
-			for (int i = 0; i < decimals; i++)
-			{
-				format += '0';
-			}
-
-			format = " " + format + ";" + "-" + format;
-
-			for (int y = task.data.CellCountY - 1; y >= 0; y--)
-			{
-				for(int x = 0; x < task.data.CellCountX; x++)
+				using(var writer = new StreamWriter(fileStream))
 				{
-					if (x > 0) fileContents.Append(" ");
-					fileContents.Append(grid[x, y].ToString(format));
-				}
-				fileContents.AppendLine();
-			}
+					writer.WriteLine($"ncols        {task.data.CellCountX}");
+					writer.WriteLine($"nrows        {task.data.CellCountY}");
+					writer.WriteLine($"xllcorner    {task.data.LowerCornerPosition.X}");
+					writer.WriteLine($"yllcorner    {task.data.LowerCornerPosition.Y}");
+					writer.WriteLine($"cellsize     {task.data.CellSize}");
+					writer.WriteLine($"NODATA_value {task.data.NoDataValue}");
+					var grid = task.data.GetDataGrid();
 
-			File.WriteAllText(path, fileContents.ToString());
-			return true;
+					string format = "";
+					int mostZeros = Math.Max(Math.Abs((int)task.data.MaxElevation).ToString().Length, Math.Abs((int)task.data.MinElevation).ToString().Length);
+					for(int i = 0; i < mostZeros; i++)
+					{
+						format += '0';
+					}
+					format += ".";
+					for(int i = 0; i < decimals; i++)
+					{
+						format += '0';
+					}
+					format = $" {format};-{format}";
+
+					for(int y = task.data.CellCountY - 1; y >= 0; y--)
+					{
+						for(int x = 0; x < task.data.CellCountX; x++)
+						{
+							if(x > 0) writer.Write(" ");
+							writer.Write(grid[x, y].ToString(format));
+						}
+						writer.WriteLine();
+					}
+					return true;
+				}
+			}
 		}
 	}
 }
