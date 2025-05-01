@@ -14,6 +14,7 @@ namespace TerrainFactory.Formats
 		internal static void RegisterStandardFormats()
 		{
 			RegisterFormat(new CommandStackFormat());
+			RegisterFormat(new ElevationDataFormat());
 			RegisterFormat(new GeoMetadataFormat());
 			RegisterFormat(new AsciiGridFormat());
 			RegisterFormat(new XYZFormat());
