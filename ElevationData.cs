@@ -50,6 +50,8 @@ namespace TerrainFactory
 
 		public float HighPoint => OverrideHighPoint ?? MaxElevation;
 
+		public Range GrayscaleRange => new Range(LowPoint, HighPoint);
+
 		public bool WasModified { get; private set; } = false;
 
 		public ElevationData()
