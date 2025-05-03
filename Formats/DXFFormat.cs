@@ -52,7 +52,7 @@ namespace TerrainFactory.Formats
 				for (int x = 0; x < d.CellCountX; x++)
 				{
 					var h = d.GetElevationAtCell(x, y);
-					if (h == d.NoDataValue) continue;
+					if (ElevationData.IsNoData(h)) continue;
 					AddPoint(doc, x, y, h, d);
 				}
 			}

@@ -19,9 +19,9 @@ namespace TerrainFactory.Import {
 			try {
 				string filename = Path.GetFileNameWithoutExtension(filepath);
 				using(FileStream stream = File.OpenRead(filepath)) {
-					data = CreateBaseData(stream, filepath, sub, out int ncols, out int nrows);
+					data = CreateBaseData(stream, filepath, sub, out int ncols, out int nrows, out float nodataValue);
 					//Read the actual data
-					ReadGridData(stream, data, ncols, nrows, sub, data.TotalCellCount > 200000);
+					ReadGridData(stream, data, ncols, nrows, nodataValue, sub, data.TotalCellCount > 200000);
 				}
 				WriteLine($"Height Range: low {data.MinElevation}, high {data.MaxElevation}, range {data.MaxElevation - data.MinElevation}");
 			} catch(Exception e) {
@@ -33,11 +33,11 @@ namespace TerrainFactory.Import {
 		public static void GetDataInfo(string filepath, out float lowest, out float highest, out float average) {
 			try {
 				using(FileStream stream = File.OpenRead(filepath)) {
-					var asc = CreateBaseData(stream, filepath, 1, out int ncols, out int nrows);
+					var asc = CreateBaseData(stream, filepath, 1, out int ncols, out int nrows, out float nodataValue);
 					//Read the actual data
 					//The cells will not be saved as long as grid is null
 					asc.ReplaceData(null);
-					ReadGridData(stream, asc, ncols, nrows, 1, false);
+					ReadGridData(stream, asc, ncols, nrows, nodataValue, 1, false);
 					double sum = 0;
 					for(int i = 0; i < asc.CellCountX * asc.CellCountY; i++) {
 						float value;
@@ -59,7 +59,7 @@ namespace TerrainFactory.Import {
 		}
 
 
-		static ElevationData CreateBaseData(FileStream stream, string filename, int sub, out int ncols, out int nrows) {
+		static ElevationData CreateBaseData(FileStream stream, string filename, int sub, out int ncols, out int nrows, out float nodataValue) {
 			ncols = ExtractInt(ReadHeaderLine(stream), "ncols");
 			nrows = ExtractInt(ReadHeaderLine(stream), "nrows");
 			WriteLine("Dimensions: " + ncols + "x" + nrows);
@@ -68,13 +68,12 @@ namespace TerrainFactory.Import {
 			var yllcorner = ExtractFloat(ReadHeaderLine(stream), "yllcorner");
 			d.LowerCornerPosition = new Vector2(xllcorner, yllcorner);
 			d.CellSize = ExtractFloat(ReadHeaderLine(stream), "cellsize") * sub;
-			d.NoDataValue = ExtractFloat(ReadHeaderLine(stream), "NODATA_value");
+			nodataValue = ExtractFloat(ReadHeaderLine(stream), "NODATA_value");
 			return d;
 		}
 
-		static void ReadGridData(FileStream stream, ElevationData data, int ncols, int nrows, int subsampling, bool displayProgressBar) {
+		static void ReadGridData(FileStream stream, ElevationData data, int ncols, int nrows, float nodataValue, int subsampling, bool displayProgressBar) {
 			int length = ncols * nrows;
-			bool hasData = data.HasElevationData;
 			for(int i = 0; i < length; i++) {
 				if(displayProgressBar && (i % 1000 == 0))
 				{
@@ -88,13 +87,25 @@ namespace TerrainFactory.Import {
 					//Skip this cell due to import subsampling
 					continue;
 				}
-				if(hasData) data.SetHeightAt(x / subsampling, data.CellCountY - (y / subsampling) - 1, value);
+				if(IsNoData(value, nodataValue))
+				{
+					value = ElevationData.NODATA_VALUE;
+				}
+				data.SetHeightAt(x / subsampling, data.CellCountY - (y / subsampling) - 1, value);
 			}
 			data.RecalculateElevationRange(true);
 			if(displayProgressBar)
 			{
 				ClearProgressBar();
 			}
+		}
+
+		private static bool IsNoData(float v, float nd)
+		{
+			if(v == nd) return true;
+			if(nd == 0) return false;
+			if(v < nd && v > -nd) return true;
+			return false;
 		}
 
 		static bool NextGridValue(FileStream stream, out float value) {

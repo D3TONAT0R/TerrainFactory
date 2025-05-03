@@ -36,8 +36,8 @@ namespace TerrainFactory.Modification {
 					data.SetHeightAt(x, y, value);
 				}
 			}
-			if(data.OverrideLowPoint.HasValue) data.OverrideLowPoint = MathUtils.Remap(data.OverrideLowPoint.Value, oldA, oldB, newA, newB);
-			if(data.OverrideHighPoint.HasValue) data.OverrideHighPoint = MathUtils.Remap(data.OverrideHighPoint.Value, oldA, oldB, newA, newB);
+			if(data.CustomBlackPoint.HasValue) data.CustomBlackPoint = MathUtils.Remap(data.CustomBlackPoint.Value, oldA, oldB, newA, newB);
+			if(data.CustomWhitePoint.HasValue) data.CustomWhitePoint = MathUtils.Remap(data.CustomWhitePoint.Value, oldA, oldB, newA, newB);
 			data.RecalculateElevationRange(false);
 		}
 	}

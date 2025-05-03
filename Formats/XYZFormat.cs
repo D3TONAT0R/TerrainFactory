@@ -17,21 +17,22 @@ namespace TerrainFactory.Formats
 
 		protected override bool ExportFile(string path, ExportTask task)
 		{
-			StringBuilder contents = new StringBuilder();
-			var grid = task.data.GetDataGrid();
 			var cs = task.data.CellSize;
-			for (int y = 0; y < task.data.CellCountY; y++)
+			using(var stream = new FileStream(path, FileMode.Create, FileAccess.Write))
 			{
-				for (int x = 0; x < task.data.CellCountX; x++)
+				using(var writer = new StreamWriter(stream))
 				{
-					float z = grid[x, y];
-					if (z != task.data.NoDataValue)
+					for(int y = 0; y < task.data.CellCountY; y++)
 					{
-						contents.AppendLine($"{x * cs} {y * cs} {z}");
+						for(int x = 0; x < task.data.CellCountX; x++)
+						{
+							float z = task.data.GetElevationAtCellUnchecked(x, y);
+							if(ElevationData.IsNoData(z)) continue;
+							writer.WriteLine($"{x * cs} {y * cs} {z}");
+						}
 					}
 				}
 			}
-			File.WriteAllText(path, contents.ToString());
 			return true;
 		}
 	}

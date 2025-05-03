@@ -7,50 +7,90 @@ namespace TerrainFactory
 
 	public class ElevationData
 	{
+		public const float NODATA_VALUE = float.NaN;
 
+		/// <summary>
+		/// The path to the file this data originated from. Will be null if this data was created from scratch.
+		/// </summary>
 		public string SourceFileName { get; set; }
 
-		private float[,] Data { get; set; }
-		public bool HasElevationData => Data != null;
-
-		public int CellCountX => Data.GetLength(0);
-		public int CellCountY => Data.GetLength(1);
+		/// <summary>
+		/// The number of cells in the horizontal (X) direction.
+		/// </summary>
+		public int CellCountX => data.GetLength(0);
+		/// <summary>
+		/// The number of cells in the vertical (Y) direction.
+		/// </summary>
+		public int CellCountY => data.GetLength(1);
+		/// <summary>
+		/// The aspect ratio of the data grid (X/Y).
+		/// </summary>
 		public float CellAspectRatio => CellCountX / (float)CellCountY;
-
+		/// <summary>
+		/// The total number of cells in the data grid.
+		/// </summary>
 		public int TotalCellCount => CellCountX * CellCountY;
 
-		public float CellSize { get; set; }
-		public float NoDataValue { get; set; } = float.MinValue;
+		/// <summary>
+		/// The size of each cell in the data grid, in world units.
+		/// </summary>
+		public float CellSize { get; set; } = 1f;
 
-
+		/// <summary>
+		/// The world position of the lower left corner of the data grid.
+		/// </summary>
 		public Vector2 LowerCornerPosition { get; set; }
 
-		public Vector2 UpperCornerPosition => LowerCornerPosition + Size;
+		/// <summary>
+		/// The world position of the upper right corner of the data grid.
+		/// </summary>
+		public Vector2 UpperCornerPosition => LowerCornerPosition + Dimensions;
 
-		public Vector2 CenterPosition => LowerCornerPosition + Size * 0.5f;
+		/// <summary>
+		/// The world position of the center of the data grid.
+		/// </summary>
+		public Vector2 CenterPosition => LowerCornerPosition + Dimensions * 0.5f;
 
-		public Vector2 Size => new Vector2(CellCountX * CellSize, CellCountY * CellSize);
+		/// <summary>
+		/// The size of the data grid in world units.
+		/// </summary>
+		public Vector2 Dimensions => new Vector2(CellCountX * CellSize, CellCountY * CellSize);
 
-		public float TotalArea => Size.X * Size.Y;
+		/// <summary>
+		/// The total square area of the data grid in world units.
+		/// </summary>
+		public float TotalArea => Dimensions.X * Dimensions.Y;
 
+		private float[,] data;
 
 		//TODO: Refactor for better clarity
 		public (int x, int y) offsetFromSource = (0, 0);
 
-
+		/// <summary>
+		/// The lowest elevation value present in the data grid.
+		/// </summary>
 		public float MinElevation { get; private set; } = float.PositiveInfinity;
+		/// <summary>
+		/// The highest elevation value present in the data grid.
+		/// </summary>
 		public float MaxElevation { get; private set; } = float.NegativeInfinity;
 
 		//Used for scaling operations. In data created from an image, these values represent the black and white values of the source image (default 0 and 1 respectively)
 		//In data created from ASC data itself, these are equal to lowestValue and highestValue unless overridden for heightmap export.
-		public float? OverrideLowPoint { get; set; }
-		public float? OverrideHighPoint { get; set; }
 
-		public float LowPoint => OverrideLowPoint ?? MinElevation;
+		/// <summary>
+		/// Custom elevation value to represent black in a grayscale heightmap. If null, the lowest elevation value in the data grid will be used.
+		/// </summary>
+		public float? CustomBlackPoint { get; set; }
+		/// <summary>
+		/// Custom elevation value to represent white in a grayscale heightmap. If null, the highest elevation value in the data grid will be used.
+		/// </summary>
+		public float? CustomWhitePoint { get; set; }
 
-		public float HighPoint => OverrideHighPoint ?? MaxElevation;
-
-		public Range GrayscaleRange => new Range(LowPoint, HighPoint);
+		/// <summary>
+		/// The elevations that should be used to represent black and white in a grayscale heightmap.
+		/// </summary>
+		public Range GrayscaleRange => new Range(CustomBlackPoint ?? MinElevation, CustomWhitePoint ?? MaxElevation);
 
 		public bool WasModified { get; private set; } = false;
 
@@ -61,48 +101,52 @@ namespace TerrainFactory
 
 		public ElevationData(float[,] data, float cellSize)
 		{
-			Data = data;
+			this.data = data;
 			CellSize = cellSize;
 		}
 
 		public ElevationData(int cellCountX, int cellCountY, string sourceFileName = null)
 		{
 			SourceFileName = sourceFileName;
-			Data = new float[cellCountX, cellCountY];
+			data = new float[cellCountX, cellCountY];
 		}
 
 		public ElevationData(ElevationData original)
 		{
-			Data = (float[,])original.Data.Clone();
+			data = (float[,])original.data.Clone();
 			original.CopyAllPropertiesTo(this);
+		}
+
+		public static bool IsNoData(float value)
+		{
+			return float.IsNaN(value);
 		}
 
 		public void RecalculateElevationRange(bool clearLowHighPoints)
 		{
 			MinElevation = float.MaxValue;
 			MaxElevation = float.MinValue;
-			foreach(float f in Data)
+			foreach(float e in data)
 			{
-				if(Math.Abs(f - NoDataValue) > 0.1f)
+				if(!float.IsNaN(e))
 				{
-					if(f < MinElevation) MinElevation = f;
-					if(f > MaxElevation) MaxElevation = f;
+					if(e < MinElevation) MinElevation = e;
+					if(e > MaxElevation) MaxElevation = e;
 				}
 			}
 			if(clearLowHighPoints)
 			{
-				OverrideLowPoint = null;
-				OverrideHighPoint = null;
+				CustomBlackPoint = null;
+				CustomWhitePoint = null;
 			}
 		}
 
 		public void CopyAllPropertiesTo(ElevationData other)
 		{
 			other.CellSize = CellSize;
-			other.NoDataValue = NoDataValue;
 			other.LowerCornerPosition = LowerCornerPosition;
-			other.OverrideLowPoint = OverrideLowPoint;
-			other.OverrideHighPoint = OverrideHighPoint;
+			other.CustomBlackPoint = CustomBlackPoint;
+			other.CustomWhitePoint = CustomWhitePoint;
 			other.WasModified = true;
 			other.offsetFromSource = offsetFromSource;
 			RecalculateElevationRange(false);
@@ -117,41 +161,31 @@ namespace TerrainFactory
 
 		public void SetHeightAt(int x, int y, float value)
 		{
-			Data[x, y] = value;
+			data[x, y] = value;
 			WasModified = true;
 		}
 
 		public void AddHeightAt(int x, int y, float add)
 		{
-			Data[x, y] += add;
+			data[x, y] += add;
 			WasModified = true;
 		}
 
 		public void Add(ElevationData other)
 		{
-			Modify((x, y, rx, ry, v) =>
-			{
-				return v + other.GetElevationAtNormalizedPos(rx, ry);
-			});
+			Modify((x, y, rx, ry, v) => v + other.GetElevationAtNormalizedPos(rx, ry));
 		}
 
 		public void Multiply(ElevationData other)
 		{
-			Modify((x, y, rx, ry, v) =>
-			{
-				return v * other.GetElevationAtNormalizedPos(rx, ry);
-			});
-
+			Modify((x, y, rx, ry, v) => v * other.GetElevationAtNormalizedPos(rx, ry));
 		}
 
 		public void RemapHeights(float fromMin, float fromMax, float toMin, float toMax)
 		{
-			Modify((x, y, rx, ry, height) =>
-			{
-				return MathUtils.Remap(height, fromMin, fromMax, toMin, toMax);
-			});
-			if(OverrideLowPoint.HasValue) OverrideLowPoint = MathUtils.Remap(OverrideLowPoint.Value, fromMin, fromMax, toMin, toMax);
-			if(OverrideHighPoint.HasValue) OverrideHighPoint = MathUtils.Remap(OverrideHighPoint.Value, fromMin, fromMax, toMin, toMax);
+			Modify((x, y, rx, ry, height) => MathUtils.Remap(height, fromMin, fromMax, toMin, toMax));
+			if(CustomBlackPoint.HasValue) CustomBlackPoint = MathUtils.Remap(CustomBlackPoint.Value, fromMin, fromMax, toMin, toMax);
+			if(CustomWhitePoint.HasValue) CustomWhitePoint = MathUtils.Remap(CustomWhitePoint.Value, fromMin, fromMax, toMin, toMax);
 		}
 
 		public delegate float ModificationFunc(int x, int y, float rx, float ry, float value);
@@ -164,7 +198,7 @@ namespace TerrainFactory
 				{
 					float rx = x / (float)(CellCountX - 1);
 					float ry = y / (float)(CellCountY - 1);
-					Data[x, y] = modificator(x, y, rx, ry, Data[x, y]);
+					data[x, y] = modificator(x, y, rx, ry, data[x, y]);
 				}
 			}
 			RecalculateElevationRange(false);
@@ -198,7 +232,7 @@ namespace TerrainFactory
 
 		public void ReplaceData(float[,] newData)
 		{
-			Data = newData;
+			data = newData;
 			WasModified = true;
 		}
 
@@ -210,7 +244,7 @@ namespace TerrainFactory
 
 		public float[,] GetDataGrid()
 		{
-			return Data;
+			return data;
 		}
 
 		public float[,] GetDataGridYFlipped()
@@ -232,24 +266,24 @@ namespace TerrainFactory
 		{
 			if(x < 0 || y < 0 || x >= CellCountX || y >= CellCountY)
 			{
-				return NoDataValue;
+				return NODATA_VALUE;
 			}
 			else
 			{
-				return Data[x, y];
+				return data[x, y];
 			}
 		}
 
 		public float GetElevationAtCellUnchecked(int x, int y)
 		{
-			return Data[x, y];
+			return data[x, y];
 		}
 
 		public float GetElevationAtCellClamped(int x, int y)
 		{
 			x = MathUtils.Clamp(x, 0, CellCountX - 1);
 			y = MathUtils.Clamp(y, 0, CellCountY - 1);
-			return Data[x, y];
+			return data[x, y];
 		}
 
 		public float GetElevationAtCellInterpolated(float x, float y)
@@ -264,14 +298,19 @@ namespace TerrainFactory
 			y2 = MathUtils.Clamp(y2, 0, CellCountY - 1);
 			float wx = x - x1;
 			float wy = y - y1;
-			float vx1 = MathUtils.Lerp(GetElevationAtCell(x1, y1), GetElevationAtCell(x2, y1), wx);
-			float vx2 = MathUtils.Lerp(GetElevationAtCell(x1, y2), GetElevationAtCell(x2, y2), wx);
-			return MathUtils.Lerp(vx1, vx2, wy);
+			float vx1 = LerpElevation(GetElevationAtCell(x1, y1), GetElevationAtCell(x2, y1), wx);
+			float vx2 = LerpElevation(GetElevationAtCell(x1, y2), GetElevationAtCell(x2, y2), wx);
+			return LerpElevation(vx1, vx2, wy);
 		}
 
 		public float GetElevationAtNormalizedPos(float rx, float ry)
 		{
 			return GetElevationAtCellInterpolated(rx * (CellCountX - 1), ry * (CellCountY - 1));
+		}
+
+		public bool IsNodataAtCell(int x, int y)
+		{
+			return IsNoData(GetElevationAtCell(x, y));
 		}
 
 		public float[,] GetCellRange(Bounds bounds)
@@ -281,10 +320,20 @@ namespace TerrainFactory
 			{
 				for(int y = 0; y < bounds.NumRows; y++)
 				{
-					newdata[x, y] = Data[bounds.xMin + x, bounds.yMin + y];
+					newdata[x, y] = data[bounds.xMin + x, bounds.yMin + y];
 				}
 			}
 			return newdata;
+		}
+
+		private static float LerpElevation(float a, float b, float t)
+		{
+			bool aIsNaN = float.IsNaN(a);
+			bool bIsNaN = float.IsNaN(b);
+			if(aIsNaN && bIsNaN) return NODATA_VALUE;
+			if(bIsNaN && t <= 0.5f) return a;
+			if(aIsNaN && t > 0.5f) return b;
+			return MathUtils.Lerp(a, b, t);
 		}
 
 		#endregion

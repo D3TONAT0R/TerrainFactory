@@ -26,8 +26,8 @@ namespace TerrainFactory.Modification {
 			if(newLow == 0 && newHigh == 0) {
 				data.RecalculateElevationRange(true);
 			} else {
-				data.OverrideLowPoint = newLow;
-				data.OverrideHighPoint = newHigh;
+				data.CustomBlackPoint = newLow;
+				data.CustomWhitePoint = newHigh;
 				data.RecalculateElevationRange(false);
 			}
 		}

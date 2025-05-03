@@ -20,7 +20,6 @@ namespace TerrainFactory.Commands
 			Console.WriteLine($"Dimensions: {d.CellCountX * d.CellSize} x {d.CellCountY * d.CellSize}");
 			Console.WriteLine($"Lower Corner Pos: {d.LowerCornerPosition.X}, {d.LowerCornerPosition.Y}");
 			Console.WriteLine($"Lowest/Highest: {d.MinElevation} / {d.MaxElevation}");
-			Console.WriteLine($"Nodata Value: {d.NoDataValue}");
 			return true;
 		}
 

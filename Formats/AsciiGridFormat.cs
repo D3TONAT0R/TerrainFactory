@@ -10,6 +10,8 @@ namespace TerrainFactory.Formats
 {
 	public class AsciiGridFormat : FileFormat
 	{
+		public const float DEFAULT_NODATA_VALUE = -9999f;
+
 		public override string Identifier => "ASC";
 		public override string ReadableName => "ESRI ASCII Grid";
 		public override string CommandKey => "asc";
@@ -35,9 +37,10 @@ namespace TerrainFactory.Formats
 					writer.WriteLine($"xllcorner    {task.data.LowerCornerPosition.X}");
 					writer.WriteLine($"yllcorner    {task.data.LowerCornerPosition.Y}");
 					writer.WriteLine($"cellsize     {task.data.CellSize}");
-					writer.WriteLine($"NODATA_value {task.data.NoDataValue}");
-					var grid = task.data.GetDataGrid();
+					float nodataValue = task.settings.nodataValue ?? DEFAULT_NODATA_VALUE;
+					writer.WriteLine($"NODATA_value {nodataValue}");
 
+					var grid = task.data.GetDataGrid();
 					string format = "";
 					int mostZeros = Math.Max(Math.Abs((int)task.data.MaxElevation).ToString().Length, Math.Abs((int)task.data.MinElevation).ToString().Length);
 					for(int i = 0; i < mostZeros; i++)

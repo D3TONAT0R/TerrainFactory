@@ -29,8 +29,8 @@ namespace TerrainFactory.Modification {
 
 		protected override void ModifyData(ElevationData data) {
 
-			float lowPoint = srcLow ?? data.LowPoint;
-			float highPoint = srcHigh ?? data.HighPoint;
+			float lowPoint = srcLow ?? data.GrayscaleRange.Min;
+			float highPoint = srcHigh ?? data.GrayscaleRange.Max;
 			float oldRange = highPoint - lowPoint;
 			float newRange = newHigh - newLow;
 
@@ -45,8 +45,8 @@ namespace TerrainFactory.Modification {
 				}
 			}
 
-			data.OverrideLowPoint = lowPoint;
-			data.OverrideHighPoint = highPoint;
+			data.CustomBlackPoint = lowPoint;
+			data.CustomWhitePoint = highPoint;
 			data.RecalculateElevationRange(false);
 		}
 	}

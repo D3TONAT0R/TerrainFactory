@@ -28,7 +28,6 @@ namespace TerrainFactory.Formats
 					writer.Write(data.LowerCornerPosition.X);
 					writer.Write(data.LowerCornerPosition.Y);
 					writer.Write(data.CellSize);
-					writer.Write(data.NoDataValue);
 					writer.Write(data.MinElevation);
 					writer.Write(data.MaxElevation);
 					var grid = data.GetDataGrid();
@@ -60,7 +59,6 @@ namespace TerrainFactory.Formats
 					float lowerX = reader.ReadSingle();
 					float lowerY = reader.ReadSingle();
 					float cellSize = reader.ReadSingle();
-					float noDataValue = reader.ReadSingle();
 					float[,] grid = new float[cellCountX, cellCountY];
 					for(int y = cellCountY - 1; y >= 0; y--)
 					{
@@ -71,8 +69,7 @@ namespace TerrainFactory.Formats
 					}
 					var data = new ElevationData(grid, cellSize)
 					{
-						LowerCornerPosition = new Vector2(lowerX, lowerY),
-						NoDataValue = noDataValue,
+						LowerCornerPosition = new Vector2(lowerX, lowerY)
 					};
 					data.RecalculateElevationRange(true);
 					return data;

@@ -24,14 +24,13 @@ namespace TerrainFactory.Formats
 			fileContents.AppendLine("xll_corner    " + task.data.LowerCornerPosition.X);
 			fileContents.AppendLine("yll_corner    " + task.data.LowerCornerPosition.Y);
 			fileContents.AppendLine("cell_size     " + task.data.CellSize);
-			fileContents.AppendLine("nodata_value  " + task.data.NoDataValue);
 			File.WriteAllText(path, fileContents.ToString());
 			return true;
 		}
 
 		public override void ModifyFileName(ExportTask task, FileNameBuilder nameBuilder)
 		{
-			nameBuilder.suffix = "geodata";
+			nameBuilder.suffix = "metadata";
 		}
 	}
 }

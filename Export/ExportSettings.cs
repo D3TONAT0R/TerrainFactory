@@ -8,15 +8,13 @@ namespace TerrainFactory.Export {
 	public class ExportSettings {
 
 		public int splitInterval = -1;
+		public float? nodataValue = null;
 
 		private readonly Dictionary<string, object> customSettings = new Dictionary<string, object>();
 
-		public void SetCustomSetting<T>(string key, T value) {
-			if(customSettings.ContainsKey(key)) {
-				customSettings[key] = value;
-			} else {
-				customSettings.Add(key, value);
-			}
+		public void SetCustomSetting<T>(string key, T value)
+		{
+			customSettings[key] = value;
 		}
 
 		public void RemoveCustomSetting(string key)

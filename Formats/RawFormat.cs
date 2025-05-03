@@ -26,8 +26,8 @@ namespace TerrainFactory.Formats
 			{
 				for(int x = 0; x < data.CellCountX; x++)
 				{
-					float height = data.GetElevationAtCell(x, y);
-					float height01 = MathUtils.Clamp01(MathUtils.InverseLerp(data.LowPoint, data.HighPoint, height));
+					float height = data.GetElevationAtCellUnchecked(x, y);
+					float height01 = data.GrayscaleRange.InverseLerpClamped(height);
 					byte[] bytes;
 					if(byteCount > 2)
 					{
