@@ -20,7 +20,7 @@ namespace TerrainFactory {
 			{
 				throw new InvalidOperationException("Already initialized.");
 			}
-			FileFormatManager.RegisterStandardFormats();
+			FileFormatRegistry.RegisterStandardFormats();
 			foreach(var moduleLoc in ModuleDirectories)
 			{
 				ModuleLoader.LoadModules(moduleLoc);

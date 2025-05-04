@@ -53,7 +53,7 @@ namespace TerrainFactory.Export
 			FileFormat[] ffs = new FileFormat[formatTypes.Length];
 			for (int i = 0; i < ffs.Length; i++)
 			{
-				ffs[i] = FileFormat.GetFromType(formatTypes[i]);
+				ffs[i] = FileFormat.GetByType(formatTypes[i]);
 			}
 			return ExportAs(heightData, settings, filename, ffs);
 		}

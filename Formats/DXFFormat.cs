@@ -13,7 +13,7 @@ namespace TerrainFactory.Formats
 	{
 		public override string Identifier => "DXF";
 		public override string ReadableName => "AutoCAD DXF Drawing";
-		public override string CommandKey => "dxf";
+		public override string Command => "dxf";
 		public override string Description => ReadableName;
 		public override string Extension => "dxf";
 		public override FileSupportFlags SupportedActions => FileSupportFlags.Export;

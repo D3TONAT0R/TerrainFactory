@@ -46,7 +46,7 @@ namespace TerrainFactory
 				if(Files.Count > 0)
 				{
 					CurrentIndex = 0;
-					Current = ImportManager.ImportFile(Files[CurrentIndex]);
+					Current = ElevationData.FromFile(Files[CurrentIndex]);
 				}
 				else
 				{
@@ -59,7 +59,7 @@ namespace TerrainFactory
 				if(CurrentIndex + 1 < Files.Count)
 				{
 					CurrentIndex++;
-					Current = ImportManager.ImportFile(Files[CurrentIndex]);
+					Current = ElevationData.FromFile(Files[CurrentIndex]);
 				}
 				else
 				{
@@ -91,7 +91,7 @@ namespace TerrainFactory
 				try
 				{
 					string path = ExtractArgs(Files[CurrentIndex], out var importArgs);
-					var importedData = ImportManager.ImportFile(path.Replace("\"", ""), importArgs);
+					var importedData = ElevationData.FromFile(path.Replace("\"", ""), importArgs);
 					if(importedData == null)
 					{
 						throw new IOException("Unsupported file type: " + ext);

@@ -7,11 +7,11 @@ using System.Text;
 
 namespace TerrainFactory.Formats
 {
-	public class GeoMetadataFormat : FileFormat
+	public class ElevationMetadataFormat : FileFormat
 	{
 		public override string Identifier => "GEO_META";
 		public override string ReadableName => "Geo Metadata";
-		public override string CommandKey => "meta";
+		public override string Command => "meta";
 		public override string Description => ReadableName;
 		public override string Extension => "txt";
 		public override FileSupportFlags SupportedActions => FileSupportFlags.Export;
@@ -24,6 +24,8 @@ namespace TerrainFactory.Formats
 			fileContents.AppendLine("xll_corner    " + task.data.LowerCornerPosition.X);
 			fileContents.AppendLine("yll_corner    " + task.data.LowerCornerPosition.Y);
 			fileContents.AppendLine("cell_size     " + task.data.CellSize);
+			fileContents.AppendLine("min_elevation " + task.data.MinElevation);
+			fileContents.AppendLine("max_elevation " + task.data.MaxElevation);
 			File.WriteAllText(path, fileContents.ToString());
 			return true;
 		}

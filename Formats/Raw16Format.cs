@@ -10,7 +10,7 @@ namespace TerrainFactory.Formats
 	{
 		public override string Identifier => "R16";
 		public override string ReadableName => "16 Bit Raw Data";
-		public override string CommandKey => "r16";
+		public override string Command => "r16";
 		public override string Description => ReadableName;
 		public override string Extension => "r16";
 		public override FileSupportFlags SupportedActions => FileSupportFlags.Export;

@@ -10,7 +10,7 @@ namespace TerrainFactory.Formats
 	{
 		public override string Identifier => "XYZ";
 		public override string ReadableName => "Text-based XYZ point array";
-		public override string CommandKey => "xyz";
+		public override string Command => "xyz";
 		public override string Description => ReadableName;
 		public override string Extension => "xyz";
 		public override FileSupportFlags SupportedActions => FileSupportFlags.Export;

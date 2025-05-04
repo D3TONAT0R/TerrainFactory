@@ -10,7 +10,7 @@ namespace TerrainFactory.Formats
 
 		public override string Identifier => "EDG";
 		public override string ReadableName => "Elevation Data Grid";
-		public override string CommandKey => "edg";
+		public override string Command => "edg";
 		public override string Description => "TerrainFactory Elevation Data in binary";
 		public override string Extension => "edg";
 		public override FileSupportFlags SupportedActions => FileSupportFlags.ImportAndExport;

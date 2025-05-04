@@ -10,7 +10,7 @@ namespace TerrainFactory.Formats
 	{
 		public override string Identifier => "R32";
 		public override string ReadableName => "32 Bit Raw Data";
-		public override string CommandKey => "r32";
+		public override string Command => "r32";
 		public override string Description => ReadableName;
 		public override string Extension => "r32";
 

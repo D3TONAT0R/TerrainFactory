@@ -1,5 +1,7 @@
 using System;
+using System.IO;
 using System.Numerics;
+using TerrainFactory.Formats;
 using TerrainFactory.Util;
 
 namespace TerrainFactory
@@ -115,6 +117,29 @@ namespace TerrainFactory
 		{
 			data = (float[,])original.data.Clone();
 			original.CopyAllPropertiesTo(this);
+		}
+
+		public static ElevationData FromFile(string path, params string[] args)
+		{
+			var format = FileFormat.GetFromFileName(path);
+			if(format != null)
+			{
+				var data = format.Import(path, args);
+				data.RecalculateElevationRange(false);
+				return data;
+			}
+			else
+			{
+				throw new NotSupportedException($"Unknown or unsupported format: '{Path.GetExtension(path)}'");
+			}
+		}
+
+		public static ElevationData FromFile<T>(string path, params string[] args) where T : FileFormat
+		{
+			var format = FileFormat.Get<T>();
+			var data = format.Import(path, args);
+			data.RecalculateElevationRange(false);
+			return data;
 		}
 
 		public static bool IsNoData(float value)

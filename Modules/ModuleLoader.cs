@@ -43,7 +43,7 @@ namespace TerrainFactory
 							module.Initialize();
 							foreach(var f in module.SupportedFormats)
 							{
-								FileFormatManager.RegisterFormat(f);
+								FileFormatRegistry.RegisterFormat(f);
 								hasImporter |= f.HasImporter;
 								hasExporter |= f.HasExporter;
 							}

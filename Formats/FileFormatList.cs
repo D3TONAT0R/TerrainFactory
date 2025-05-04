@@ -1,9 +1,7 @@
-﻿using TerrainFactory.Formats;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace TerrainFactory.Formats
 {
@@ -47,7 +45,7 @@ namespace TerrainFactory.Formats
 
 		public void AddFormat(Type formatType)
 		{
-			AddFormat(FileFormat.GetFromType(formatType));
+			AddFormat(FileFormat.GetByType(formatType));
 		}
 
 		public void AddFormats(IEnumerable<Type> formats)

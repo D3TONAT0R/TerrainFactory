@@ -3,6 +3,7 @@ using TerrainFactory.Import;
 using TerrainFactory.Util;
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace TerrainFactory.Formats
@@ -30,7 +31,7 @@ namespace TerrainFactory.Formats
 		/// <summary>
 		/// Input string for selecting this format when entering commands.
 		/// </summary>
-		public abstract string CommandKey { get; }
+		public abstract string Command { get; }
 		/// <summary>
 		/// A short description about this format.
 		/// </summary>
@@ -44,29 +45,66 @@ namespace TerrainFactory.Formats
 		public bool HasImporter => SupportedActions.HasFlag(FileSupportFlags.Import);
 		public bool HasExporter => SupportedActions.HasFlag(FileSupportFlags.Export);
 
-		public static FileFormat GetFromIdentifier(string identifier)
+		public static T Get<T>() where T : FileFormat
 		{
-			return FileFormatManager.GetFormatFromIdentifier(identifier);
+			try
+			{
+				return FileFormatRegistry.availableFormats.First(f => f.GetType() == typeof(T)) as T;
+			}
+			catch(InvalidOperationException)
+			{
+				throw new InvalidOperationException($"File format '{typeof(T).Name}' is not registered.");
+			}
 		}
 
-		public static FileFormat GetFromCommandInput(string key)
+		public static FileFormat GetByType(Type type)
 		{
-			return FileFormatManager.GetFormatFromCommandKey(key);
+			try
+			{
+				return FileFormatRegistry.availableFormats.First(f => f.GetType() == type);
+			}
+			catch(InvalidOperationException)
+			{
+				throw new InvalidOperationException($"File format '{type.Name}' is not registered.");
+			}
+		}
+
+		public static FileFormat GetById(string identifier)
+		{
+			return FileFormatRegistry.availableFormats.FirstOrDefault(f => string.Equals(f.Identifier, identifier, StringComparison.OrdinalIgnoreCase));
+		}
+
+		public static FileFormat GetFromCommandInput(string input)
+		{
+			return FileFormatRegistry.availableFormats.FirstOrDefault(f => string.Equals(f.Command, input, StringComparison.OrdinalIgnoreCase));
 		}
 
 		public static FileFormat GetFromFileName(string filename)
 		{
-			return FileFormatManager.GetFormatByFileName(filename);
+			var ext = Path.GetExtension(filename);
+			if(ext.Length > 0)
+			{
+				return GetFromExtension(ext);
+			}
+			else
+			{
+				throw new InvalidOperationException("Unable to determine file format: Filename does not have an extension.");
+			}
 		}
 
-		public static FileFormat GetFromExtension(string ext)
+		public static FileFormat GetFromExtension(string extension)
 		{
-			return FileFormatManager.GetFormatByExtension(ext);
+			if(extension.StartsWith("."))
+			{
+				extension = extension.Substring(1);
+			}
+			return FileFormatRegistry.availableFormats.FirstOrDefault(f => string.Equals(f.Command, extension, StringComparison.OrdinalIgnoreCase));
 		}
 
-		public static FileFormat GetFromType(Type type)
+		public static bool IsImportSupported(string path)
 		{
-			return FileFormatManager.GetFormatFromType(type);
+			var format = GetFromFileName(path);
+			return format != null && format.HasImporter;
 		}
 
 		public ElevationData Import(string importPath, params string[] args)

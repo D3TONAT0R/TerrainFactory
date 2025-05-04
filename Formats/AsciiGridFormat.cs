@@ -14,7 +14,7 @@ namespace TerrainFactory.Formats
 
 		public override string Identifier => "ASC";
 		public override string ReadableName => "ESRI ASCII Grid";
-		public override string CommandKey => "asc";
+		public override string Command => "asc";
 		public override string Description => ReadableName;
 		public override string Extension => "asc";
 		public override FileSupportFlags SupportedActions => FileSupportFlags.ImportAndExport;
